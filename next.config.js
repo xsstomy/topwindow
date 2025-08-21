@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   trailingSlash: true,
   images: {
     unoptimized: true
@@ -10,6 +9,17 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: false
+  },
+  
+  // 添加重定向规则
+  async redirects() {
+    return [
+      {
+        source: '/auth',
+        destination: '/auth/login',
+        permanent: true
+      }
+    ]
   }
 }
 
