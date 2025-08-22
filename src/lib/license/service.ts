@@ -1,6 +1,7 @@
 // 许可证业务逻辑服务
 import { createClient } from '@supabase/supabase-js'
 import { generateLicenseKey } from './generator'
+import { EmailService } from '@/lib/email/service'
 import type { 
   GenerateLicenseParams, 
   LicenseGenerationResult,
@@ -85,6 +86,25 @@ export class LicenseService {
       }
 
       console.log(`License generated successfully: ${licenseKey} for user ${userId}`)
+
+      // 获取用户信息用于发送邮件
+      const { data: user, error: userError } = await supabase.auth.admin.getUserById(userId)
+      
+      if (userError || !user) {
+        console.warn(`Could not fetch user info for license email: ${userId}`)
+      } else {
+        // 异步发送许可证邮件，不阻塞许可证生成
+        this.sendLicenseEmailAsync({
+          userEmail: user.user.email!,
+          userName: user.user.user_metadata?.full_name || user.user.email!,
+          licenseKey,
+          productName: product.name,
+          activationLimit: product.activation_limit || 3
+        }).catch(emailError => {
+          console.error('Failed to send license email:', emailError)
+          // 邮件发送失败不应影响许可证生成流程
+        })
+      }
 
       return {
         license_key: licenseKey,
@@ -457,6 +477,173 @@ export class LicenseService {
       }
     }
   }
+
+  /**
+   * 异步发送许可证邮件
+   */
+  private static async sendLicenseEmailAsync(params: {
+    userEmail: string
+    userName: string
+    licenseKey: string
+    productName: string
+    activationLimit: number
+  }): Promise<void> {
+    try {
+      const result = await EmailService.sendLicenseEmail(params)
+      
+      if (result.success) {
+        console.log(`License email sent successfully to ${params.userEmail}, Message ID: ${result.messageId}`)
+      } else {
+        console.error(`License email send failed: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('License email send error:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 手动重发许可证邮件
+   */
+  static async resendLicenseEmail(
+    licenseKey: string,
+    userId: string
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      // 验证许可证存在且属于用户
+      const license = await this.getLicenseDetails(licenseKey)
+      if (!license || license.user_id !== userId) {
+        return {
+          success: false,
+          message: 'License not found or access denied'
+        }
+      }
+
+      // 获取用户信息
+      const { data: user, error: userError } = await supabase.auth.admin.getUserById(userId)
+      if (userError || !user) {
+        return {
+          success: false,
+          message: 'User information not found'
+        }
+      }
+
+      // 获取产品信息
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', license.product_id)
+        .single()
+
+      if (productError || !product) {
+        return {
+          success: false,
+          message: 'Product information not found'
+        }
+      }
+
+      // 发送邮件
+      const result = await EmailService.sendLicenseEmail({
+        userEmail: user.user.email!,
+        userName: user.user.user_metadata?.full_name || user.user.email!,
+        licenseKey,
+        productName: product.name,
+        activationLimit: license.activation_limit
+      })
+
+      if (result.success) {
+        console.log(`License email resent successfully: ${licenseKey} to ${user.user.email}`)
+        return {
+          success: true,
+          message: 'License email sent successfully'
+        }
+      } else {
+        return {
+          success: false,
+          message: `Failed to send email: ${result.error}`
+        }
+      }
+
+    } catch (error) {
+      console.error('Resend license email error:', error)
+      return {
+        success: false,
+        message: 'Failed to resend license email'
+      }
+    }
+  }
+
+  /**
+   * 批量发送许可证邮件（用于数据恢复或批量操作）
+   */
+  static async batchSendLicenseEmails(
+    userId: string,
+    options: { 
+      resendAll?: boolean,
+      licenseKeys?: string[]
+    } = {}
+  ): Promise<{
+    success: number
+    failed: number
+    details: Array<{ licenseKey: string; success: boolean; error?: string }>
+  }> {
+    try {
+      const userLicenses = await this.getUserLicenses(userId)
+      
+      let targetLicenses = userLicenses
+      if (options.licenseKeys) {
+        targetLicenses = userLicenses.filter(license => 
+          options.licenseKeys!.includes(license.license_key)
+        )
+      }
+
+      const results = {
+        success: 0,
+        failed: 0,
+        details: [] as Array<{ licenseKey: string; success: boolean; error?: string }>
+      }
+
+      for (const license of targetLicenses) {
+        try {
+          const result = await this.resendLicenseEmail(license.license_key, userId)
+          
+          if (result.success) {
+            results.success++
+            results.details.push({
+              licenseKey: license.license_key,
+              success: true
+            })
+          } else {
+            results.failed++
+            results.details.push({
+              licenseKey: license.license_key,
+              success: false,
+              error: result.message
+            })
+          }
+
+          // 添加延迟以避免邮件服务限流
+          await new Promise(resolve => setTimeout(resolve, 1000))
+
+        } catch (error) {
+          results.failed++
+          results.details.push({
+            licenseKey: license.license_key,
+            success: false,
+            error: error.message
+          })
+        }
+      }
+
+      console.log(`Batch license email send completed: ${results.success} success, ${results.failed} failed`)
+      
+      return results
+
+    } catch (error) {
+      console.error('Batch send license emails error:', error)
+      throw error
+    }
+  }
 }
 
 // 便捷函数导出
@@ -468,7 +655,9 @@ export const {
   getUserLicenses,
   getLicenseDevices,
   renameDevice,
-  revokeDevice
+  revokeDevice,
+  resendLicenseEmail,
+  batchSendLicenseEmails
 } = LicenseService
 
 // TESTING-GUIDE: 需覆盖用例
