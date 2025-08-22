@@ -2,6 +2,7 @@
 import { PaymentService } from '../service'
 import { PaymentProviderFactory } from '../providers'
 import { EmailService } from '@/lib/email/service'
+import { getProductPricing } from '@/config/pricing'
 import type { CreateSessionParams, PaymentRecord } from '@/types/payment'
 
 // 模拟测试数据
@@ -11,13 +12,15 @@ const mockUser = {
   user_metadata: { full_name: 'Test User' }
 }
 
+// 从价格配置获取测试产品数据
+const productPricing = getProductPricing('topwindow-license')!
 const mockProduct = {
-  id: 'topwindow-license',
-  name: 'TopWindow License',
-  price: 29.99,
-  currency: 'USD',
-  activation_limit: 3,
-  features: ['永久使用权', '支持3台设备', '免费更新']
+  id: productPricing.id,
+  name: productPricing.name,
+  price: productPricing.price,
+  currency: productPricing.currency,
+  activation_limit: productPricing.activationLimit,
+  features: productPricing.features
 }
 
 const mockPayment: PaymentRecord = {
@@ -26,7 +29,7 @@ const mockPayment: PaymentRecord = {
   payment_provider: 'creem',
   provider_payment_id: null,
   provider_session_id: 'session-test-123',
-  amount: 29.99,
+  amount: mockProduct.price,
   currency: 'USD',
   status: 'pending',
   product_info: {
@@ -186,7 +189,7 @@ describe('Payment System Integration Tests', () => {
         data: {
           session_id: 'session-test-123',
           payment_id: 'payment-test-123',
-          amount: 29.99,
+          amount: mockProduct.price,
           currency: 'USD',
           status: 'completed',
           metadata: {

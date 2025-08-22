@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { XCircle, ArrowLeft, CreditCard, HelpCircle, Mail } from 'lucide-react'
+import { formatPrice, TOPWINDOW_LICENSE_PRICE } from '@/config/pricing'
 import Link from 'next/link'
 
 interface PaymentCancelData {
@@ -282,7 +283,7 @@ export default function PaymentCancelPage() {
                 onClick={handleRetryPayment}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-medium transition-all transform hover:scale-105"
               >
-                立即购买 - 仅需 $29.99
+                立即购买 - 仅需 {formatPrice(TOPWINDOW_LICENSE_PRICE)}
               </button>
             </div>
           </div>

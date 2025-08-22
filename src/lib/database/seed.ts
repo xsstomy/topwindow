@@ -1,41 +1,23 @@
 // 数据库种子数据脚本
 import { supabase } from '@/lib/supabase/client'
+import { PRODUCT_PRICES } from '@/config/pricing'
 
 export async function seedProducts() {
-  const products = [
-    {
-      id: 'topwindow-basic',
-      name: 'TopWindow Basic',
-      description: 'TopWindow 基础版许可证，支持单台设备使用',
-      price: 19.99,
-      currency: 'USD',
-      license_type: 'basic',
-      activation_limit: 1,
-      features: JSON.stringify([
-        '永久使用权',
-        '支持1台设备',
-        '基础技术支持',
-        '30天退款保证'
-      ]),
-      is_active: true
-    },
-    {
-      id: 'topwindow-pro',
-      name: 'TopWindow Pro',
-      description: 'TopWindow 专业版许可证，支持多台设备使用',
-      price: 29.99,
-      currency: 'USD',
-      license_type: 'professional',
-      activation_limit: 3,
-      features: JSON.stringify([
-        '永久使用权',
-        '支持3台设备',
-        '免费更新',
-        '优先技术支持',
-        '30天退款保证'
-      ]),
-      is_active: true
-    },
+  // 从价格配置生成种子数据
+  const products = Object.values(PRODUCT_PRICES).map(pricing => ({
+    id: pricing.id,
+    name: pricing.name,
+    description: pricing.description,
+    price: pricing.price,
+    currency: pricing.currency,
+    license_type: pricing.id === 'topwindow-basic' ? 'basic' : 'professional',
+    activation_limit: pricing.activationLimit,
+    features: JSON.stringify(pricing.features),
+    is_active: pricing.isActive
+  }))
+
+  // 添加额外的团队版产品（如果需要）
+  const additionalProducts = [
     {
       id: 'topwindow-team',
       name: 'TopWindow Team',
@@ -56,9 +38,12 @@ export async function seedProducts() {
     }
   ]
 
+  // 合并所有产品数据
+  const allProducts = [...products, ...additionalProducts]
+
   console.log('🌱 开始插入产品数据...')
 
-  for (const product of products) {
+  for (const product of allProducts) {
     try {
       // 检查产品是否已存在
       const { data: existing, error: checkError } = await supabase

@@ -1,0 +1,262 @@
+'use client'
+
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { usePayment, useProductInfo } from '@/hooks/usePayment'
+import { PaymentSelectorProps } from '@/types/payment-ui'
+import PaymentUIService from '@/lib/payment/ui-service'
+import { CreditCard, Shield, Zap, Check, AlertCircle, Loader2 } from 'lucide-react'
+import PaymentOptionCard from './PaymentOptionCard'
+import PricingDisplay from './PricingDisplay'
+import FeatureList from './FeatureList'
+
+export default function PaymentSelector({ 
+  productId, 
+  onPaymentStart, 
+  onPaymentSuccess, 
+  onPaymentCancel,
+  className = '',
+  showComparison = true 
+}: PaymentSelectorProps) {
+  const { user, loading: paymentLoading, error: paymentError, createPaymentSession } = usePayment()
+  const { product, loading: productLoading, error: productError } = useProductInfo(productId)
+  const [selectedProvider, setSelectedProvider] = useState<'creem' | 'paddle'>('creem')
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const paymentOptions = PaymentUIService.getPaymentOptions()
+
+  const handlePurchase = async () => {
+    if (!user) {
+      alert('请先登录后再购买')
+      return
+    }
+
+    if (!product) {
+      alert('产品信息加载中，请稍后重试')
+      return
+    }
+
+    setIsProcessing(true)
+    onPaymentStart?.()
+
+    try {
+      const session = await createPaymentSession({
+        provider: selectedProvider,
+        productId: product.id,
+        successUrl: `${window.location.origin}/payment/success`,
+        cancelUrl: `${window.location.origin}/payment/cancel`,
+        customerEmail: user.email!
+      })
+
+      // 重定向到支付页面
+      window.location.href = session.sessionUrl
+    } catch (error) {
+      setIsProcessing(false)
+      console.error('Payment session creation failed:', error)
+    }
+  }
+
+  if (productLoading) {
+    return (
+      <div className={`flex items-center justify-center p-12 ${className}`}>
+        <div className="flex items-center gap-3 text-gray-600">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span>加载产品信息中...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (productError || !product) {
+    return (
+      <div className={`bg-red-50 border border-red-200 rounded-2xl p-8 ${className}`}>
+        <div className="flex items-center gap-3 text-red-600">
+          <AlertCircle className="w-6 h-6" />
+          <div>
+            <h3 className="font-semibold">加载失败</h3>
+            <p className="text-sm mt-1">
+              {productError?.message || '无法加载产品信息，请刷新页面重试'}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <motion.div 
+      className={`bg-white/10 backdrop-blur-lg rounded-3xl border border-white/20 shadow-2xl ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <div className="p-8 md:p-12">
+        {/* 产品信息标题 */}
+        <motion.div 
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+            {product.name}
+          </h3>
+          <p className="text-gray-600 text-lg">
+            {product.description}
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* 左侧：价格和功能 */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <PricingDisplay
+              price={product.price}
+              currency={product.currency}
+              features={product.features}
+              className="mb-6"
+            />
+
+            {showComparison && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  购买保障
+                </h4>
+                <div className="space-y-2 text-sm text-blue-800">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-600" />
+                    <span>30天无条件退款保证</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-600" />
+                    <span>一次购买，永久使用</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-600" />
+                    <span>免费技术支持和更新</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-600" />
+                    <span>支持最多 {product.activationLimit} 台设备</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+
+          {/* 右侧：支付方式选择 */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <h4 className="text-xl font-semibold text-gray-900 mb-6">选择支付方式</h4>
+            
+            <div className="space-y-4 mb-6">
+              {paymentOptions.map((option) => (
+                <PaymentOptionCard
+                  key={option.provider}
+                  option={option}
+                  selected={selectedProvider === option.provider}
+                  onSelect={setSelectedProvider}
+                />
+              ))}
+            </div>
+
+            {/* 错误提示 */}
+            {paymentError && (
+              <motion.div 
+                className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                  <span className="text-red-600 text-sm font-medium">
+                    {paymentError.message}
+                  </span>
+                </div>
+              </motion.div>
+            )}
+
+            {/* 购买按钮 */}
+            <motion.button
+              onClick={handlePurchase}
+              disabled={paymentLoading || isProcessing || !user}
+              className="w-full bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 text-lg"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {(paymentLoading || isProcessing) ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  处理中...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-6 h-6" />
+                  立即购买 - ${product.price}
+                </>
+              )}
+            </motion.button>
+
+            {!user && (
+              <p className="text-center text-gray-600 text-sm mt-3">
+                请先登录后再购买
+              </p>
+            )}
+
+            {/* 安全提示 */}
+            <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
+              <Shield className="w-4 h-4" />
+              <span>SSL 加密安全支付</span>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* 信任指标 */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-8 border-t border-white/20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <div className="flex items-center gap-3 text-center md:text-left">
+            <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <Check className="w-6 h-6 text-green-500" />
+            </div>
+            <div>
+              <h5 className="font-semibold text-gray-900">即时激活</h5>
+              <p className="text-gray-600 text-sm">支付成功后立即获得许可证</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 text-center md:text-left">
+            <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <Shield className="w-6 h-6 text-blue-500" />
+            </div>
+            <div>
+              <h5 className="font-semibold text-gray-900">安全保障</h5>
+              <p className="text-gray-600 text-sm">银行级 SSL 加密保护</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 text-center md:text-left">
+            <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <Zap className="w-6 h-6 text-purple-500" />
+            </div>
+            <div>
+              <h5 className="font-semibold text-gray-900">技术支持</h5>
+              <p className="text-gray-600 text-sm">专业团队随时为您服务</p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
+  )
+}
