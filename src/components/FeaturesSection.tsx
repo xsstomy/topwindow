@@ -36,7 +36,7 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="section-padding bg-white">
+    <section id="features" className="section-padding bg-white">
       <div className="container-custom">
         
         {/* 标题区域 */}

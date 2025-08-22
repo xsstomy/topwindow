@@ -1,11 +1,26 @@
-import AuthForm from '@/components/AuthForm'
+'use client'
+
+import { useRouter } from 'next/navigation'
+import AuthFormContainer from '@/components/auth/AuthFormContainer'
+import LoginForm from '@/components/auth/LoginForm'
 import NetworkStatus from '@/components/NetworkStatus'
 
 export default function LoginPage() {
+  const router = useRouter()
+
+  const handleLoginSuccess = () => {
+    router.push('/dashboard')
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <AuthForm mode="login" />
+    <>
+      <AuthFormContainer
+        title="欢迎回来"
+        subtitle="登录您的 TopWindow 账户"
+      >
+        <LoginForm onSuccess={handleLoginSuccess} />
+      </AuthFormContainer>
       <NetworkStatus />
-    </div>
+    </>
   )
 }

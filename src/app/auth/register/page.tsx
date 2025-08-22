@@ -1,11 +1,26 @@
-import AuthForm from '@/components/AuthForm'
+'use client'
+
+import { useRouter } from 'next/navigation'
+import AuthFormContainer from '@/components/auth/AuthFormContainer'
+import RegisterForm from '@/components/auth/RegisterForm'
 import NetworkStatus from '@/components/NetworkStatus'
 
 export default function RegisterPage() {
+  const router = useRouter()
+
+  const handleRegisterSuccess = () => {
+    router.push('/dashboard')
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <AuthForm mode="register" />
+    <>
+      <AuthFormContainer
+        title="创建账户"
+        subtitle="加入 TopWindow，开始管理您的窗口"
+      >
+        <RegisterForm onSuccess={handleRegisterSuccess} />
+      </AuthFormContainer>
       <NetworkStatus />
-    </div>
+    </>
   )
 }

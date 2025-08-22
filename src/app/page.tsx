@@ -2,6 +2,7 @@ import HeroSection from '@/components/HeroSection'
 import FeaturesSection from '@/components/FeaturesSection'
 import DemoSection from '@/components/DemoSection'
 import TestimonialsSection from '@/components/TestimonialsSection'
+import SupportSection from '@/components/SupportSection'
 import CallToActionSection from '@/components/CallToActionSection'
 import Footer from '@/components/Footer'
 
@@ -12,6 +13,7 @@ export default function HomePage() {
       <FeaturesSection />
       <DemoSection />
       <TestimonialsSection />
+      <SupportSection />
       <CallToActionSection />
       <Footer />
     </main>

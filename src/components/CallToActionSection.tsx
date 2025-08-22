@@ -20,7 +20,7 @@ const features = [
 
 export default function CallToActionSection() {
   return (
-    <section className="section-padding bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+    <section id="pricing" className="section-padding bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
       
       {/* 背景装饰 */}
       <div className="absolute inset-0">
