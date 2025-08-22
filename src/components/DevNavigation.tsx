@@ -1,4 +1,4 @@
-// 开发环境导航栏 - 仅在开发模式显示
+// Development environment navigation bar - only shown in dev mode
 'use client'
 
 import Link from 'next/link'
@@ -8,15 +8,15 @@ import { TestTube, Home, User, Key } from 'lucide-react'
 export default function DevNavigation() {
   const pathname = usePathname()
 
-  // 只在开发环境显示
+  // Only show in development environment
   if (process.env.NODE_ENV !== 'development') {
     return null
   }
 
   const navItems = [
-    { href: '/', label: '主页', icon: Home },
-    { href: '/dashboard', label: '仪表板', icon: User },
-    { href: '/test-license', label: 'License 测试', icon: TestTube },
+    { href: '/', label: 'Home', icon: Home },
+    { href: '/dashboard', label: 'Dashboard', icon: User },
+    { href: '/test-license', label: 'License Test', icon: TestTube },
   ]
 
   return (
@@ -24,7 +24,7 @@ export default function DevNavigation() {
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center gap-1">
           <Key className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-medium">开发模式</span>
+          <span className="text-sm font-medium">Dev Mode</span>
         </div>
         
         <nav className="flex items-center gap-4">

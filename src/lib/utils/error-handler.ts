@@ -1,4 +1,4 @@
-// 错误处理和响应工具
+// Error handling and response utilities
 import { NextResponse } from 'next/server'
 
 export interface ApiError {
@@ -22,29 +22,29 @@ export class LicenseError extends Error {
   }
 }
 
-// 预定义的错误类型
+// Predefined error types
 export const ErrorCodes = {
-  // 认证错误
+  // Authentication errors
   UNAUTHORIZED: 'UNAUTHORIZED',
   FORBIDDEN: 'FORBIDDEN',
   
-  // 许可证错误
+  // License errors
   LICENSE_NOT_FOUND: 'LICENSE_NOT_FOUND',
   LICENSE_EXPIRED: 'LICENSE_EXPIRED',
   LICENSE_REVOKED: 'LICENSE_REVOKED',
   LICENSE_INVALID_FORMAT: 'LICENSE_INVALID_FORMAT',
   
-  // 设备错误
+  // Device errors
   DEVICE_NOT_FOUND: 'DEVICE_NOT_FOUND',
   DEVICE_INVALID_FORMAT: 'DEVICE_INVALID_FORMAT',
   DEVICE_ACTIVATION_LIMIT: 'DEVICE_ACTIVATION_LIMIT',
   
-  // 验证错误
+  // Validation errors
   VALIDATION_FAILED: 'VALIDATION_FAILED',
   REQUIRED_FIELD_MISSING: 'REQUIRED_FIELD_MISSING',
   INVALID_INPUT_FORMAT: 'INVALID_INPUT_FORMAT',
   
-  // 系统错误
+  // System errors
   RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
   INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
   DATABASE_ERROR: 'DATABASE_ERROR'
@@ -53,7 +53,7 @@ export const ErrorCodes = {
 export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes]
 
 /**
- * 创建标准化的API错误响应
+ * Create standardized API error response
  */
 export function createErrorResponse(
   error: LicenseError | Error,
@@ -69,7 +69,7 @@ export function createErrorResponse(
       details: error.details
     }
   } else {
-    // 对于未知错误，不暴露具体信息
+    // For unknown errors, don't expose specific information
     console.error('Unexpected error:', error)
     apiError = {
       code: ErrorCodes.INTERNAL_SERVER_ERROR,
@@ -87,33 +87,33 @@ export function createErrorResponse(
 }
 
 /**
- * 处理Supabase错误
+ * Handle Supabase errors
  */
 export function handleSupabaseError(error: any): LicenseError {
-  // Supabase PostgreSQL错误码映射
+  // Supabase PostgreSQL error code mapping
   switch (error.code) {
-    case 'PGRST116': // 记录未找到
+    case 'PGRST116': // Record not found
       return new LicenseError(
         ErrorCodes.LICENSE_NOT_FOUND,
         'License not found',
         404
       )
     
-    case '23505': // 唯一约束违反
+    case '23505': // Unique constraint violation
       return new LicenseError(
         ErrorCodes.VALIDATION_FAILED,
         'Duplicate entry detected',
         409
       )
     
-    case '23503': // 外键约束违反
+    case '23503': // Foreign key constraint violation
       return new LicenseError(
         ErrorCodes.VALIDATION_FAILED,
         'Referenced record does not exist',
         400
       )
     
-    case '42501': // 权限不足
+    case '42501': // Insufficient privileges
       return new LicenseError(
         ErrorCodes.FORBIDDEN,
         'Access denied',
@@ -132,7 +132,7 @@ export function handleSupabaseError(error: any): LicenseError {
 }
 
 /**
- * 验证结果包装器
+ * Validation result wrapper
  */
 export function validateAndThrow<T>(
   validation: { isValid: boolean; errors: string[]; cleanData?: T },
@@ -151,7 +151,7 @@ export function validateAndThrow<T>(
 }
 
 /**
- * 异步错误处理包装器
+ * Async error handling wrapper
  */
 export function withErrorHandling<T extends any[], R>(
   fn: (...args: T) => Promise<R>
@@ -164,12 +164,12 @@ export function withErrorHandling<T extends any[], R>(
         throw error
       }
       
-      // 处理Supabase错误
+      // Handle Supabase errors
       if (error && typeof error === 'object' && 'code' in error) {
         throw handleSupabaseError(error)
       }
       
-      // 未知错误
+      // Unknown error
       console.error('Unhandled error in withErrorHandling:', error)
       throw new LicenseError(
         ErrorCodes.INTERNAL_SERVER_ERROR,
@@ -182,7 +182,7 @@ export function withErrorHandling<T extends any[], R>(
 }
 
 /**
- * 限流错误创建器
+ * Rate limit error creator
  */
 export function createRateLimitError(
   limit: number,
@@ -201,7 +201,7 @@ export function createRateLimitError(
 }
 
 /**
- * 输入验证错误创建器
+ * Input validation error creator
  */
 export function createValidationError(
   field: string,
@@ -216,7 +216,7 @@ export function createValidationError(
 }
 
 /**
- * 许可证状态相关错误创建器
+ * License status related error creator
  */
 export const LicenseErrors = {
   notFound: () => new LicenseError(
@@ -252,7 +252,7 @@ export const LicenseErrors = {
 }
 
 /**
- * 日志记录工具
+ * Logging utility
  */
 export function logError(
   context: string,
@@ -273,10 +273,10 @@ export function logError(
   console.error(`[${context}]`, JSON.stringify(logEntry, null, 2))
 }
 
-// TESTING-GUIDE: 需覆盖用例
-// 1. LicenseError创建和序列化
-// 2. Supabase错误码映射正确性
-// 3. withErrorHandling包装器功能
-// 4. 错误响应格式一致性
-// 5. 开发环境vs生产环境错误详情暴露
-// 6. 限流错误和验证错误的正确创建
+// TESTING-GUIDE: Test cases to cover
+// 1. LicenseError creation and serialization
+// 2. Supabase error code mapping correctness
+// 3. withErrorHandling wrapper functionality
+// 4. Error response format consistency
+// 5. Development vs production environment error details exposure
+// 6. Rate limit and validation error creation correctness

@@ -29,23 +29,23 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   const isLogin = mode === 'login'
 
-  // 如果用户已登录，显示登录成功状态
+  // If user is already logged in, show login success state
   useEffect(() => {
     if (user && isLogin) {
-      console.log('用户已登录，显示成功状态')
-      setSuccess('登录成功！正在跳转...')
+      console.log('User already logged in, showing success state')
+      setSuccess('Login successful! Redirecting...')
       setLoading(false)
       setGoogleLoading(false)
     }
   }, [user, isLogin])
 
-  // 检查 URL 参数中的错误信息
+  // Check for error messages in URL parameters
   useEffect(() => {
     const errorParam = searchParams?.get('error')
     if (errorParam) {
       switch (errorParam) {
         case 'auth_callback_error':
-          setError('认证失败，请重试')
+          setError('Authentication failed, please try again')
           break
         default:
           setError(decodeURIComponent(errorParam))
@@ -53,7 +53,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
     }
   }, [searchParams])
 
-  // 冷却时间倒计时
+  // Cooldown countdown
   useEffect(() => {
     if (cooldownTime > 0) {
       const timer = setTimeout(() => {
@@ -63,16 +63,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
     }
   }, [cooldownTime])
 
-  // 检查操作冷却
+  // Check operation cooldown
   const checkCooldown = () => {
     const now = Date.now()
     const timeSinceLastAttempt = now - lastAttemptTime
-    const requiredCooldown = 3000 // 3秒冷却
+    const requiredCooldown = 3000 // 3 seconds cooldown
 
     if (timeSinceLastAttempt < requiredCooldown) {
       const remainingTime = Math.ceil((requiredCooldown - timeSinceLastAttempt) / 1000)
       setCooldownTime(remainingTime)
-      setError(`请等待 ${remainingTime} 秒后再试`)
+      setError(`Please wait ${remainingTime} seconds before trying again`)
       return false
     }
     return true
@@ -82,7 +82,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
     e.preventDefault()
     if (loading || googleLoading || cooldownTime > 0) return
 
-    // 检查冷却时间
+    // Check cooldown time
     if (!checkCooldown()) return
 
     setLoading(true)
@@ -92,31 +92,31 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
     try {
       if (isLogin) {
-        console.log('开始登录:', formData.email)
+        console.log('Starting login:', formData.email)
         await signIn(formData.email, formData.password)
-        console.log('登录请求完成')
+        console.log('Login request completed')
       } else {
         if (!formData.fullName.trim()) {
-          throw new Error('请输入姓名')
+          throw new Error('Please enter your full name')
         }
         await signUp(formData.email, formData.password, formData.fullName)
-        setSuccess('注册成功！请检查您的邮箱并点击验证链接')
+        setSuccess('Registration successful! Please check your email and click the verification link')
       }
     } catch (err: any) {
-      console.error('认证错误:', err)
-      setError(err.message || '操作失败，请重试')
+      console.error('Authentication error:', err)
+      setError(err.message || 'Operation failed, please try again')
       setLoading(false)
       
-      // 如果是频率限制错误，设置更长的冷却时间
-      if (err.message.includes('请等待')) {
-        const waitMatch = err.message.match(/(\d+) 秒/)
+      // If it's a rate limiting error, set a longer cooldown time
+      if (err.message.includes('Please wait')) {
+        const waitMatch = err.message.match(/(\d+) seconds/)
         if (waitMatch) {
           setCooldownTime(parseInt(waitMatch[1]))
         }
       }
     } finally {
-      // 登录成功时不设置 loading 为 false，让用户看到"正在跳转"状态
-      // 只有在出现错误或注册时才设置 loading 为 false
+      // Don't set loading to false on login success, let user see "redirecting" state
+      // Only set loading to false when error occurs or on registration
       if (!isLogin) {
         setLoading(false)
       }
@@ -126,7 +126,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const handleGoogleLogin = async () => {
     if (loading || googleLoading || cooldownTime > 0) return
     
-    // 检查冷却时间
+    // Check cooldown time
     if (!checkCooldown()) return
     
     setGoogleLoading(true)
@@ -137,8 +137,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
     try {
       await signInWithGoogle()
     } catch (err: any) {
-      console.error('Google 登录错误:', err)
-      setError(err.message || 'Google 登录失败，请重试')
+      console.error('Google login error:', err)
+      setError(err.message || 'Google login failed, please try again')
     } finally {
       setGoogleLoading(false)
     }
@@ -151,13 +151,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
     }))
   }
 
-  // 如果正在认证状态检查中，显示加载
+  // If checking authentication state, show loading
   if (authLoading) {
     return (
       <div className="w-full max-w-md">
         <div className="flex justify-center items-center py-12">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <span className="ml-3 text-gray-600">检查登录状态...</span>
+          <span className="ml-3 text-gray-600">Checking login status...</span>
         </div>
       </div>
     )
@@ -167,10 +167,10 @@ export default function AuthForm({ mode }: AuthFormProps) {
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          {isLogin ? '登录 TopWindow' : '注册 TopWindow'}
+          {isLogin ? 'Login to TopWindow' : 'Sign Up for TopWindow'}
         </h1>
         <p className="mt-2 text-gray-600">
-          {isLogin ? '欢迎回来！请登录您的账户' : '创建您的 TopWindow 账户'}
+          {isLogin ? 'Welcome back! Please login to your account' : 'Create your TopWindow account'}
         </p>
       </div>
 
@@ -194,7 +194,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {!isLogin && (
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-              姓名
+              Full Name
             </label>
             <input
               type="text"
@@ -204,14 +204,14 @@ export default function AuthForm({ mode }: AuthFormProps) {
               onChange={handleChange}
               required={!isLogin}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="请输入您的姓名"
+              placeholder="Please enter your full name"
             />
           </div>
         )}
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            邮箱地址
+            Email Address
           </label>
           <input
             type="email"
@@ -221,13 +221,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
             onChange={handleChange}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="请输入您的邮箱"
+            placeholder="Please enter your email"
           />
         </div>
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            密码
+            Password
           </label>
           <input
             type="password"
@@ -237,7 +237,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             onChange={handleChange}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder={isLogin ? '请输入密码' : '请设置密码（至少6位）'}
+            placeholder={isLogin ? 'Please enter password' : 'Please set password (at least 6 characters)'}
             minLength={6}
           />
         </div>
@@ -250,27 +250,27 @@ export default function AuthForm({ mode }: AuthFormProps) {
           {loading ? (
             <div className="flex items-center justify-center">
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-              {isLogin ? '登录中...' : '注册中...'}
+              {isLogin ? 'Logging in...' : 'Signing up...'}
             </div>
           ) : cooldownTime > 0 ? (
-            `请等待 ${cooldownTime} 秒`
+            `Please wait ${cooldownTime} seconds`
           ) : (
-            isLogin ? '登录' : '注册'
+            isLogin ? 'Login' : 'Sign Up'
           )}
         </button>
       </form>
 
-      {/* 分隔线 */}
+      {/* Divider */}
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-300"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-white px-2 text-gray-500">或使用</span>
+          <span className="bg-white px-2 text-gray-500">or use</span>
         </div>
       </div>
 
-      {/* Google 登录按钮 */}
+      {/* Google Login Button */}
       <button
         type="button"
         onClick={handleGoogleLogin}
@@ -280,7 +280,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {googleLoading ? (
           <div className="flex items-center">
             <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mr-2"></div>
-            Google 登录中...
+            Google Login...
           </div>
         ) : (
           <>
@@ -302,25 +302,25 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 fill="#EA4335"
               />
             </svg>
-            使用 Google 账户{isLogin ? '登录' : '注册'}
+            Sign {isLogin ? 'in' : 'up'} with Google
           </>
         )}
       </button>
 
-      {/* 底部链接 */}
+      {/* Bottom Links */}
       <div className="mt-6 text-center">
         {isLogin ? (
           <p className="text-sm text-gray-600">
-            还没有账户？{' '}
+            Don't have an account?{' '}
             <Link href="/auth/register" className="text-primary hover:text-primary-dark font-medium">
-              立即注册
+              Sign Up Now
             </Link>
           </p>
         ) : (
           <p className="text-sm text-gray-600">
-            已有账户？{' '}
+            Already have an account?{' '}
             <Link href="/auth/login" className="text-primary hover:text-primary-dark font-medium">
-              立即登录
+              Sign In Now
             </Link>
           </p>
         )}
@@ -328,10 +328,10 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
       {!isLogin && (
         <div className="mt-4 text-xs text-gray-500 text-center">
-          注册即表示您同意我们的{' '}
-          <a href="#" className="text-primary hover:text-primary-dark">服务条款</a>{' '}
-          和{' '}
-          <a href="#" className="text-primary hover:text-primary-dark">隐私政策</a>
+          By signing up, you agree to our{' '}
+          <a href="#" className="text-primary hover:text-primary-dark">Terms of Service</a>{' '}
+          and{' '}
+          <a href="#" className="text-primary hover:text-primary-dark">Privacy Policy</a>
         </div>
       )}
     </div>

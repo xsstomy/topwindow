@@ -1,4 +1,4 @@
-// 邮件发送服务
+// Email Service
 import type {
   LicenseEmailParams,
   PaymentConfirmationEmailParams,
@@ -13,7 +13,7 @@ export class EmailService {
   private static readonly apiUrl = 'https://api.resend.com/emails'
 
   /**
-   * 发送许可证邮件
+   * Send license email
    */
   static async sendLicenseEmail(params: LicenseEmailParams): Promise<EmailSendResult> {
     try {
@@ -22,13 +22,13 @@ export class EmailService {
       const emailData = {
         from: this.fromEmail,
         to: [params.userEmail],
-        subject: `🎉 您的 ${params.productName} 许可证已激活`,
+        subject: `🎉 Your ${params.productName} License Has Been Activated`,
         html: emailContent
       }
 
       return await this.sendEmail(emailData)
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Send license email error:', error)
       return {
         success: false,
@@ -38,7 +38,7 @@ export class EmailService {
   }
 
   /**
-   * 发送支付确认邮件
+   * Send payment confirmation email
    */
   static async sendPaymentConfirmationEmail(params: PaymentConfirmationEmailParams): Promise<EmailSendResult> {
     try {
@@ -47,13 +47,13 @@ export class EmailService {
       const emailData = {
         from: this.fromEmail,
         to: [params.userEmail],
-        subject: `💳 支付成功确认 - ${params.productName}`,
+        subject: `💳 Payment Confirmation - ${params.productName}`,
         html: emailContent
       }
 
       return await this.sendEmail(emailData)
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Send payment confirmation email error:', error)
       return {
         success: false,
@@ -63,7 +63,7 @@ export class EmailService {
   }
 
   /**
-   * 发送支付失败通知邮件
+   * Send payment failure notification email
    */
   static async sendPaymentFailureEmail(params: PaymentFailureEmailParams): Promise<EmailSendResult> {
     try {
@@ -72,13 +72,13 @@ export class EmailService {
       const emailData = {
         from: this.fromEmail,
         to: [params.userEmail],
-        subject: `❌ 支付处理失败通知`,
+        subject: `❌ Payment Processing Failed`,
         html: emailContent
       }
 
       return await this.sendEmail(emailData)
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Send payment failure email error:', error)
       return {
         success: false,
@@ -88,20 +88,20 @@ export class EmailService {
   }
 
   /**
-   * 发送测试邮件
+   * Send test email
    */
   static async sendTestEmail(toEmail: string): Promise<EmailSendResult> {
     try {
       const emailData = {
         from: this.fromEmail,
         to: [toEmail],
-        subject: '📧 TopWindow 邮件服务测试',
+        subject: '📧 TopWindow Email Service Test',
         html: this.generateTestEmailHTML()
       }
 
       return await this.sendEmail(emailData)
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Send test email error:', error)
       return {
         success: false,
@@ -113,7 +113,7 @@ export class EmailService {
   // 私有方法
 
   /**
-   * 核心邮件发送方法
+   * Core email sending method
    */
   private static async sendEmail(emailData: {
     from: string
@@ -121,7 +121,7 @@ export class EmailService {
     subject: string
     html: string
   }): Promise<EmailSendResult> {
-    // 如果没有配置 API Key，使用模拟模式
+    // If no API Key is configured, use mock mode
     if (!this.apiKey || this.apiKey === 'mock_key') {
       return this.mockSendEmail(emailData)
     }
@@ -149,7 +149,7 @@ export class EmailService {
         messageId: result.id
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Email sending failed:', error)
       return {
         success: false,
@@ -159,7 +159,7 @@ export class EmailService {
   }
 
   /**
-   * 模拟邮件发送 (用于开发和测试)
+   * Mock email sending (for development and testing)
    */
   private static mockSendEmail(emailData: {
     from: string
@@ -183,16 +183,16 @@ export class EmailService {
   }
 
   /**
-   * 生成许可证邮件 HTML
+   * Generate license email HTML
    */
   private static generateLicenseEmailHTML(params: LicenseEmailParams): string {
     return `
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>您的许可证已激活</title>
+    <title>Your License Has Been Activated</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Roboto, sans-serif;
@@ -341,56 +341,56 @@ export class EmailService {
     <div class="container">
         <div class="header">
             <div class="logo">TopWindow</div>
-            <h1 class="title">🎉 感谢您购买 ${params.productName}！</h1>
+            <h1 class="title">🎉 Thank You for Purchasing ${params.productName}!</h1>
         </div>
         
-        <p>亲爱的 ${params.userName}，</p>
+        <p>Dear ${params.userName},</p>
         
-        <p>您的购买已完成，以下是您的许可证信息：</p>
+        <p>Your purchase has been completed. Here is your license information:</p>
         
         <div class="license-box">
-            <div class="license-label">许可证密钥</div>
+            <div class="license-label">License Key</div>
             <div class="license-key">${params.licenseKey}</div>
         </div>
         
         <div class="info-box">
-            <div class="info-title">🔑 许可证信息</div>
+            <div class="info-title">🔑 License Information</div>
             <ul class="feature-list">
-                <li><strong>产品：</strong>${params.productName}</li>
-                <li><strong>设备限制：</strong>最多 ${params.activationLimit} 台设备</li>
-                <li><strong>有效期：</strong>永久</li>
-                <li><strong>更新：</strong>免费更新</li>
-                <li><strong>技术支持：</strong>优先技术支持</li>
+                <li><strong>Product:</strong>${params.productName}</li>
+                <li><strong>Device Limit:</strong>Up to ${params.activationLimit} devices</li>
+                <li><strong>Validity:</strong>Lifetime</li>
+                <li><strong>Updates:</strong>Free updates</li>
+                <li><strong>Support:</strong>Priority technical support</li>
             </ul>
         </div>
         
         <div class="steps-box">
-            <div class="steps-title">📱 如何激活</div>
+            <div class="steps-title">📱 How to Activate</div>
             <ol class="steps-list">
-                <li>下载并安装 TopWindow 应用</li>
-                <li>打开应用，进入"激活"页面</li>
-                <li>输入您的许可证密钥</li>
-                <li>点击"激活"完成激活</li>
+                <li>Download and install the TopWindow application</li>
+                <li>Open the app and go to the "Activation" page</li>
+                <li>Enter your license key</li>
+                <li>Click "Activate" to complete the activation</li>
             </ol>
         </div>
 
         ${params.downloadUrl ? `
         <div style="text-align: center;">
-            <a href="${params.downloadUrl}" class="download-button">立即下载 TopWindow</a>
+            <a href="${params.downloadUrl}" class="download-button">Download TopWindow Now</a>
         </div>
         ` : ''}
         
         <div class="support-info">
-            <p><strong>需要帮助？</strong></p>
-            <p>如果您在激活过程中遇到任何问题，请随时联系我们的技术支持团队。</p>
-            <p>邮箱：${this.supportEmail}</p>
+            <p><strong>Need Help?</strong></p>
+            <p>If you encounter any issues during activation, please contact our technical support team.</p>
+            <p>Email: ${this.supportEmail}</p>
         </div>
         
-        <p>再次感谢您选择 TopWindow！我们致力于为您提供最佳的窗口管理体验。</p>
+        <p>Thank you again for choosing TopWindow! We are committed to providing you with the best window management experience.</p>
         
         <div class="footer">
-            <p>此邮件由 TopWindow 自动发送，请勿回复。</p>
-            <p>如需帮助，请访问我们的支持中心或发送邮件至 ${this.supportEmail}</p>
+            <p>This email was automatically sent by TopWindow. Please do not reply.</p>
+            <p>For assistance, please visit our support center or email ${this.supportEmail}</p>
             <p>© 2024 TopWindow. All rights reserved.</p>
         </div>
     </div>
@@ -400,18 +400,18 @@ export class EmailService {
   }
 
   /**
-   * 生成支付确认邮件 HTML
+   * Generate payment confirmation email HTML
    */
   private static generatePaymentConfirmationHTML(params: PaymentConfirmationEmailParams): string {
     const formattedAmount = `${params.currency} ${params.amount.toFixed(2)}`
     
     return `
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>支付确认</title>
+    <title>Payment Confirmation</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; }
         .container { background-color: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
@@ -428,39 +428,39 @@ export class EmailService {
     <div class="container">
         <div class="header">
             <div class="logo">✅ TopWindow</div>
-            <h1 class="title">支付成功确认</h1>
+            <h1 class="title">Payment Confirmation</h1>
         </div>
         
-        <p>亲爱的 ${params.userName}，</p>
+        <p>Dear ${params.userName},</p>
         
-        <p>您的支付已成功处理！以下是您的支付详情：</p>
+        <p>Your payment has been successfully processed! Here are your payment details:</p>
         
         <div class="payment-details">
             <div class="detail-row">
-                <span><strong>产品</strong></span>
+                <span><strong>Product</strong></span>
                 <span>${params.productName}</span>
             </div>
             <div class="detail-row">
-                <span><strong>金额</strong></span>
+                <span><strong>Amount</strong></span>
                 <span>${formattedAmount}</span>
             </div>
             <div class="detail-row">
-                <span><strong>支付ID</strong></span>
+                <span><strong>Payment ID</strong></span>
                 <span>${params.paymentId}</span>
             </div>
             <div class="detail-row">
-                <span><strong>状态</strong></span>
-                <span style="color: #28a745; font-weight: bold;">已完成</span>
+                <span><strong>Status</strong></span>
+                <span style="color: #28a745; font-weight: bold;">Completed</span>
             </div>
         </div>
         
-        <p>您的许可证将在几分钟内通过邮件发送给您。请注意查收！</p>
+        <p>Your license will be sent to you via email within minutes. Please check your inbox!</p>
         
-        ${params.invoiceUrl ? `<p><a href="${params.invoiceUrl}" style="color: #0066cc;">点击这里下载发票</a></p>` : ''}
+        ${params.invoiceUrl ? `<p><a href="${params.invoiceUrl}" style="color: #0066cc;">Click here to download invoice</a></p>` : ''}
         
         <div class="footer">
-            <p>此邮件由 TopWindow 自动发送，请勿回复。</p>
-            <p>如需帮助，请联系 ${this.supportEmail}</p>
+            <p>This email was automatically sent by TopWindow. Please do not reply.</p>
+            <p>For assistance, please contact ${this.supportEmail}</p>
         </div>
     </div>
 </body>
@@ -469,16 +469,16 @@ export class EmailService {
   }
 
   /**
-   * 生成支付失败邮件 HTML
+   * Generate payment failure email HTML
    */
   private static generatePaymentFailureHTML(params: PaymentFailureEmailParams): string {
     return `
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>支付失败通知</title>
+    <title>Payment Failure Notification</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; }
         .container { background-color: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
@@ -494,38 +494,38 @@ export class EmailService {
     <div class="container">
         <div class="header">
             <div class="logo">❌ TopWindow</div>
-            <h1 class="title">支付处理失败</h1>
+            <h1 class="title">Payment Processing Failed</h1>
         </div>
         
-        <p>亲爱的 ${params.userName}，</p>
+        <p>Dear ${params.userName},</p>
         
-        <p>很抱歉，您的支付处理过程中出现了问题。</p>
+        <p>We're sorry, but there was a problem processing your payment.</p>
         
         <div class="error-box">
-            <h3 style="color: #721c24; margin-top: 0;">失败原因：</h3>
+            <h3 style="color: #721c24; margin-top: 0;">Failure Reason:</h3>
             <p style="color: #721c24; margin-bottom: 0;">${params.reason}</p>
         </div>
         
-        <p>请不用担心，您可以尝试以下解决方案：</p>
+        <p>Please don't worry, you can try the following solutions:</p>
         
         <ul>
-            <li>检查您的银行卡信息是否正确</li>
-            <li>确认银行卡余额充足</li>
-            <li>联系您的银行确认是否有支付限制</li>
-            <li>尝试使用其他支付方式</li>
+            <li>Check if your card information is correct</li>
+            <li>Confirm that your card has sufficient balance</li>
+            <li>Contact your bank to check for any payment restrictions</li>
+            <li>Try using a different payment method</li>
         </ul>
         
         ${params.retryUrl ? `
         <div style="text-align: center;">
-            <a href="${params.retryUrl}" class="retry-button">重新尝试支付</a>
+            <a href="${params.retryUrl}" class="retry-button">Retry Payment</a>
         </div>
         ` : ''}
         
-        <p>如果问题仍然存在，请联系我们的客服团队，我们将竭诚为您提供帮助。</p>
+        <p>If the problem persists, please contact our customer service team. We are here to help you.</p>
         
         <div class="footer">
-            <p>如需帮助，请联系：${this.supportEmail}</p>
-            ${params.supportUrl ? `<p><a href="${params.supportUrl}">访问帮助中心</a></p>` : ''}
+            <p>For assistance, please contact: ${this.supportEmail}</p>
+            ${params.supportUrl ? `<p><a href="${params.supportUrl}">Visit Help Center</a></p>` : ''}
         </div>
     </div>
 </body>
@@ -534,16 +534,16 @@ export class EmailService {
   }
 
   /**
-   * 生成测试邮件 HTML
+   * Generate test email HTML
    */
   private static generateTestEmailHTML(): string {
     return `
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>邮件服务测试</title>
+    <title>Email Service Test</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .container { background-color: #f8f9fa; border-radius: 8px; padding: 30px; text-align: center; }
@@ -552,9 +552,9 @@ export class EmailService {
 </head>
 <body>
     <div class="container">
-        <h1 class="title">📧 TopWindow 邮件服务测试</h1>
-        <p>如果您收到这封邮件，说明邮件服务配置正确！</p>
-        <p>测试时间：${new Date().toLocaleString('zh-CN')}</p>
+        <h1 class="title">📧 TopWindow Email Service Test</h1>
+        <p>If you received this email, it means the email service is configured correctly!</p>
+        <p>Test time: ${new Date().toLocaleString('en-US')}</p>
     </div>
 </body>
 </html>
@@ -562,7 +562,7 @@ export class EmailService {
   }
 
   /**
-   * 验证邮件配置
+   * Validate email configuration
    */
   static validateConfig(): { isValid: boolean; missingKeys: string[] } {
     const requiredKeys = ['RESEND_API_KEY', 'FROM_EMAIL']
@@ -575,7 +575,7 @@ export class EmailService {
   }
 
   /**
-   * 检查邮件服务健康状态
+   * Check email service health status
    */
   static async checkHealth(): Promise<{
     isHealthy: boolean
@@ -595,7 +595,7 @@ export class EmailService {
         }
       }
 
-      // 如果是模拟模式，直接返回健康状态
+      // If in mock mode, return health status directly
       if (!this.apiKey || this.apiKey === 'mock_key') {
         return {
           isHealthy: true,
@@ -604,14 +604,14 @@ export class EmailService {
         }
       }
 
-      // 在生产环境中，可以发送测试邮件到预设的测试地址
+      // In production environment, can send test email to preset test address
       return {
         isHealthy: true,
         message: 'Email service is healthy',
         responseTime: Date.now() - startTime
       }
 
-    } catch (error) {
+    } catch (error: any) {
       return {
         isHealthy: false,
         message: `Health check failed: ${error.message}`,
@@ -621,7 +621,7 @@ export class EmailService {
   }
 }
 
-// 便捷函数导出
+// Convenience function exports
 export const {
   sendLicenseEmail,
   sendPaymentConfirmationEmail,
@@ -631,8 +631,8 @@ export const {
   checkHealth
 } = EmailService
 
-// TESTING-GUIDE: 需覆盖用例
-// 1. 邮件发送测试 - 成功发送/API错误/网络错误
-// 2. 邮件模板测试 - HTML生成正确性/参数替换/中文编码
-// 3. 模拟模式测试 - 无API密钥时的模拟行为
-// 4. 配置验证测试 - 缺失配置检测/健康检查
+// TESTING-GUIDE: Test cases to cover
+// 1. Email sending tests - successful sending/API errors/network errors
+// 2. Email template tests - HTML generation correctness/parameter substitution/encoding
+// 3. Mock mode tests - behavior without API key
+// 4. Configuration validation tests - missing configuration detection/health checks

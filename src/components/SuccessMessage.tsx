@@ -8,17 +8,17 @@ interface SuccessMessageProps {
 
 export default function SuccessMessage({ message, onDismiss, showNextSteps = false }: SuccessMessageProps) {
   const getNextSteps = () => {
-    if (message.includes('注册成功')) {
+    if (message.includes('Registration successful')) {
       return [
-        '请检查您的邮箱收件箱',
-        '点击邮件中的验证链接',
-        '验证后即可正常登录'
+        'Please check your email inbox',
+        'Click the verification link in the email',
+        'After verification, you can login normally'
       ]
-    } else if (message.includes('密码重置')) {
+    } else if (message.includes('password reset')) {
       return [
-        '请检查您的邮箱',
-        '按照邮件中的指引重置密码',
-        '使用新密码重新登录'
+        'Please check your email',
+        'Follow the instructions in the email to reset your password',
+        'Log in again with your new password'
       ]
     }
     return []
@@ -49,7 +49,7 @@ export default function SuccessMessage({ message, onDismiss, showNextSteps = fal
           
           {showNextSteps && nextSteps.length > 0 && (
             <div className="mt-2 space-y-1">
-              <p className="text-xs font-medium text-green-700">接下来需要：</p>
+              <p className="text-xs font-medium text-green-700">Next steps:</p>
               {nextSteps.map((step, index) => (
                 <div key={index} className="flex items-start">
                   <span className="inline-block w-4 h-4 rounded-full bg-green-100 text-green-600 text-xs flex items-center justify-center mr-2 mt-0.5">

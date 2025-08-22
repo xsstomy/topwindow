@@ -32,7 +32,7 @@ export default function DemoSection() {
     <section className="section-padding bg-gradient-to-br from-gray-light to-blue-50">
       <div className="container-custom">
         
-        {/* 标题区域 */}
+        {/* Title Section */}
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -51,7 +51,7 @@ export default function DemoSection() {
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
-          {/* 左侧：演示视频/动画区域 */}
+          {/* Left: Demo Video/Animation Area */}
           <motion.div 
             className="relative"
             initial={{ opacity: 0, x: -50 }}
@@ -61,17 +61,17 @@ export default function DemoSection() {
           >
             <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden">
               
-              {/* 模拟视频播放器 */}
+              {/* Simulated Video Player */}
               <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center relative">
                 
-                {/* 背景窗口模拟 */}
+                {/* Background Window Simulation */}
                 <div className="absolute inset-4">
                   <div className="w-full h-full bg-gray-800 rounded-lg opacity-50">
                     <div className="h-6 bg-gray-700 rounded-t-lg"></div>
                   </div>
                 </div>
                 
-                {/* 前景窗口模拟 */}
+                {/* Foreground Window Simulation */}
                 <motion.div 
                   className="absolute inset-8 bg-white rounded-lg shadow-lg z-10"
                   animate={isPlaying ? { 
@@ -99,7 +99,7 @@ export default function DemoSection() {
                     </div>
                   </div>
                   
-                  {/* 置顶指示器 */}
+                  {/* Pin Indicator */}
                   {isPlaying && (
                     <motion.div 
                       className="absolute -top-2 -right-2 bg-primary text-white p-1 rounded-full text-xs"
@@ -112,7 +112,7 @@ export default function DemoSection() {
                   )}
                 </motion.div>
                 
-                {/* 播放按钮 */}
+                {/* Play Button */}
                 {!isPlaying && (
                   <motion.button
                     className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm"
@@ -126,7 +126,7 @@ export default function DemoSection() {
                   </motion.button>
                 )}
                 
-                {/* 快捷键提示 */}
+                {/* Keyboard Shortcut Hint */}
                 {isPlaying && (
                   <motion.div 
                     className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-3 py-2 rounded-lg text-sm"
@@ -139,7 +139,7 @@ export default function DemoSection() {
                 )}
               </div>
               
-              {/* 播放控制栏 */}
+              {/* Playback Controls */}
               <div className="p-4 bg-white border-t border-gray-100">
                 <div className="flex items-center gap-4">
                   <button 
@@ -160,12 +160,12 @@ export default function DemoSection() {
               </div>
             </div>
             
-            {/* 装饰元素 */}
+            {/* Decorative Elements */}
             <div className="absolute -top-6 -left-6 w-12 h-12 bg-primary/10 rounded-full"></div>
             <div className="absolute -bottom-8 -right-8 w-20 h-20 bg-blue-100 rounded-full"></div>
           </motion.div>
           
-          {/* 右侧：操作步骤 */}
+          {/* Right: Operation Steps */}
           <motion.div 
             className="space-y-8"
             initial={{ opacity: 0, x: 50 }}
@@ -182,14 +182,14 @@ export default function DemoSection() {
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 viewport={{ once: true }}
               >
-                {/* 步骤编号 */}
+                {/* Step Number */}
                 <div className="flex-shrink-0">
                   <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold">
                     {step.number}
                   </div>
                 </div>
                 
-                {/* 步骤内容 */}
+                {/* Step Content */}
                 <div className="flex-1">
                   <div className="flex items-start gap-3 mb-3">
                     <step.icon className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
@@ -204,7 +204,7 @@ export default function DemoSection() {
               </motion.div>
             ))}
             
-            {/* 底部提示 */}
+            {/* Bottom Hint */}
             <motion.div 
               className="mt-12 p-6 bg-white rounded-2xl border border-primary/20 shadow-lg"
               initial={{ opacity: 0, y: 20 }}

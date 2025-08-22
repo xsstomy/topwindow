@@ -14,29 +14,29 @@ export default function ErrorMessage({ error, onDismiss, showHelp = true }: Erro
   const getSolutions = (error: string) => {
     const solutions = []
 
-    if (error.includes('邮箱或密码错误')) {
-      solutions.push('请检查邮箱地址是否正确')
-      solutions.push('确认密码是否输入正确')
-      solutions.push('如果忘记密码，请使用"忘记密码"功能')
-    } else if (error.includes('网络连接异常')) {
-      solutions.push('检查您的网络连接是否正常')
-      solutions.push('尝试刷新页面')
-      solutions.push('如果使用VPN，请尝试关闭后重试')
-    } else if (error.includes('请等待')) {
-      solutions.push('Supabase 有安全限制，请耐心等待')
-      solutions.push('可以尝试使用 Google 登录')
-      solutions.push('稍后再试邮箱注册')
-    } else if (error.includes('该邮箱已注册')) {
-      solutions.push('请直接使用登录功能')
-      solutions.push('如果忘记密码，请使用密码重置')
-      solutions.push('或者使用其他邮箱地址注册')
-    } else if (error.includes('Google OAuth 配置错误')) {
-      solutions.push('请联系管理员检查 OAuth 配置')
-      solutions.push('暂时使用邮箱登录功能')
-    } else if (error.includes('请先验证您的邮箱地址')) {
-      solutions.push('请检查您的邮箱收件箱')
-      solutions.push('查看垃圾邮件文件夹')
-      solutions.push('点击邮件中的验证链接')
+    if (error.includes('Invalid email or password') || error.includes('email or password')) {
+      solutions.push('Please check if your email address is correct')
+      solutions.push('Verify if your password is entered correctly')
+      solutions.push('If you forgot your password, please use the "Forgot Password" feature')
+    } else if (error.includes('Network connection') || error.includes('network')) {
+      solutions.push('Check if your network connection is working properly')
+      solutions.push('Try refreshing the page')
+      solutions.push('If using VPN, try disabling it and retry')
+    } else if (error.includes('Please wait') || error.includes('rate limit')) {
+      solutions.push('Supabase has security restrictions, please wait patiently')
+      solutions.push('Try using Google login instead')
+      solutions.push('Try email registration again later')
+    } else if (error.includes('already registered') || error.includes('already exists')) {
+      solutions.push('Please use the login function directly')
+      solutions.push('If you forgot your password, please use password reset')
+      solutions.push('Or register with a different email address')
+    } else if (error.includes('Google OAuth') || error.includes('OAuth configuration')) {
+      solutions.push('Please contact administrator to check OAuth configuration')
+      solutions.push('Use email login temporarily')
+    } else if (error.includes('verify your email') || error.includes('email verification')) {
+      solutions.push('Please check your email inbox')
+      solutions.push('Check your spam/junk folder')
+      solutions.push('Click the verification link in the email')
     }
 
     return solutions
@@ -45,11 +45,11 @@ export default function ErrorMessage({ error, onDismiss, showHelp = true }: Erro
   const solutions = getSolutions(error)
   
   const getErrorIcon = () => {
-    if (error.includes('网络连接异常')) {
+    if (error.includes('Network connection') || error.includes('network')) {
       return '🌐'
-    } else if (error.includes('邮箱或密码错误')) {
+    } else if (error.includes('email or password') || error.includes('Invalid')) {
       return '🔑'
-    } else if (error.includes('请等待')) {
+    } else if (error.includes('Please wait') || error.includes('rate limit')) {
       return '⏰'
     } else if (error.includes('Google')) {
       return '🔍'
@@ -58,11 +58,11 @@ export default function ErrorMessage({ error, onDismiss, showHelp = true }: Erro
   }
 
   const getErrorType = () => {
-    if (error.includes('网络连接异常')) {
+    if (error.includes('Network connection') || error.includes('network')) {
       return 'network'
-    } else if (error.includes('请等待')) {
+    } else if (error.includes('Please wait') || error.includes('rate limit')) {
       return 'rate-limit'
-    } else if (error.includes('邮箱或密码错误')) {
+    } else if (error.includes('email or password') || error.includes('Invalid')) {
       return 'credentials'
     }
     return 'general'
@@ -109,7 +109,7 @@ export default function ErrorMessage({ error, onDismiss, showHelp = true }: Erro
                   'text-red-700 hover:text-red-900'
                 }`}
               >
-                {showSolutions ? '隐藏解决方案' : '查看解决方案'}
+                {showSolutions ? 'Hide Solutions' : 'View Solutions'}
               </button>
               
               {showSolutions && (

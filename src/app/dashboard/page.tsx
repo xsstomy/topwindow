@@ -31,7 +31,7 @@ export default function DashboardPage() {
       await signOut()
       router.push('/')
     } catch (error) {
-      console.error('登出失败:', error)
+      console.error('Sign out failed:', error)
     }
   }
 
@@ -42,21 +42,21 @@ export default function DashboardPage() {
           <div className="border-4 border-dashed border-gray-200 rounded-lg">
             <div className="p-8 text-center">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                欢迎来到 TopWindow！
+                Welcome to TopWindow!
               </h2>
               <p className="text-gray-600 mb-6">
-                您已成功登录。这里是您的个人仪表板。
+                You have successfully signed in. This is your personal dashboard.
               </p>
               
               <div className="bg-white p-6 rounded-lg shadow max-w-md mx-auto">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">用户信息</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">User Information</h3>
                 <div className="space-y-2 text-left">
-                  <p><strong>邮箱：</strong> {user.email}</p>
-                  <p><strong>用户 ID：</strong> {user.id}</p>
-                  <p><strong>注册时间：</strong> {new Date(user.created_at).toLocaleString('zh-CN')}</p>
-                  <p><strong>认证提供商：</strong> {user.app_metadata?.provider || 'email'}</p>
+                  <p><strong>Email:</strong> {user.email}</p>
+                  <p><strong>User ID:</strong> {user.id}</p>
+                  <p><strong>Registered:</strong> {new Date(user.created_at).toLocaleString('en-US')}</p>
+                  <p><strong>Auth Provider:</strong> {user.app_metadata?.provider || 'email'}</p>
                   {user.user_metadata?.full_name && (
-                    <p><strong>姓名：</strong> {user.user_metadata.full_name}</p>
+                    <p><strong>Name:</strong> {user.user_metadata.full_name}</p>
                   )}
                 </div>
               </div>

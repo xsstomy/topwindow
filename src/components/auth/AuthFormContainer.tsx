@@ -21,7 +21,7 @@ export default function AuthFormContainer({
 }: AuthFormContainerProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      {/* 背景图案 */}
+      {/* Background Pattern */}
       {backgroundPattern && (
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-primary/5 to-transparent rounded-full" />
@@ -30,7 +30,7 @@ export default function AuthFormContainer({
       )}
 
       <div className="relative z-10 w-full max-w-md">
-        {/* 返回按钮 */}
+        {/* Back Button */}
         {showBackButton && (
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -43,19 +43,19 @@ export default function AuthFormContainer({
               className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              返回首页
+              Back to Home
             </Link>
           </motion.div>
         )}
 
-        {/* 认证卡片 */}
+        {/* Authentication Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8"
         >
-          {/* Logo 和标题 */}
+          {/* Logo and Title */}
           <div className="text-center mb-8">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -85,7 +85,7 @@ export default function AuthFormContainer({
             </motion.p>
           </div>
 
-          {/* 表单内容 */}
+          {/* Form Content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -95,7 +95,7 @@ export default function AuthFormContainer({
           </motion.div>
         </motion.div>
 
-        {/* 页脚链接 */}
+        {/* Footer Links */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -103,13 +103,13 @@ export default function AuthFormContainer({
           className="text-center mt-6"
         >
           <p className="text-xs text-gray-500">
-            继续使用即表示您同意我们的{' '}
+            By continuing to use, you agree to our{' '}
             <Link href="/terms" className="text-primary hover:underline">
-              服务条款
+              Terms of Service
             </Link>{' '}
-            和{' '}
+            and{' '}
             <Link href="/privacy" className="text-primary hover:underline">
-              隐私政策
+              Privacy Policy
             </Link>
           </p>
         </motion.div>

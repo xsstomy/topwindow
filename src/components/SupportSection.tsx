@@ -27,7 +27,7 @@ export default function SupportSection() {
     <section id="support" className="section-padding bg-gray-50">
       <div className="container-custom">
         
-        {/* 标题区域 */}
+        {/* Title Section */}
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -43,7 +43,7 @@ export default function SupportSection() {
           </p>
         </motion.div>
         
-        {/* 支持选项网格 */}
+        {/* Support Options Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-16">
           {supportOptions.map((option, index) => (
             <motion.div
@@ -57,7 +57,7 @@ export default function SupportSection() {
             >
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 h-full transition-all duration-300 group-hover:shadow-2xl group-hover:border-primary/20">
                 
-                {/* 图标 */}
+                {/* Icon */}
                 <motion.div 
                   className={`w-16 h-16 rounded-2xl ${option.bgColor} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
                   whileHover={{ rotate: 5 }}
@@ -65,29 +65,29 @@ export default function SupportSection() {
                   <option.icon className={`w-8 h-8 ${option.color}`} />
                 </motion.div>
                 
-                {/* 标题 */}
+                {/* Title */}
                 <h3 className="text-xl font-semibold text-gray-text mb-4">
                   {option.title}
                 </h3>
                 
-                {/* 描述 */}
+                {/* Description */}
                 <p className="text-gray-secondary leading-relaxed mb-6">
                   {option.description}
                 </p>
                 
-                {/* 按钮 */}
+                {/* Button */}
                 <button className="w-full btn-secondary text-sm font-medium">
                   {option.action}
                 </button>
                 
-                {/* 悬停装饰 */}
+                {/* Hover Decoration */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </motion.div>
           ))}
         </div>
         
-        {/* 联系信息 */}
+        {/* Contact Information */}
         <motion.div 
           className="bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-gray-100 text-center"
           initial={{ opacity: 0, y: 30 }}

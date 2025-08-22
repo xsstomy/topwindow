@@ -11,7 +11,7 @@ export default function NetworkStatus() {
   const [diagnosticsData, setDiagnosticsData] = useState<any>(null)
 
   useEffect(() => {
-    // 检查网络连接状态
+    // Check network connection status
     const updateOnlineStatus = () => {
       setIsOnline(navigator.onLine)
     }
@@ -19,7 +19,7 @@ export default function NetworkStatus() {
     window.addEventListener('online', updateOnlineStatus)
     window.addEventListener('offline', updateOnlineStatus)
 
-    // 检查 Supabase 连接状态
+    // Check Supabase connection status
     checkSupabaseConnection()
 
     return () => {
@@ -44,7 +44,7 @@ export default function NetworkStatus() {
     setDiagnosticsData(results)
   }
 
-  // 仅在有问题时显示
+  // Only show when there are issues
   if (isOnline && supabaseStatus === 'connected') {
     return null
   }
@@ -60,36 +60,36 @@ export default function NetworkStatus() {
             'bg-green-500'
           }`}></div>
           <span className="text-sm font-medium text-gray-800">
-            {!isOnline ? '网络连接异常' :
-             supabaseStatus === 'error' ? '服务连接异常' :
-             supabaseStatus === 'checking' ? '检查连接中...' :
-             '连接正常'}
+            {!isOnline ? 'Network connection issue' :
+             supabaseStatus === 'error' ? 'Service connection issue' :
+             supabaseStatus === 'checking' ? 'Checking connection...' :
+             'Connection normal'}
           </span>
         </div>
 
         {!isOnline && (
           <p className="text-xs text-gray-600 mb-2">
-            请检查您的网络连接
+            Please check your network connection
           </p>
         )}
 
         {isOnline && supabaseStatus === 'error' && (
           <>
             <p className="text-xs text-gray-600 mb-2">
-              无法连接到认证服务
+              Unable to connect to authentication service
             </p>
             <div className="flex space-x-2">
               <button
                 onClick={checkSupabaseConnection}
                 className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
               >
-                重试连接
+                Retry Connection
               </button>
               <button
                 onClick={runDiagnostics}
                 className="text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600"
               >
-                诊断问题
+                Diagnose Issues
               </button>
             </div>
           </>
@@ -97,20 +97,20 @@ export default function NetworkStatus() {
 
         {showDiagnostics && diagnosticsData && (
           <div className="mt-3 p-2 bg-gray-50 rounded text-xs">
-            <p className="font-medium">诊断结果:</p>
+            <p className="font-medium">Diagnostic Results:</p>
             <ul className="mt-1 space-y-1">
-              <li>连接状态: {diagnosticsData.connection ? '✅ 正常' : '❌ 异常'}</li>
-              <li>认证服务: {diagnosticsData.auth ? '✅ 正常' : '❌ 异常'}</li>
-              <li>数据库: {diagnosticsData.database ? '✅ 正常' : '❌ 异常'}</li>
+              <li>Connection Status: {diagnosticsData.connection ? '✅ Normal' : '❌ Error'}</li>
+              <li>Auth Service: {diagnosticsData.auth ? '✅ Normal' : '❌ Error'}</li>
+              <li>Database: {diagnosticsData.database ? '✅ Normal' : '❌ Error'}</li>
               {diagnosticsData.errors.length > 0 && (
-                <li>错误: {diagnosticsData.errors.join(', ')}</li>
+                <li>Errors: {diagnosticsData.errors.join(', ')}</li>
               )}
             </ul>
             <button
               onClick={() => setShowDiagnostics(false)}
               className="mt-2 text-xs text-blue-600 hover:text-blue-800"
             >
-              关闭
+              Close
             </button>
           </div>
         )}

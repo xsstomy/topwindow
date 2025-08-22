@@ -9,7 +9,7 @@ export default function HeroSection() {
       <div className="container-custom">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           
-          {/* 左侧内容 */}
+          {/* Left content */}
           <motion.div 
             className="text-center lg:text-left"
             initial={{ opacity: 0, x: -50 }}
@@ -68,17 +68,17 @@ export default function HeroSection() {
             </motion.div>
           </motion.div>
           
-          {/* 右侧演示区域 */}
+          {/* Right demo area */}
           <motion.div 
             className="relative"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            {/* 窗口演示容器 */}
+            {/* Window demo container */}
             <div className="relative max-w-lg mx-auto">
               
-              {/* 背景窗口 (Xcode) */}
+              {/* Background window (Xcode) */}
               <motion.div 
                 className="absolute inset-0 bg-gray-800 rounded-lg shadow-2xl transform rotate-2"
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -104,7 +104,7 @@ export default function HeroSection() {
                 </div>
               </motion.div>
               
-              {/* 前景窗口 (Safari - 置顶) */}
+              {/* Foreground window (Safari - Always on top) */}
               <motion.div 
                 className="relative z-10 bg-white rounded-lg shadow-2xl transform -rotate-1 border border-gray-200"
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -120,7 +120,7 @@ export default function HeroSection() {
                   <div className="flex-1 text-center">
                     <span className="text-gray-700 text-sm font-medium">Safari</span>
                   </div>
-                  {/* 置顶图标 */}
+                  {/* Always on top icon */}
                   <motion.div 
                     className="absolute -top-3 -right-3 bg-primary text-white p-2 rounded-full shadow-lg"
                     initial={{ scale: 0, rotate: -180 }}
@@ -140,7 +140,7 @@ export default function HeroSection() {
                 </div>
               </motion.div>
               
-              {/* 快捷键提示 */}
+              {/* Keyboard shortcut hint */}
               <motion.div 
                 className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg"
                 initial={{ opacity: 0, y: 20 }}

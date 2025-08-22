@@ -33,12 +33,12 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300">
       
-      {/* 主要内容区域 */}
+      {/* Main content area */}
       <div className="section-padding border-b border-gray-800">
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
             
-            {/* 品牌信息 */}
+            {/* Brand information */}
             <motion.div 
               className="lg:col-span-2"
               initial={{ opacity: 0, y: 30 }}
@@ -56,7 +56,7 @@ export default function Footer() {
                 </p>
               </div>
               
-              {/* 联系信息 */}
+              {/* Contact information */}
               <div className="space-y-3">
                 <a 
                   href="mailto:xsstomy@gmail.com"
@@ -66,7 +66,7 @@ export default function Footer() {
                   <span>xsstomy@gmail.com</span>
                 </a>
                 
-                {/* 社交链接 */}
+                {/* Social links */}
                 <div className="flex gap-4 pt-2">
                   {footerLinks.social.map((link) => (
                     <a
@@ -84,7 +84,7 @@ export default function Footer() {
               </div>
             </motion.div>
             
-            {/* 产品链接 */}
+            {/* Product links */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -106,7 +106,7 @@ export default function Footer() {
               </ul>
             </motion.div>
             
-            {/* 支持链接 */}
+            {/* Support links */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -130,7 +130,7 @@ export default function Footer() {
               </ul>
             </motion.div>
             
-            {/* 法律链接 */}
+            {/* Legal links */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -155,7 +155,7 @@ export default function Footer() {
         </div>
       </div>
       
-      {/* 底部版权区域 */}
+      {/* Bottom copyright area */}
       <div className="py-8">
         <div className="container-custom">
           <motion.div 

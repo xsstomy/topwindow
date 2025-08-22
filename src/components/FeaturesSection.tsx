@@ -39,7 +39,7 @@ export default function FeaturesSection() {
     <section id="features" className="section-padding bg-white">
       <div className="container-custom">
         
-        {/* 标题区域 */}
+        {/* Title area */}
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -56,7 +56,7 @@ export default function FeaturesSection() {
           </p>
         </motion.div>
         
-        {/* 功能卡片网格 */}
+        {/* Feature cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <motion.div
@@ -70,7 +70,7 @@ export default function FeaturesSection() {
             >
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 h-full transition-all duration-300 group-hover:shadow-2xl group-hover:border-primary/20">
                 
-                {/* 图标 */}
+                {/* Icon */}
                 <motion.div 
                   className={`w-16 h-16 rounded-2xl ${feature.bgColor} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
                   whileHover={{ rotate: 5 }}
@@ -78,17 +78,17 @@ export default function FeaturesSection() {
                   <feature.icon className={`w-8 h-8 ${feature.color}`} />
                 </motion.div>
                 
-                {/* 标题 */}
+                {/* Title */}
                 <h3 className="text-xl font-semibold text-gray-text mb-4">
                   {feature.title}
                 </h3>
                 
-                {/* 描述 */}
+                {/* Description */}
                 <p className="text-gray-secondary leading-relaxed">
                   {feature.description}
                 </p>
                 
-                {/* 悬停装饰 */}
+                {/* Hover decoration */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </motion.div>
