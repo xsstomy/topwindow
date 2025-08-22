@@ -95,22 +95,6 @@ export default function FeaturesSection() {
           ))}
         </div>
         
-        {/* 底部亮点文字 */}
-        <motion.div 
-          className="text-center mt-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 rounded-full">
-            <Zap className="w-5 h-5 text-primary" />
-            <span className="text-primary font-medium">
-              Join 10,000+ users who love TopWindow
-            </span>
-          </div>
-        </motion.div>
-        
       </div>
     </section>
   )

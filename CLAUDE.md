@@ -1,5 +1,7 @@
 # TopWindow Project - AI Assistant Instructions
 
+## 交流用中文
+
 ## Language Requirements
 
 **CRITICAL**: This website targets overseas users and must be entirely in English.

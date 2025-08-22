@@ -40,7 +40,7 @@ const licenseFeatures = [
   "无试用期限制"
 ]
 
-export default function CallToActionSection() {
+export default function PricingSection() {
   const { user } = useAuth()
   const [viewMode, setViewMode] = useState<'overview' | 'purchase'>('overview')
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'license'>('license')

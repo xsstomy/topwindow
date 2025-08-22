@@ -8,7 +8,7 @@ const footerLinks = {
     { name: 'Download', href: '#download' },
     { name: 'Features', href: '#features' },
     { name: 'Pricing', href: '#pricing' },
-    { name: 'Release Notes', href: '#releases' }
+    { name: 'Release Notes', href: '/releases' }
   ],
   support: [
     { name: 'Documentation', href: '/docs' },
@@ -120,8 +120,8 @@ export default function Footer() {
                     <a
                       href={link.href}
                       className="text-gray-400 hover:text-white transition-colors duration-300"
-                      target={link.href.startsWith('mailto:') ? undefined : '_blank'}
-                      rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                      target={link.href.startsWith('mailto:') || link.href.startsWith('/') ? undefined : '_blank'}
+                      rel={link.href.startsWith('mailto:') || link.href.startsWith('/') ? undefined : 'noopener noreferrer'}
                     >
                       {link.name}
                     </a>
