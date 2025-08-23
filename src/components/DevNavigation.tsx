@@ -3,7 +3,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { TestTube, Home, User, Key } from 'lucide-react'
+import { TestTube, Home, User, Key, Monitor, CreditCard } from 'lucide-react'
 
 export default function DevNavigation() {
   const pathname = usePathname()
@@ -16,6 +16,10 @@ export default function DevNavigation() {
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/dashboard', label: 'Dashboard', icon: User },
+    { href: '/dashboard/licenses', label: 'Licenses', icon: Key },
+    { href: '/dashboard/devices', label: 'Devices', icon: Monitor },
+    { href: '/dashboard/profile', label: 'Profile', icon: User },
+    { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
     { href: '/test-license', label: 'License Test', icon: TestTube },
   ]
 

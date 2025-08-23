@@ -5,14 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/context/AuthContext'
-import { 
-  Menu, 
-  X, 
-  User, 
-  LogOut, 
-  Settings, 
+import {
+  Menu,
+  X,
+  User,
+  LogOut,
+  Settings,
   CreditCard,
   Shield,
+  Monitor,
   ChevronDown
 } from 'lucide-react'
 
@@ -82,25 +83,30 @@ export default function Header({
 
   // User menu items
   const userMenuItems = [
-    { 
-      href: '/dashboard', 
-      label: 'Dashboard', 
-      icon: User 
+    {
+      href: '/dashboard',
+      label: '仪表板总览',
+      icon: User
     },
-    { 
-      href: '/profile', 
-      label: 'Profile Settings', 
-      icon: Settings 
+    {
+      href: '/dashboard/profile',
+      label: '个人资料设置',
+      icon: Settings
     },
-    { 
-      href: '/licenses', 
-      label: 'My Licenses', 
-      icon: Shield 
+    {
+      href: '/dashboard/licenses',
+      label: '许可证管理',
+      icon: Shield
     },
-    { 
-      href: '/billing', 
-      label: 'Billing Management', 
-      icon: CreditCard 
+    {
+      href: '/dashboard/devices',
+      label: '设备管理',
+      icon: Monitor
+    },
+    {
+      href: '/dashboard/billing',
+      label: '账单管理',
+      icon: CreditCard
     },
   ]
 
