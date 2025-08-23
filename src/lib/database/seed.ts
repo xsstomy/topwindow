@@ -1,6 +1,9 @@
 // 数据库种子数据脚本
-import { supabase } from '@/lib/supabase/client'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { PRODUCT_PRICES } from '@/config/pricing'
+
+// 使用统一的管理员权限客户端
+const supabase = supabaseAdmin
 
 export async function seedProducts() {
   // 从价格配置生成种子数据

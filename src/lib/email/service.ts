@@ -357,7 +357,7 @@ export class EmailService {
             <div class="info-title">🔑 License Information</div>
             <ul class="feature-list">
                 <li><strong>Product:</strong>${params.productName}</li>
-                <li><strong>Device Limit:</strong>Up to ${params.activationLimit} devices</li>
+                <li><strong>Device Limit:</strong>Up to ${params.activationLimit} devices total per product</li>
                 <li><strong>Validity:</strong>Lifetime</li>
                 <li><strong>Updates:</strong>Free updates</li>
                 <li><strong>Support:</strong>Priority technical support</li>

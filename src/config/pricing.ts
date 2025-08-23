@@ -16,7 +16,7 @@ export interface ProductPricing {
   price: number
   originalPrice?: number // 原价，用于显示折扣
   currency: Currency
-  activationLimit: number
+  activationLimit: number // Total device activation limit per product (across all user licenses)
   features: string[]
   isActive: boolean
   metadata?: {
@@ -61,14 +61,14 @@ export const PRODUCT_PRICES: Record<string, ProductPricing> = {
     currency: 'USD',
     activationLimit: 3,
     features: [
-      '永久使用权',
-      '支持3台设备激活',
-      '免费版本更新',
-      '优先技术支持',
-      '30天无条件退款',
-      '完整专业功能',
-      '高级快捷键设置',
-      '多显示器支持'
+      'Lifetime license',
+      'Activate up to 3 devices total',
+      'Free version updates',
+      'Priority technical support', 
+      '30-day money back guarantee',
+      'Complete professional features',
+      'Advanced hotkey settings',
+      'Multi-monitor support'
     ],
     isActive: true,
     metadata: {
@@ -87,10 +87,10 @@ export const PRODUCT_PRICES: Record<string, ProductPricing> = {
     currency: 'USD',
     activationLimit: 1,
     features: [
-      '永久使用权',
-      '支持1台设备',
-      '基础技术支持',
-      '30天退款保证'
+      'Lifetime license',
+      'Activate 1 device total',
+      'Basic technical support',
+      '30-day money back guarantee'
     ],
     isActive: false, // 暂时不启用
     metadata: {

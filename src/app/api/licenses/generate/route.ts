@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/client'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateLicenseKey } from '@/lib/license/generator'
 import { validateRequiredFields } from '@/lib/utils/validators'
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { product_id, user_id, activation_limit = 3 } = body
 
     // 验证产品是否存在
-    const { data: product, error: productError } = await supabase
+    const { data: product, error: productError } = await supabaseAdmin
       .from('products')
       .select('id, name, activation_limit')
       .eq('id', product_id)
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 检查密钥是否已存在
-      const { data: existingLicense } = await supabase
+      const { data: existingLicense } = await supabaseAdmin
         .from('licenses')
         .select('license_key')
         .eq('license_key', licenseKey)
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     expiresAt.setFullYear(expiresAt.getFullYear() + 1)
 
     // 插入新的许可证记录
-    const { data: license, error: licenseError } = await supabase
+    const { data: license, error: licenseError } = await supabaseAdmin
       .from('licenses')
       .insert({
         license_key: licenseKey,
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
 // GET 方法：获取生成许可证的可用产品列表
 export async function GET() {
   try {
-    const { data: products, error } = await supabase
+    const { data: products, error } = await supabaseAdmin
       .from('products')
       .select('id, name, price, currency, license_type, activation_limit')
       .eq('is_active', true)

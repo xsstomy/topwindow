@@ -100,17 +100,20 @@ export async function POST(request: NextRequest) {
       } satisfies ActivationResponse, { status: 500 })
     }
 
-    // 计算剩余激活次数
+    // 计算剩余激活次数（考虑重复激活的情况）
     const currentActiveCount = activatedDevices.filter(d => d.status === 'active').length
-    const remainingActivations = Math.max(0, license.activation_limit - currentActiveCount - 1)
+    // 如果是重复激活，不需要减1；如果是新激活，需要考虑刚激活的设备
+    const isNewActivation = !activatedDevices.some(d => d.device_id === device_id && d.status === 'active')
+    const usedSlots = isNewActivation ? currentActiveCount + 1 : currentActiveCount
+    const remainingActivations = Math.max(0, license.activation_limit - usedSlots)
 
     // 返回成功响应
     const response: ActivationResponse = {
       status: 'success',
-      message: 'Activation successful.',
+      message: isNewActivation ? 'Activation successful.' : activationResult.message,
       expires_at: license.expires_at || undefined,
       activation_info: {
-        activated_at: activationResult.deviceData!.first_activated_at,
+        activated_at: activationResult.deviceData!.first_activated_at || activationResult.deviceData!.created_at,
         device_name: activationResult.deviceData!.device_name,
         remaining_activations: remainingActivations
       }

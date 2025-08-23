@@ -12,7 +12,8 @@ import {
   type LicenseKeyValidationResult 
 } from '@/lib/license/validation-utils'
 import { supabase } from '@/lib/supabase/client'
-import { Copy, Check, X, RefreshCw, Database, Key, Shield, TestTube, Sparkles } from 'lucide-react'
+import { useAuth } from '@/lib/context/AuthContext'
+import { Copy, Check, X, RefreshCw, Database, Key, Shield, TestTube, Sparkles, LogIn, Smartphone } from 'lucide-react'
 import TestInstructions from '@/components/test/TestInstructions'
 
 interface TestResult {
@@ -40,7 +41,35 @@ interface GeneratedLicense {
   created_at: string
 }
 
+interface ActivationRequest {
+  license_key: string
+  device_id: string
+  device_info: {
+    name: string
+    type: string
+    version?: string
+    arch?: string
+  }
+}
+
+interface ActivationResult {
+  success: boolean
+  status: 'success' | 'error'
+  message: string
+  expires_at?: string
+  activation_info?: {
+    activated_at?: string
+    device_name?: string
+    remaining_activations?: number
+    activated_count?: number
+    activation_limit?: number
+  }
+}
+
 export default function LicenseTestPage() {
+  // 认证状态
+  const { user, loading: authLoading } = useAuth()
+  
   // 生成器测试状态
   const [generatedKeys, setGeneratedKeys] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
@@ -63,6 +92,21 @@ export default function LicenseTestPage() {
   const [selectedProductId, setSelectedProductId] = useState('')
   const [realLicenses, setRealLicenses] = useState<GeneratedLicense[]>([])
   const [realLicenseError, setRealLicenseError] = useState('')
+
+  // 设备激活测试状态
+  const [activationForm, setActivationForm] = useState<ActivationRequest>({
+    license_key: '',
+    device_id: '',
+    device_info: {
+      name: '',
+      type: 'macbook_pro',
+      version: '',
+      arch: 'arm64'
+    }
+  })
+  const [isActivating, setIsActivating] = useState(false)
+  const [activationResults, setActivationResults] = useState<ActivationResult[]>([])
+  const [activationError, setActivationError] = useState('')
 
   // 测试用数据（动态生成）
   const [testCases, setTestCases] = useState({
@@ -244,6 +288,11 @@ export default function LicenseTestPage() {
       return
     }
 
+    if (!user) {
+      setRealLicenseError('请先登录后再生成许可证')
+      return
+    }
+
     setIsGeneratingReal(true)
     setRealLicenseError('')
 
@@ -255,7 +304,7 @@ export default function LicenseTestPage() {
         },
         body: JSON.stringify({
           product_id: selectedProductId,
-          user_id: 'test-user-' + Math.random().toString(36).substr(2, 9), // 测试用户ID
+          user_id: user.id, // 使用真实的登录用户ID
           activation_limit: 3
         }),
       })
@@ -274,6 +323,89 @@ export default function LicenseTestPage() {
     } finally {
       setIsGeneratingReal(false)
     }
+  }
+
+  // 设备激活测试（添加防抖保护）
+  const handleDeviceActivation = async () => {
+    if (!activationForm.license_key || !activationForm.device_id) {
+      setActivationError('请填写License Key和Device ID')
+      return
+    }
+
+    if (!activationForm.device_info.name) {
+      setActivationError('请填写设备名称')
+      return
+    }
+
+    // 防抖保护：如果正在激活中，直接返回
+    if (isActivating) {
+      setActivationError('激活请求正在处理中，请稍候...')
+      return
+    }
+
+    setIsActivating(true)
+    setActivationError('')
+
+    try {
+      const response = await fetch('/api/licenses/activate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(activationForm),
+      })
+
+      const result = await response.json()
+      
+      const activationResult: ActivationResult = {
+        success: response.ok && result.status === 'success',
+        status: result.status || 'error',
+        message: result.message || '未知错误',
+        expires_at: result.expires_at,
+        activation_info: result.activation_info
+      }
+
+      setActivationResults(prev => [activationResult, ...prev.slice(0, 9)]) // 保留最近10个结果
+
+      if (!activationResult.success) {
+        setActivationError(activationResult.message)
+      } else {
+        // 清除错误信息，显示成功反馈
+        setActivationError('')
+      }
+    } catch (error: any) {
+      const errorResult: ActivationResult = {
+        success: false,
+        status: 'error',
+        message: `网络错误: ${error.message || '请求失败'}`
+      }
+      setActivationResults(prev => [errorResult, ...prev.slice(0, 9)])
+      setActivationError(errorResult.message)
+      console.error('设备激活失败:', error)
+    } finally {
+      // 添加延迟以防止用户过快重复点击
+      setTimeout(() => {
+        setIsActivating(false)
+      }, 1000) // 1秒延迟
+    }
+  }
+
+  // 快速填充测试数据
+  const fillTestActivationData = (useValidKey: boolean = true) => {
+    const testData = {
+      license_key: useValidKey && generatedKeys.length > 0 
+        ? generatedKeys[0] 
+        : (useValidKey ? generateLicenseKey() : 'TW-INVALID-KEY-TEST'),
+      device_id: 'macbook-pro-' + Math.random().toString(36).substr(2, 8),
+      device_info: {
+        name: 'MacBook Pro (Test Device)',
+        type: 'macbook_pro' as const,
+        version: '14.0',
+        arch: 'arm64' as const
+      }
+    }
+    setActivationForm(testData)
+    setActivationError('')
   }
 
   // API连接测试
@@ -349,6 +481,43 @@ export default function LicenseTestPage() {
           您可以在这里验证密钥生成、格式验证、输入验证和数据库连接等核心功能。
         </p>
       </div>
+
+      {/* 用户登录状态 */}
+      {authLoading ? (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center gap-3">
+            <RefreshCw className="w-5 h-5 animate-spin text-gray-400" />
+            <span className="text-gray-600">检查登录状态...</span>
+          </div>
+        </div>
+      ) : user ? (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+          <div className="flex items-center gap-3">
+            <Check className="w-6 h-6 text-green-600" />
+            <div>
+              <p className="text-green-800 font-medium">已登录</p>
+              <p className="text-green-700 text-sm">
+                用户: {user.email} | ID: {user.id.slice(0, 8)}...
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+          <div className="flex items-center gap-3">
+            <LogIn className="w-6 h-6 text-yellow-600" />
+            <div>
+              <p className="text-yellow-800 font-medium">未登录</p>
+              <p className="text-yellow-700 text-sm">
+                某些功能需要登录才能使用。
+                <a href="/auth/login" className="underline hover:text-yellow-800 ml-1">
+                  点击登录
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 使用说明 */}
       <TestInstructions />
@@ -462,16 +631,38 @@ export default function LicenseTestPage() {
 
           <button
             onClick={handleGenerateRealLicense}
-            disabled={isGeneratingReal || !selectedProductId}
+            disabled={isGeneratingReal || !selectedProductId || !user}
             className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors"
           >
             {isGeneratingReal ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : !user ? (
+              <LogIn className="w-4 h-4" />
             ) : (
               <Sparkles className="w-4 h-4" />
             )}
-            {isGeneratingReal ? '生成中...' : '生成真实密钥'}
+            {isGeneratingReal ? '生成中...' : !user ? '请先登录' : '生成真实密钥'}
           </button>
+          
+          {!user && !authLoading && (
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <LogIn className="w-5 h-5 text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium text-blue-800">需要登录</p>
+                  <p className="text-sm text-blue-700">
+                    生成真实许可证需要关联到您的账户。请先 
+                    <a href="/auth/login" className="underline hover:text-blue-800 ml-1">
+                      登录
+                    </a> 或 
+                    <a href="/auth/register" className="underline hover:text-blue-800 ml-1">
+                      注册账户
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {realLicenseError && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -681,6 +872,272 @@ export default function LicenseTestPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* 设备激活测试 */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Smartphone className="w-6 h-6 text-orange-600" />
+          <h2 className="text-2xl font-semibold text-gray-900">设备激活测试</h2>
+        </div>
+
+        <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <p className="text-sm text-orange-700">
+            <strong>功能说明</strong>：测试许可证的设备激活功能，验证License Key、设备ID格式，以及激活限制等业务逻辑。
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* 左侧：激活表单 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">激活表单</h3>
+            
+            {/* License Key 输入 */}
+            <div>
+              <label htmlFor="activation-license-key" className="block text-sm font-medium text-gray-700 mb-2">
+                License Key *
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="activation-license-key"
+                  type="text"
+                  value={activationForm.license_key}
+                  onChange={(e) => setActivationForm(prev => ({ ...prev, license_key: e.target.value }))}
+                  placeholder="TW-XXXX-XXXX-XXXX-XXXX"
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+                {generatedKeys.length > 0 && (
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        setActivationForm(prev => ({ ...prev, license_key: e.target.value }))
+                      }
+                    }}
+                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  >
+                    <option value="">选择生成的密钥</option>
+                    {generatedKeys.slice(0, 5).map((key, index) => (
+                      <option key={index} value={key}>
+                        {key.slice(0, 15)}...
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                当前有效性: {activationForm.license_key ? 
+                  (validateLicenseKeyComplete(activationForm.license_key).isValid ? '✅ 有效' : '❌ 无效')
+                  : '未输入'}
+              </p>
+            </div>
+
+            {/* Device ID 输入 */}
+            <div>
+              <label htmlFor="activation-device-id" className="block text-sm font-medium text-gray-700 mb-2">
+                Device ID *
+              </label>
+              <input
+                id="activation-device-id"
+                type="text"
+                value={activationForm.device_id}
+                onChange={(e) => setActivationForm(prev => ({ ...prev, device_id: e.target.value }))}
+                placeholder="macbook-pro-12345678"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                当前有效性: {activationForm.device_id ? 
+                  (validators.deviceId(activationForm.device_id) ? '✅ 有效' : '❌ 无效')
+                  : '未输入'}
+              </p>
+            </div>
+
+            {/* 设备信息 */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-700">设备信息</h4>
+              
+              {/* 设备名称 */}
+              <div>
+                <label htmlFor="device-name" className="block text-xs font-medium text-gray-600 mb-1">
+                  设备名称 *
+                </label>
+                <input
+                  id="device-name"
+                  type="text"
+                  value={activationForm.device_info.name}
+                  onChange={(e) => setActivationForm(prev => ({
+                    ...prev,
+                    device_info: { ...prev.device_info, name: e.target.value }
+                  }))}
+                  placeholder="MacBook Pro"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* 设备类型 */}
+                <div>
+                  <label htmlFor="device-type" className="block text-xs font-medium text-gray-600 mb-1">
+                    设备类型
+                  </label>
+                  <select
+                    id="device-type"
+                    value={activationForm.device_info.type}
+                    onChange={(e) => setActivationForm(prev => ({
+                      ...prev,
+                      device_info: { ...prev.device_info, type: e.target.value }
+                    }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  >
+                    <option value="mac">Mac</option>
+                    <option value="macbook">MacBook</option>
+                    <option value="macbook_pro">MacBook Pro</option>
+                    <option value="macbook_air">MacBook Air</option>
+                    <option value="imac">iMac</option>
+                    <option value="mac_mini">Mac mini</option>
+                    <option value="mac_pro">Mac Pro</option>
+                    <option value="mac_studio">Mac Studio</option>
+                  </select>
+                </div>
+
+                {/* 架构 */}
+                <div>
+                  <label htmlFor="device-arch" className="block text-xs font-medium text-gray-600 mb-1">
+                    架构
+                  </label>
+                  <select
+                    id="device-arch"
+                    value={activationForm.device_info.arch}
+                    onChange={(e) => setActivationForm(prev => ({
+                      ...prev,
+                      device_info: { ...prev.device_info, arch: e.target.value }
+                    }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  >
+                    <option value="arm64">Apple Silicon (arm64)</option>
+                    <option value="x64">Intel (x64)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* 系统版本 */}
+              <div>
+                <label htmlFor="device-version" className="block text-xs font-medium text-gray-600 mb-1">
+                  系统版本 (可选)
+                </label>
+                <input
+                  id="device-version"
+                  type="text"
+                  value={activationForm.device_info.version}
+                  onChange={(e) => setActivationForm(prev => ({
+                    ...prev,
+                    device_info: { ...prev.device_info, version: e.target.value }
+                  }))}
+                  placeholder="14.0"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex gap-2 pt-4">
+              <button
+                onClick={handleDeviceActivation}
+                disabled={isActivating || !activationForm.license_key || !activationForm.device_id || !activationForm.device_info.name}
+                className="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+              >
+                {isActivating ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Smartphone className="w-4 h-4" />
+                )}
+                {isActivating ? '激活中...' : '开始激活'}
+              </button>
+
+              <button
+                onClick={() => fillTestActivationData(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                填充有效数据
+              </button>
+
+              <button
+                onClick={() => fillTestActivationData(false)}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                填充无效数据
+              </button>
+            </div>
+
+            {activationError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-700">{activationError}</p>
+              </div>
+            )}
+          </div>
+
+          {/* 右侧：激活结果 */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-800 mb-4">激活结果</h3>
+            
+            {activationResults.length === 0 ? (
+              <div className="p-6 text-center text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                <Smartphone className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm">暂无激活记录</p>
+                <p className="text-xs text-gray-400 mt-1">执行激活测试后结果将显示在这里</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {activationResults.map((result, index) => (
+                  <div key={index} className={`p-4 rounded-lg border ${
+                    result.success 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    <div className="flex items-start gap-3">
+                      {result.success ? (
+                        <Check className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      ) : (
+                        <X className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <div className={`font-medium ${
+                          result.success ? 'text-green-800' : 'text-red-800'
+                        }`}>
+                          {result.success ? 
+                            (result.message.includes('already activated') ? '🔄 重复激活' : '✅ 激活成功') 
+                            : '❌ 激活失败'
+                          }
+                        </div>
+                        <p className={`text-sm mt-1 ${
+                          result.success ? 'text-green-700' : 'text-red-700'
+                        }`}>
+                          {result.message}
+                        </p>
+                        {result.activation_info && (
+                          <div className="text-xs mt-2 space-y-1">
+                            {result.activation_info.device_name && (
+                              <div>设备: {result.activation_info.device_name}</div>
+                            )}
+                            {result.activation_info.remaining_activations !== undefined && (
+                              <div>剩余激活次数: {result.activation_info.remaining_activations}</div>
+                            )}
+                            {result.activation_info.activated_at && (
+                              <div>激活时间: {new Date(result.activation_info.activated_at).toLocaleString()}</div>
+                            )}
+                            {result.expires_at && (
+                              <div>过期时间: {new Date(result.expires_at).toLocaleString()}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* 数据库连接测试 */}

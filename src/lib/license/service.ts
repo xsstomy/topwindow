@@ -1,5 +1,5 @@
 // 许可证业务逻辑服务
-import { createClient } from '@supabase/supabase-js'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateLicenseKey } from './generator'
 import { EmailService } from '@/lib/email/service'
 import type { 
@@ -10,10 +10,7 @@ import type {
   LicenseWithDevices 
 } from '@/types/license'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const supabase = supabaseAdmin
 
 export class LicenseService {
   /**
@@ -143,6 +140,31 @@ export class LicenseService {
   }
 
   /**
+   * 获取用户在特定产品下的总设备激活数量
+   * 这个方法实现新的激活限制检查逻辑：按产品而非按许可证
+   */
+  static async getUserProductDeviceCount(userId: string, productId: string): Promise<number> {
+    try {
+      const { data, error } = await supabase
+        .from('user_devices')
+        .select('id, licenses!inner(product_id)')
+        .eq('licenses.user_id', userId)
+        .eq('licenses.product_id', productId)
+        .eq('status', 'active')
+
+      if (error) {
+        console.error('Get user product device count error:', error)
+        return 0
+      }
+
+      return data?.length || 0
+    } catch (error) {
+      console.error('Get user product device count error:', error)
+      return 0
+    }
+  }
+
+  /**
    * 激活设备
    */
   static async activateDevice(
@@ -166,13 +188,15 @@ export class LicenseService {
         .single()
 
       if (existingDevice) {
-        // 更新现有设备信息
+        // 设备已存在时，只更新设备信息，不重复计数
         const { data: updatedDevice, error: updateError } = await supabase
           .from('user_devices')
           .update({
             last_seen_at: new Date().toISOString(),
             device_info: deviceInfo,
-            device_name: deviceInfo.name || existingDevice.device_name
+            device_name: deviceInfo.name || existingDevice.device_name,
+            // 确保设备状态为激活状态（防止之前被撤销的设备重新激活）
+            status: 'active'
           })
           .eq('id', existingDevice.id)
           .select()
@@ -184,23 +208,29 @@ export class LicenseService {
 
         return {
           success: true,
-          message: 'Device already activated, information updated',
+          message: 'Device already activated. Information updated',
           deviceData: updatedDevice
         }
       }
 
-      // 检查激活限制
-      const { data: activeDevices } = await supabase
-        .from('user_devices')
+      // 获取产品信息用于检查激活限制
+      const { data: product, error: productError } = await supabase
+        .from('products')
         .select('*')
-        .eq('license_key', licenseKey)
-        .eq('status', 'active')
+        .eq('id', license.product_id)
+        .single()
 
-      const activeCount = activeDevices?.length || 0
-      if (activeCount >= license.activation_limit) {
+      if (productError || !product) {
+        return { success: false, message: 'Product information not found' }
+      }
+
+      // 检查用户在该产品下的总设备激活数量（新逻辑）
+      const userProductDeviceCount = await this.getUserProductDeviceCount(license.user_id, license.product_id)
+      
+      if (userProductDeviceCount >= product.activation_limit) {
         return {
           success: false,
-          message: `Activation limit reached (${activeCount}/${license.activation_limit})`
+          message: `Product activation limit reached (${userProductDeviceCount}/${product.activation_limit}). Total devices across all licenses for this product.`
         }
       }
 
@@ -650,6 +680,7 @@ export class LicenseService {
 export const {
   generateLicense,
   getLicenseDetails,
+  getUserProductDeviceCount,
   activateDevice,
   validateLicenseAndDevice,
   getUserLicenses,

@@ -9,7 +9,7 @@ export class LicenseKeyGenerator {
   constructor(config: Partial<LicenseKeyConfig> = {}) {
     this.config = {
       productPrefix: config.productPrefix || 'TW',
-      keyLength: config.keyLength || 16,
+      keyLength: config.keyLength || 12,  // 12字符原始密钥，加4字符校验码=16字符总长
       checksumEnabled: config.checksumEnabled ?? true
     }
   }
@@ -85,13 +85,14 @@ export class LicenseKeyGenerator {
     // 使用UUID作为熵源，取指定长度
     const uuid = uuidv4().replace(/-/g, '').toUpperCase()
     
-    // 如果UUID长度不足，补充随机字符
-    if (uuid.length < this.config.keyLength) {
-      const additional = this.generateRandomString(this.config.keyLength - uuid.length)
-      return uuid + additional
+    // 严格控制输出长度为keyLength（通常是16）
+    if (uuid.length >= this.config.keyLength) {
+      return uuid.slice(0, this.config.keyLength)
     }
     
-    return uuid.slice(0, this.config.keyLength)
+    // 如果UUID长度不足，补充随机字符
+    const additional = this.generateRandomString(this.config.keyLength - uuid.length)
+    return uuid + additional
   }
 
   /**
@@ -150,11 +151,19 @@ export class LicenseKeyGenerator {
    * 格式化密钥为分组格式 (XXXX-XXXX-XXXX-XXXX)
    */
   private formatKey(key: string): string {
-    // 确保长度是20字符（16字符密钥 + 4字符校验码）
-    const paddedKey = key.padEnd(20, '0')
+    // 确保长度是16字符（4组，每组4字符）
+    let processedKey = key
+    
+    if (processedKey.length > 16) {
+      // 如果超过16字符，截取前16个
+      processedKey = processedKey.slice(0, 16)
+    } else if (processedKey.length < 16) {
+      // 如果少于16字符，用0填充
+      processedKey = processedKey.padEnd(16, '0')
+    }
     
     // 分割为4个4字符的组
-    return paddedKey.match(/.{1,4}/g)?.join('-') || paddedKey
+    return processedKey.match(/.{1,4}/g)?.join('-') || processedKey
   }
 
   /**
