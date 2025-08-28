@@ -13,8 +13,17 @@ import {
 } from '@/lib/license/validation-utils'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/context/AuthContext'
-import { Copy, Check, X, RefreshCw, Database, Key, Shield, TestTube, Sparkles, LogIn, Smartphone } from 'lucide-react'
+import { Copy, Check, X, RefreshCw, Database, Key, Shield, TestTube, Sparkles, LogIn, Smartphone, BarChart3, Download, Clock, Users } from 'lucide-react'
 import TestInstructions from '@/components/test/TestInstructions'
+import type { 
+  TrialStartRequest, 
+  TrialEndRequest, 
+  TrialStartResponse, 
+  TrialEndResponse,
+  TrialStatsResponse,
+  TrialStatsFilters,
+  TrialExportFilters
+} from '@/types/analytics'
 
 interface TestResult {
   success: boolean
@@ -66,6 +75,20 @@ interface ActivationResult {
   }
 }
 
+interface TrialSession {
+  trialId: string
+  deviceFingerprint: string
+  startedAt: string
+  status: 'active' | 'completed'
+}
+
+interface TrialTestResult {
+  success: boolean
+  message: string
+  data?: any
+  timestamp: string
+}
+
 export default function LicenseTestPage() {
   // 认证状态
   const { user, loading: authLoading } = useAuth()
@@ -108,6 +131,39 @@ export default function LicenseTestPage() {
   const [activationResults, setActivationResults] = useState<ActivationResult[]>([])
   const [activationError, setActivationError] = useState('')
 
+  // 试用分析测试状态
+  const [trialSessions, setTrialSessions] = useState<TrialSession[]>([])
+  const [isStartingTrial, setIsStartingTrial] = useState(false)
+  const [isEndingTrial, setIsEndingTrial] = useState(false)
+  const [trialTestResults, setTrialTestResults] = useState<TrialTestResult[]>([])
+  const [trialError, setTrialError] = useState('')
+  
+  // 试用开始表单
+  const [trialStartForm, setTrialStartForm] = useState<TrialStartRequest>({
+    deviceFingerprint: '',
+    appVersion: '1.0.0',
+    systemVersion: '14.0',
+    installChannel: 'app_store',
+    deviceType: 'macbook_pro'
+  })
+  
+  // 试用结束表单
+  const [selectedTrialId, setSelectedTrialId] = useState('')
+  
+  // 管理员统计状态
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isLoadingStats, setIsLoadingStats] = useState(false)
+  const [trialStats, setTrialStats] = useState<TrialStatsResponse | null>(null)
+  const [statsFilters, setStatsFilters] = useState<TrialStatsFilters>({})
+  const [statsError, setStatsError] = useState('')
+  
+  // 数据导出状态
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportFilters, setExportFilters] = useState<TrialExportFilters>({
+    format: 'csv'
+  })
+  const [exportError, setExportError] = useState('')
+
   // 测试用数据（动态生成）
   const [testCases, setTestCases] = useState({
     validLicenseKeys: [] as string[],
@@ -132,6 +188,34 @@ export default function LicenseTestPage() {
       { email: 'test@', reason: '缺少域名' }
     ]
   })
+
+  // 设备指纹生成函数
+  const generateDeviceFingerprint = () => {
+    const platforms = ['macOS', 'Windows', 'Linux']
+    const architectures = ['arm64', 'x64', 'x86']
+    const locales = ['en-US', 'zh-CN', 'ja-JP', 'de-DE']
+    const timezones = ['America/New_York', 'Asia/Shanghai', 'Europe/London', 'Asia/Tokyo']
+    const resolutions = ['1920x1080', '2560x1440', '3840x2160', '1366x768']
+    
+    const randomChoice = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
+    
+    return {
+      platform: randomChoice(platforms),
+      architecture: randomChoice(architectures), 
+      locale: randomChoice(locales),
+      timezone: randomChoice(timezones),
+      screenResolution: randomChoice(resolutions),
+      appVersion: trialStartForm.appVersion,
+      sessionId: Math.random().toString(36).substring(2, 15),
+      timestamp: Date.now()
+    }
+  }
+
+  // 生成设备指纹字符串
+  const createDeviceFingerprintString = (fingerprint?: any) => {
+    const fp = fingerprint || generateDeviceFingerprint()
+    return JSON.stringify(fp)
+  }
 
   // License Key 生成器测试
   const handleGenerateKey = async () => {
@@ -408,6 +492,229 @@ export default function LicenseTestPage() {
     setActivationError('')
   }
 
+  // 试用开始测试
+  const handleStartTrial = async () => {
+    if (!trialStartForm.deviceFingerprint) {
+      setTrialError('请先生成设备指纹')
+      return
+    }
+
+    setIsStartingTrial(true)
+    setTrialError('')
+
+    try {
+      const response = await fetch('/api/analytics/trial/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(trialStartForm),
+      })
+
+      const result: TrialStartResponse = await response.json()
+      
+      const testResult: TrialTestResult = {
+        success: response.ok && result.success,
+        message: result.message || (response.ok ? 'Trial started successfully' : 'Failed to start trial'),
+        data: result,
+        timestamp: new Date().toISOString()
+      }
+      
+      setTrialTestResults(prev => [testResult, ...prev.slice(0, 9)])
+      
+      if (testResult.success && result.trialId) {
+        // 保存试用会话信息
+        const newSession: TrialSession = {
+          trialId: result.trialId,
+          deviceFingerprint: trialStartForm.deviceFingerprint,
+          startedAt: new Date().toISOString(),
+          status: 'active'
+        }
+        setTrialSessions(prev => [newSession, ...prev.slice(0, 9)])
+        
+        if (!selectedTrialId) {
+          setSelectedTrialId(result.trialId)
+        }
+      } else {
+        setTrialError(testResult.message)
+      }
+    } catch (error: any) {
+      const errorResult: TrialTestResult = {
+        success: false,
+        message: `Network error: ${error.message || 'Request failed'}`,
+        timestamp: new Date().toISOString()
+      }
+      setTrialTestResults(prev => [errorResult, ...prev.slice(0, 9)])
+      setTrialError(errorResult.message)
+    } finally {
+      setIsStartingTrial(false)
+    }
+  }
+
+  // 试用结束测试
+  const handleEndTrial = async () => {
+    if (!selectedTrialId) {
+      setTrialError('请选择一个活跃的试用会话')
+      return
+    }
+
+    const session = trialSessions.find(s => s.trialId === selectedTrialId && s.status === 'active')
+    if (!session) {
+      setTrialError('未找到对应的活跃试用会话')
+      return
+    }
+
+    setIsEndingTrial(true)
+    setTrialError('')
+
+    try {
+      const endRequest: TrialEndRequest = {
+        trialId: selectedTrialId,
+        deviceFingerprint: session.deviceFingerprint
+      }
+
+      const response = await fetch('/api/analytics/trial/end', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(endRequest),
+      })
+
+      const result: TrialEndResponse = await response.json()
+      
+      const testResult: TrialTestResult = {
+        success: response.ok && result.success,
+        message: result.message || (response.ok ? 'Trial ended successfully' : 'Failed to end trial'),
+        data: { ...result, duration: result.trialDuration },
+        timestamp: new Date().toISOString()
+      }
+      
+      setTrialTestResults(prev => [testResult, ...prev.slice(0, 9)])
+      
+      if (testResult.success) {
+        // 更新会话状态为已完成
+        setTrialSessions(prev => prev.map(s => 
+          s.trialId === selectedTrialId 
+            ? { ...s, status: 'completed' as const }
+            : s
+        ))
+        setSelectedTrialId('')
+      } else {
+        setTrialError(testResult.message)
+      }
+    } catch (error: any) {
+      const errorResult: TrialTestResult = {
+        success: false,
+        message: `Network error: ${error.message || 'Request failed'}`,
+        timestamp: new Date().toISOString()
+      }
+      setTrialTestResults(prev => [errorResult, ...prev.slice(0, 9)])
+      setTrialError(errorResult.message)
+    } finally {
+      setIsEndingTrial(false)
+    }
+  }
+
+  // 获取试用统计
+  const handleGetStats = async () => {
+    setIsLoadingStats(true)
+    setStatsError('')
+
+    try {
+      const searchParams = new URLSearchParams()
+      if (statsFilters.startDate) searchParams.set('startDate', statsFilters.startDate)
+      if (statsFilters.endDate) searchParams.set('endDate', statsFilters.endDate)
+      if (statsFilters.channel) searchParams.set('channel', statsFilters.channel)
+
+      const response = await fetch(`/api/analytics/trial/stats?${searchParams.toString()}`)
+      const result = await response.json()
+      
+      if (response.ok) {
+        setTrialStats(result)
+        setStatsError('')
+      } else {
+        setStatsError(result.error || 'Failed to load statistics')
+        setTrialStats(null)
+      }
+    } catch (error: any) {
+      setStatsError(`Network error: ${error.message || 'Request failed'}`)
+      setTrialStats(null)
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }
+
+  // 导出试用数据
+  const handleExportData = async () => {
+    setIsExporting(true)
+    setExportError('')
+
+    try {
+      const searchParams = new URLSearchParams()
+      searchParams.set('format', exportFilters.format || 'csv')
+      if (exportFilters.startDate) searchParams.set('startDate', exportFilters.startDate)
+      if (exportFilters.endDate) searchParams.set('endDate', exportFilters.endDate)
+      if (exportFilters.channel) searchParams.set('channel', exportFilters.channel)
+
+      const response = await fetch(`/api/analytics/trial/export?${searchParams.toString()}`)
+      
+      if (response.ok) {
+        const filename = response.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] || 'trial_data'
+        const blob = await response.blob()
+        
+        // 创建下载链接
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        
+        setExportError('')
+      } else {
+        const result = await response.json()
+        setExportError(result.error || 'Export failed')
+      }
+    } catch (error: any) {
+      setExportError(`Network error: ${error.message || 'Request failed'}`)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  // 填充测试数据
+  const fillTrialTestData = () => {
+    const newFingerprint = createDeviceFingerprintString()
+    setTrialStartForm(prev => ({
+      ...prev,
+      deviceFingerprint: newFingerprint,
+      appVersion: `1.${Math.floor(Math.random() * 10)}.${Math.floor(Math.random() * 10)}`,
+      systemVersion: `${Math.floor(Math.random() * 3) + 12}.${Math.floor(Math.random() * 5)}`,
+      installChannel: ['app_store', 'direct_download', 'website', 'partner'][Math.floor(Math.random() * 4)],
+      deviceType: ['macbook_pro', 'macbook_air', 'imac', 'mac_mini'][Math.floor(Math.random() * 4)]
+    }))
+    setTrialError('')
+  }
+
+  // 检查管理员权限
+  const checkAdminStatus = async () => {
+    if (!user?.email) {
+      setIsAdmin(false)
+      return
+    }
+
+    try {
+      const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',') || []
+      setIsAdmin(adminEmails.includes(user.email))
+    } catch (error) {
+      console.error('Failed to check admin status:', error)
+      setIsAdmin(false)
+    }
+  }
+
   // API连接测试
   const testDatabaseConnection = async () => {
     setConnectionStatus('testing')
@@ -448,10 +755,22 @@ export default function LicenseTestPage() {
 
       // 获取可用产品列表
       await fetchAvailableProducts()
+      
+      // 检查管理员权限
+      await checkAdminStatus()
     }
     
     initializeTests()
   }, [])
+
+  // 当用户登录状态改变时重新检查管理员权限
+  useEffect(() => {
+    if (user) {
+      checkAdminStatus()
+    } else {
+      setIsAdmin(false)
+    }
+  }, [user])
 
   // 当有效密钥更新后运行验证测试
   useEffect(() => {
@@ -1138,6 +1457,566 @@ export default function LicenseTestPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* 试用开始测试 */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Clock className="w-6 h-6 text-cyan-600" />
+          <h2 className="text-2xl font-semibold text-gray-900">Trial Analytics - Start Test</h2>
+        </div>
+
+        <div className="mb-6 p-4 bg-cyan-50 border border-cyan-200 rounded-lg">
+          <p className="text-sm text-cyan-700">
+            <strong>Function Description</strong>: Test trial session start functionality, including device fingerprint generation and trial data recording.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left: Trial Start Form */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Trial Start Form</h3>
+            
+            {/* Device Fingerprint */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Device Fingerprint *
+              </label>
+              <div className="flex gap-2">
+                <textarea
+                  value={trialStartForm.deviceFingerprint}
+                  onChange={(e) => setTrialStartForm(prev => ({ ...prev, deviceFingerprint: e.target.value }))}
+                  placeholder="Auto-generated device fingerprint"
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-xs font-mono focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  rows={3}
+                  readOnly
+                />
+                <button
+                  onClick={() => setTrialStartForm(prev => ({ 
+                    ...prev, 
+                    deviceFingerprint: createDeviceFingerprintString() 
+                  }))}
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Generate
+                </button>
+              </div>
+            </div>
+
+            {/* App Version */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                App Version *
+              </label>
+              <input
+                type="text"
+                value={trialStartForm.appVersion}
+                onChange={(e) => setTrialStartForm(prev => ({ ...prev, appVersion: e.target.value }))}
+                placeholder="1.0.0"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+              />
+            </div>
+
+            {/* System Version */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                System Version *
+              </label>
+              <input
+                type="text"
+                value={trialStartForm.systemVersion}
+                onChange={(e) => setTrialStartForm(prev => ({ ...prev, systemVersion: e.target.value }))}
+                placeholder="14.0"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {/* Install Channel */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Install Channel
+                </label>
+                <select
+                  value={trialStartForm.installChannel || ''}
+                  onChange={(e) => setTrialStartForm(prev => ({ ...prev, installChannel: e.target.value || undefined }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                >
+                  <option value="">None</option>
+                  <option value="app_store">App Store</option>
+                  <option value="direct_download">Direct Download</option>
+                  <option value="website">Website</option>
+                  <option value="partner">Partner</option>
+                  <option value="beta">Beta</option>
+                </select>
+              </div>
+
+              {/* Device Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Device Type
+                </label>
+                <select
+                  value={trialStartForm.deviceType || ''}
+                  onChange={(e) => setTrialStartForm(prev => ({ ...prev, deviceType: e.target.value || undefined }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                >
+                  <option value="">Unknown</option>
+                  <option value="macbook_pro">MacBook Pro</option>
+                  <option value="macbook_air">MacBook Air</option>
+                  <option value="imac">iMac</option>
+                  <option value="mac_mini">Mac mini</option>
+                  <option value="mac_pro">Mac Pro</option>
+                  <option value="mac_studio">Mac Studio</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-4">
+              <button
+                onClick={handleStartTrial}
+                disabled={isStartingTrial || !trialStartForm.deviceFingerprint || !trialStartForm.appVersion || !trialStartForm.systemVersion}
+                className="bg-cyan-600 hover:bg-cyan-700 disabled:bg-cyan-400 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+              >
+                {isStartingTrial ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Clock className="w-4 h-4" />
+                )}
+                {isStartingTrial ? 'Starting...' : 'Start Trial'}
+              </button>
+
+              <button
+                onClick={fillTrialTestData}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                Fill Test Data
+              </button>
+            </div>
+
+            {trialError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-700">{trialError}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Trial Sessions */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Active Trial Sessions</h3>
+            
+            {trialSessions.length === 0 ? (
+              <div className="p-6 text-center text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                <Clock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm">No trial sessions</p>
+                <p className="text-xs text-gray-400 mt-1">Start a trial to see sessions here</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {trialSessions.map((session, index) => (
+                  <div key={session.trialId} className={`p-3 rounded-lg border ${
+                    session.status === 'active' 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-gray-50 border-gray-200'
+                  }`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="text-sm font-mono text-gray-900 mb-1">
+                          {session.trialId.slice(0, 8)}...
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          Started: {new Date(session.startedAt).toLocaleString()}
+                        </div>
+                        <div className={`text-xs mt-1 ${
+                          session.status === 'active' ? 'text-green-600' : 'text-gray-600'
+                        }`}>
+                          Status: {session.status}
+                        </div>
+                      </div>
+                      {session.status === 'active' && (
+                        <button
+                          onClick={() => setSelectedTrialId(session.trialId)}
+                          className={`text-xs px-2 py-1 rounded ${
+                            selectedTrialId === session.trialId
+                              ? 'bg-cyan-600 text-white'
+                              : 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200'
+                          } transition-colors`}
+                        >
+                          {selectedTrialId === session.trialId ? 'Selected' : 'Select'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 试用结束测试 */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Check className="w-6 h-6 text-emerald-600" />
+          <h2 className="text-2xl font-semibold text-gray-900">Trial Analytics - End Test</h2>
+        </div>
+
+        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+          <p className="text-sm text-emerald-700">
+            <strong>Function Description</strong>: Test trial session end functionality, including duration calculation and device verification.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left: Trial End Form */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">End Trial Session</h3>
+            
+            {/* Trial ID Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Active Trial *
+              </label>
+              {trialSessions.filter(s => s.status === 'active').length === 0 ? (
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-700">No active trial sessions. Start a trial first.</p>
+                </div>
+              ) : (
+                <select
+                  value={selectedTrialId}
+                  onChange={(e) => setSelectedTrialId(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                >
+                  <option value="">Select a trial session</option>
+                  {trialSessions.filter(s => s.status === 'active').map((session) => (
+                    <option key={session.trialId} value={session.trialId}>
+                      {session.trialId.slice(0, 8)}... (Started: {new Date(session.startedAt).toLocaleTimeString()})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {selectedTrialId && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-700">
+                  <strong>Selected Trial:</strong> {selectedTrialId}
+                  <br />
+                  <strong>Device Fingerprint Match:</strong> Will be verified automatically
+                </p>
+              </div>
+            )}
+
+            {/* Action Button */}
+            <div className="pt-4">
+              <button
+                onClick={handleEndTrial}
+                disabled={isEndingTrial || !selectedTrialId}
+                className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+              >
+                {isEndingTrial ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4" />
+                )}
+                {isEndingTrial ? 'Ending...' : 'End Trial'}
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Test Results */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Test Results</h3>
+            
+            {trialTestResults.length === 0 ? (
+              <div className="p-6 text-center text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                <TestTube className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm">No test results</p>
+                <p className="text-xs text-gray-400 mt-1">Run trial tests to see results here</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {trialTestResults.map((result, index) => (
+                  <div key={index} className={`p-3 rounded-lg border ${
+                    result.success 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    <div className="flex items-start gap-2">
+                      {result.success ? (
+                        <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      ) : (
+                        <X className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <div className={`font-medium text-sm ${
+                          result.success ? 'text-green-800' : 'text-red-800'
+                        }`}>
+                          {result.message}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {new Date(result.timestamp).toLocaleString()}
+                        </div>
+                        {result.data && (
+                          <details className="text-xs mt-2">
+                            <summary className="cursor-pointer text-gray-600 hover:text-gray-800">
+                              View Details
+                            </summary>
+                            <pre className="mt-1 p-2 bg-gray-100 rounded text-gray-700 overflow-x-auto">
+                              {JSON.stringify(result.data, null, 2)}
+                            </pre>
+                          </details>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 管理员统计查看 */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <BarChart3 className="w-6 h-6 text-purple-600" />
+          <h2 className="text-2xl font-semibold text-gray-900">Admin Statistics</h2>
+          {isAdmin ? (
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Admin Access</span>
+          ) : (
+            <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">No Admin Access</span>
+          )}
+        </div>
+
+        <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+          <p className="text-sm text-purple-700">
+            <strong>Function Description</strong>: View trial statistics and analytics data. Requires admin privileges.
+          </p>
+        </div>
+
+        {!isAdmin ? (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-yellow-600" />
+              <div>
+                <p className="text-sm font-medium text-yellow-800">Admin Access Required</p>
+                <p className="text-sm text-yellow-700">
+                  Your email ({user?.email || 'not logged in'}) is not in the admin list. Contact an administrator to gain access.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={statsFilters.startDate || ''}
+                  onChange={(e) => setStatsFilters(prev => ({ ...prev, startDate: e.target.value || undefined }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={statsFilters.endDate || ''}
+                  onChange={(e) => setStatsFilters(prev => ({ ...prev, endDate: e.target.value || undefined }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Channel
+                </label>
+                <input
+                  type="text"
+                  value={statsFilters.channel || ''}
+                  onChange={(e) => setStatsFilters(prev => ({ ...prev, channel: e.target.value || undefined }))}
+                  placeholder="app_store, website, etc."
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleGetStats}
+              disabled={isLoadingStats}
+              className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors"
+            >
+              {isLoadingStats ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <BarChart3 className="w-4 h-4" />
+              )}
+              {isLoadingStats ? 'Loading...' : 'Load Statistics'}
+            </button>
+
+            {statsError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-700">{statsError}</p>
+              </div>
+            )}
+
+            {trialStats && (
+              <div className="mt-6 space-y-4">
+                <h4 className="text-md font-medium text-gray-800">Statistics Summary</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-lg font-bold text-blue-800">{trialStats.summary.totalTrials}</div>
+                    <div className="text-xs text-blue-600">Total Trials</div>
+                  </div>
+                  <div className="p-3 bg-green-50 rounded-lg">
+                    <div className="text-lg font-bold text-green-800">{trialStats.summary.activeTrials}</div>
+                    <div className="text-xs text-green-600">Active</div>
+                  </div>
+                  <div className="p-3 bg-purple-50 rounded-lg">
+                    <div className="text-lg font-bold text-purple-800">{trialStats.summary.completedTrials}</div>
+                    <div className="text-xs text-purple-600">Completed</div>
+                  </div>
+                  <div className="p-3 bg-orange-50 rounded-lg">
+                    <div className="text-lg font-bold text-orange-800">{Math.round(trialStats.summary.averageDuration / 60)}m</div>
+                    <div className="text-xs text-orange-600">Avg Duration</div>
+                  </div>
+                </div>
+
+                {trialStats.channelBreakdown.length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-medium text-gray-700 mb-2">Channel Breakdown</h5>
+                    <div className="space-y-2">
+                      {trialStats.channelBreakdown.map((item, i) => (
+                        <div key={i} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-700">{item.channel}</span>
+                          <span className="font-medium">{item.count} ({item.percentage.toFixed(1)}%)</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 数据导出测试 */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Download className="w-6 h-6 text-orange-600" />
+          <h2 className="text-2xl font-semibold text-gray-900">Data Export Test</h2>
+          {isAdmin ? (
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Admin Access</span>
+          ) : (
+            <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">No Admin Access</span>
+          )}
+        </div>
+
+        <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <p className="text-sm text-orange-700">
+            <strong>Function Description</strong>: Test trial data export functionality with CSV/JSON formats and filtering options. Requires admin privileges.
+          </p>
+        </div>
+
+        {!isAdmin ? (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Download className="w-5 h-5 text-yellow-600" />
+              <div>
+                <p className="text-sm font-medium text-yellow-800">Admin Access Required</p>
+                <p className="text-sm text-yellow-700">
+                  Data export requires admin privileges. Your email is not in the admin list.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Export Format */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Format
+                </label>
+                <select
+                  value={exportFilters.format}
+                  onChange={(e) => setExportFilters(prev => ({ ...prev, format: e.target.value as 'csv' | 'json' }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  <option value="csv">CSV</option>
+                  <option value="json">JSON</option>
+                </select>
+              </div>
+
+              {/* Start Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={exportFilters.startDate || ''}
+                  onChange={(e) => setExportFilters(prev => ({ ...prev, startDate: e.target.value || undefined }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+
+              {/* End Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={exportFilters.endDate || ''}
+                  onChange={(e) => setExportFilters(prev => ({ ...prev, endDate: e.target.value || undefined }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+
+              {/* Channel */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Channel
+                </label>
+                <input
+                  type="text"
+                  value={exportFilters.channel || ''}
+                  onChange={(e) => setExportFilters(prev => ({ ...prev, channel: e.target.value || undefined }))}
+                  placeholder="app_store, website, etc."
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleExportData}
+              disabled={isExporting}
+              className="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors"
+            >
+              {isExporting ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {isExporting ? 'Exporting...' : `Export as ${exportFilters.format?.toUpperCase()}`}
+            </button>
+
+            {exportError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-700">{exportError}</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 数据库连接测试 */}

@@ -4,6 +4,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { PaymentService } from '@/lib/payment/service'
 import { rateLimit } from '@/lib/utils/validators'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import type { 
   CreateSessionParams, 
   CreateSessionResponse,
@@ -12,6 +13,24 @@ import type {
 
 export async function POST(request: NextRequest) {
   try {
+    // 检查支付处理是否启用
+    if (process.env.ENABLE_PAYMENT_PROCESSING !== 'true') {
+      return NextResponse.json(
+        {
+          status: 'error',
+          message: 'Payment processing is currently disabled',
+          error: { 
+            code: 'PAYMENT_DISABLED',
+            details: { 
+              enabled: process.env.ENABLE_PAYMENT_PROCESSING,
+              message: 'Please enable payment processing in environment variables' 
+            }
+          }
+        } satisfies ApiResponse,
+        { status: 503 }
+      )
+    }
+
     // 获取客户端IP和用户代理
     const clientIP = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
     const userAgent = request.headers.get('user-agent') || 'unknown'
@@ -71,9 +90,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 获取当前认证用户
-    const supabase = createRouteHandlerClient({ cookies })
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // 获取当前认证用户 (用于身份验证)
+    const authSupabase = createRouteHandlerClient({ cookies })
+    const { data: { user }, error: authError } = await authSupabase.auth.getUser()
+    
+    // 使用服务角色客户端进行数据库操作 (绕过 RLS)
+    const supabase = supabaseAdmin
 
     if (authError || !user) {
       return NextResponse.json(
@@ -140,85 +162,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 创建支付记录并获取支付会话
-    const sessionParams: CreateSessionParams = {
+    // 创建支付会话（包含用户信息）
+    const sessionParams = {
       provider,
       product_id,
       success_url,
       cancel_url,
       customer_email: customer_email || user.email || '',
-      customer_name: user.user_metadata?.full_name || user.email?.split('@')[0]
+      customer_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+      user_id: user.id
     }
 
-    // 为支付记录添加用户信息
-    const paymentData = {
-      user_id: user.id,
-      payment_provider: provider,
-      amount: product.price,
-      currency: product.currency,
-      status: 'pending' as const,
-      product_info: {
-        product_id: product.id,
-        name: product.name,
-        price: product.price,
-        currency: product.currency,
-        features: product.features
-      },
-      customer_info: {
-        email: sessionParams.customer_email,
-        name: sessionParams.customer_name,
-        user_id: user.id
-      },
-      metadata: {
-        created_via: 'api',
-        user_agent: userAgent,
-        ip_address: clientIP,
-        session_requested_at: new Date().toISOString()
-      }
-    }
-
-    // 插入支付记录
-    const { data: payment, error: paymentError } = await supabase
-      .from('payments')
-      .insert(paymentData)
-      .select()
-      .single()
-
-    if (paymentError) {
-      console.error('Failed to create payment record:', paymentError)
-      return NextResponse.json(
-        {
-          status: 'error',
-          message: 'Failed to create payment record',
-          error: { 
-            code: 'DATABASE_ERROR',
-            details: { message: paymentError.message }
-          }
-        } satisfies ApiResponse,
-        { status: 500 }
-      )
-    }
-
-    // 创建支付会话
+    // 创建支付会话（这会自动创建支付记录）
     const sessionResult = await PaymentService.createPaymentSession(sessionParams)
-
-    // 更新支付记录的会话信息
-    await supabase
-      .from('payments')
-      .update({
-        provider_session_id: sessionResult.session_id,
-        metadata: {
-          ...payment.metadata,
-          session_created_at: new Date().toISOString(),
-          session_url: sessionResult.session_url
-        }
-      })
-      .eq('id', payment.id)
 
     // 记录成功创建的日志
     console.log(`Payment session created successfully:`, {
-      payment_id: payment.id,
+      payment_id: sessionResult.payment_id,
       session_id: sessionResult.session_id,
+      session_url: sessionResult.session_url,
       provider,
       user_id: user.id,
       product_id
@@ -229,7 +191,7 @@ export async function POST(request: NextRequest) {
       status: 'success',
       message: 'Payment session created successfully',
       data: {
-        payment_id: payment.id,
+        payment_id: sessionResult.payment_id,
         session_url: sessionResult.session_url,
         session_id: sessionResult.session_id,
         expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30分钟后过期
@@ -239,25 +201,43 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response, { status: 200 })
 
   } catch (error) {
-    console.error('Create payment session error:', error)
+    // 详细的错误日志记录
+    console.error('=== Create payment session error ===')
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      name: error.name,
+      cause: error.cause,
+      timestamp: new Date().toISOString()
+    })
+    console.error('=====================================')
 
     // 根据错误类型返回不同的响应
     let statusCode = 500
     let errorCode = 'INTERNAL_ERROR'
     let errorMessage = 'An unexpected error occurred'
 
-    if (error.message?.includes('payment provider')) {
+    // 更具体的错误处理
+    if (error.message?.includes('Product not found')) {
+      statusCode = 404
+      errorCode = 'PRODUCT_NOT_FOUND'
+      errorMessage = 'Product not found or inactive'
+    } else if (error.message?.includes('payment provider')) {
       statusCode = 400
       errorCode = 'PROVIDER_ERROR'
       errorMessage = 'Payment provider error'
-    } else if (error.message?.includes('validation')) {
+    } else if (error.message?.includes('validation') || error.message?.includes('required')) {
       statusCode = 400
       errorCode = 'VALIDATION_ERROR'
       errorMessage = 'Invalid request parameters'
-    } else if (error.message?.includes('network')) {
+    } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
       statusCode = 503
       errorCode = 'SERVICE_UNAVAILABLE'
       errorMessage = 'Payment service temporarily unavailable'
+    } else if (error.message?.includes('Database') || error.message?.includes('Supabase')) {
+      statusCode = 503
+      errorCode = 'DATABASE_ERROR'
+      errorMessage = 'Database connection error'
     }
 
     return NextResponse.json(

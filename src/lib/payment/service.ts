@@ -29,7 +29,7 @@ export class PaymentService {
   /**
    * 创建支付会话
    */
-  static async createPaymentSession(params: CreateSessionParams): Promise<SessionResult> {
+  static async createPaymentSession(params: CreateSessionParams & { user_id?: string }): Promise<SessionResult> {
     try {
       // 验证输入参数
       this.validateSessionParams(params)
@@ -45,7 +45,8 @@ export class PaymentService {
         ...params,
         amount: product.price,
         currency: product.currency,
-        productInfo: product
+        productInfo: product,
+        user_id: params.user_id
       })
 
       // 获取支付平台实例
@@ -66,7 +67,10 @@ export class PaymentService {
 
       console.log(`Payment session created: ${sessionResult.session_id} for payment ${payment.id}`)
 
-      return sessionResult
+      return {
+        ...sessionResult,
+        payment_id: payment.id
+      }
 
     } catch (error) {
       console.error('Create payment session error:', error)
@@ -448,8 +452,10 @@ export class PaymentService {
     amount: number
     currency: string
     productInfo: any
+    user_id?: string
   }): Promise<PaymentRecord> {
     const paymentData = {
+      user_id: params.user_id || null,
       payment_provider: params.provider,
       amount: params.amount,
       currency: params.currency,
@@ -464,7 +470,7 @@ export class PaymentService {
       customer_info: {
         email: params.customer_email,
         name: params.customer_name,
-        user_id: '' // 将在实际使用时填入
+        user_id: params.user_id || ''
       },
       metadata: {
         created_via: 'api',

@@ -76,10 +76,10 @@ export interface ProductInfo {
 // 支付会话配置
 export interface PaymentSessionConfig {
   provider: 'creem' | 'paddle'
-  productId: string
-  successUrl: string
-  cancelUrl: string
-  customerEmail?: string
+  product_id: string
+  success_url: string
+  cancel_url: string
+  customer_email?: string
 }
 
 // 支付会话结果

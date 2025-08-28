@@ -158,6 +158,18 @@ export function cleanupRateLimitMap(): void {
   }
 }
 
+/**
+ * 简化版本的限流函数，兼容旧API
+ */
+export function rateLimit(
+  identifier: string, 
+  limit: number = 10, 
+  windowMs: number = 60000
+): boolean {
+  const result = checkRateLimit(identifier, limit, windowMs)
+  return result.allowed
+}
+
 // 定期清理限流记录（每5分钟）
 if (typeof global !== 'undefined') {
   setInterval(cleanupRateLimitMap, 5 * 60 * 1000)

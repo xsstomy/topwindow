@@ -202,6 +202,59 @@ export interface Database {
           status?: string
         }
       }
+      trial_analytics: {
+        Row: {
+          id: string
+          trial_id: string
+          user_id: string | null
+          device_fingerprint_hash: string
+          trial_start_at: string
+          trial_end_at: string | null
+          trial_duration_seconds: number | null
+          app_version: string
+          system_version: string
+          install_channel: string | null
+          device_type: string | null
+          trial_status: string
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          trial_id: string
+          user_id?: string | null
+          device_fingerprint_hash: string
+          trial_start_at: string
+          trial_end_at?: string | null
+          trial_duration_seconds?: number | null
+          app_version: string
+          system_version: string
+          install_channel?: string | null
+          device_type?: string | null
+          trial_status?: string
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          trial_id?: string
+          user_id?: string | null
+          device_fingerprint_hash?: string
+          trial_start_at?: string
+          trial_end_at?: string | null
+          trial_duration_seconds?: number | null
+          app_version?: string
+          system_version?: string
+          install_channel?: string | null
+          device_type?: string | null
+          trial_status?: string
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }

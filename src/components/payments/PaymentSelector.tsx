@@ -42,14 +42,22 @@ export default function PaymentSelector({
     try {
       const session = await createPaymentSession({
         provider: selectedProvider,
-        productId: product.id,
-        successUrl: `${window.location.origin}/payment/success`,
-        cancelUrl: `${window.location.origin}/payment/cancel`,
-        customerEmail: user.email!
+        product_id: product.id,
+        success_url: `${window.location.origin}/payment/success`,
+        cancel_url: `${window.location.origin}/payment/cancel`,
+        customer_email: user.email!
       })
 
+      console.log('Payment session received:', session)
+      console.log('Session URL:', session.sessionUrl)
+
       // 重定向到支付页面
-      window.location.href = session.sessionUrl
+      if (session.sessionUrl) {
+        window.location.href = session.sessionUrl
+      } else {
+        console.error('No session URL received')
+        throw new Error('No session URL received from payment service')
+      }
     } catch (error) {
       setIsProcessing(false)
       console.error('Payment session creation failed:', error)

@@ -1,0 +1,13 @@
+dev.topwindow.app {
+    # 使用 Caddy 内置本地 CA 签 HTTPS 证书
+    tls internal
+
+    # 反代到本地服务（Next.js / 其他）
+    reverse_proxy 127.0.0.1:3000
+
+    # 访问日志
+    log {
+        output file /Users/xiashishi/tmp/caddy-dev-topwindow.access.log
+        format console
+    }
+}

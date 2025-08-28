@@ -1,5 +1,6 @@
 // 支付平台适配器实现
 import crypto from 'crypto'
+import { creemConfig, paddleConfig, validateProviderConfig } from './config'
 import type { 
   PaymentProviderInterface,
   CreateSessionParams,
@@ -43,19 +44,22 @@ abstract class PaymentProvider implements PaymentProviderInterface {
 
 // Creem 支付平台适配器
 export class CreemProvider extends PaymentProvider {
-  private readonly apiUrl: string
-  private readonly secretKey: string
-  private readonly webhookSecret: string
+  private readonly config: typeof creemConfig
 
   constructor() {
     super()
-    this.apiUrl = process.env.CREEM_API_URL || 'https://api.creem.io'
-    this.secretKey = process.env.CREEM_SECRET_KEY || ''
-    this.webhookSecret = process.env.CREEM_WEBHOOK_SECRET || ''
+    this.config = creemConfig
 
-    if (!this.secretKey || !this.webhookSecret) {
-      console.warn('Creem credentials not configured. Using mock mode.')
+    // Validate configuration on startup
+    const validation = validateProviderConfig('creem')
+    if (!validation.isValid) {
+      console.warn(`Creem configuration incomplete (${this.config.mode} mode):`, validation.missingKeys.join(', '))
     }
+    if (validation.warnings.length > 0) {
+      console.warn('Creem configuration warnings:', validation.warnings.join(', '))
+    }
+
+    console.log(`Creem provider initialized in ${this.config.mode} mode`)
   }
 
   async createSession(params: CreateSessionParams, payment: PaymentRecord): Promise<SessionResult> {
@@ -63,13 +67,21 @@ export class CreemProvider extends PaymentProvider {
       this.validateAmount(payment.amount)
       this.validateCurrency(payment.currency)
 
-      // 如果没有配置真实的 API key，返回模拟数据
-      if (!this.secretKey || this.secretKey.startsWith('sk_test_mock')) {
+      // Check if using mock configuration
+      const isMockMode = !this.config.secretKey || 
+                        (this.config.secretKey && this.config.secretKey.includes('mock')) || 
+                        this.config.secretKey === 'sk_test_your_real_secret_key_here'
+
+      if (isMockMode) {
+        console.log(`[CREEM ${this.config.mode.toUpperCase()}] Using mock mode - no real API key configured`)
         return this.createMockSession(params, payment)
       }
 
+      // Use configured product ID or fall back to params
+      const productId = this.config.productId || params.product_id
+
       const sessionParams: CreemSessionParams = {
-        product_id: params.product_id,
+        product_id: productId,
         amount: Math.round(payment.amount * 100), // 转换为分
         currency: payment.currency,
         customer: {
@@ -81,15 +93,23 @@ export class CreemProvider extends PaymentProvider {
         metadata: {
           payment_id: payment.id,
           user_id: payment.user_id,
-          product_id: params.product_id,
-          generate_license: 'true'
+          product_id: productId,
+          generate_license: 'true',
+          mode: this.config.mode
         }
       }
 
-      const response = await fetch(`${this.apiUrl}/v1/checkout/sessions`, {
+      console.log(`[CREEM ${this.config.mode.toUpperCase()}] Creating session:`, {
+        product_id: productId,
+        amount: sessionParams.amount,
+        currency: sessionParams.currency,
+        api_url: this.config.apiUrl
+      })
+
+      const response = await fetch(`${this.config.apiUrl}/v1/checkout/sessions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.secretKey}`,
+          'Authorization': `Bearer ${this.config.secretKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(sessionParams)
@@ -101,6 +121,11 @@ export class CreemProvider extends PaymentProvider {
       }
 
       const sessionData: CreemSessionResponse = await response.json()
+
+      console.log(`[CREEM ${this.config.mode.toUpperCase()}] Session created:`, {
+        session_id: sessionData.id,
+        payment_id: payment.id
+      })
 
       return {
         session_url: sessionData.url,
@@ -114,23 +139,27 @@ export class CreemProvider extends PaymentProvider {
   }
 
   verifyWebhook(payload: string, signature: string): boolean {
-    if (!this.webhookSecret) {
-      console.warn('Creem webhook secret not configured, skipping verification')
+    if (!this.config.webhookSecret || (this.config.webhookSecret && this.config.webhookSecret.includes('mock'))) {
+      console.warn(`[CREEM ${this.config.mode.toUpperCase()}] Webhook secret not configured, skipping verification`)
       return true // 在测试模式下跳过验证
     }
 
     try {
       const expectedSignature = crypto
-        .createHmac('sha256', this.webhookSecret)
+        .createHmac('sha256', this.config.webhookSecret)
         .update(payload)
         .digest('hex')
 
-      return crypto.timingSafeEqual(
+      const isValid = crypto.timingSafeEqual(
         Buffer.from(signature.replace('sha256=', '')),
         Buffer.from(expectedSignature)
       )
+
+      console.log(`[CREEM ${this.config.mode.toUpperCase()}] Webhook signature verification:`, isValid ? 'VALID' : 'INVALID')
+      return isValid
+
     } catch (error) {
-      console.error('Webhook signature verification failed:', error)
+      console.error(`[CREEM ${this.config.mode.toUpperCase()}] Webhook signature verification failed:`, error)
       return false
     }
   }
@@ -197,10 +226,10 @@ export class CreemProvider extends PaymentProvider {
   }
 
   private createMockSession(params: CreateSessionParams, payment: PaymentRecord): SessionResult {
-    const mockSessionId = `creem_mock_${Date.now()}`
-    const mockUrl = `https://checkout-mock.creem.io/session/${mockSessionId}?payment_id=${payment.id}`
+    const mockSessionId = `creem_${this.config.mode}_mock_${Date.now()}`
+    const mockUrl = `https://checkout-mock.creem.io/session/${mockSessionId}?payment_id=${payment.id}&mode=${this.config.mode}`
 
-    console.log(`[MOCK] Creem session created: ${mockSessionId}`)
+    console.log(`[CREEM ${this.config.mode.toUpperCase()}] Mock session created: ${mockSessionId}`)
 
     return {
       session_url: mockUrl,
@@ -212,19 +241,22 @@ export class CreemProvider extends PaymentProvider {
 
 // Paddle 支付平台适配器
 export class PaddleProvider extends PaymentProvider {
-  private readonly apiUrl: string
-  private readonly apiKey: string
-  private readonly webhookSecret: string
+  private readonly config: typeof paddleConfig
 
   constructor() {
     super()
-    this.apiUrl = process.env.PADDLE_API_URL || 'https://api.paddle.com'
-    this.apiKey = process.env.PADDLE_API_KEY || ''
-    this.webhookSecret = process.env.PADDLE_WEBHOOK_SECRET || ''
+    this.config = paddleConfig
 
-    if (!this.apiKey || !this.webhookSecret) {
-      console.warn('Paddle credentials not configured. Using mock mode.')
+    // Validate configuration on startup
+    const validation = validateProviderConfig('paddle')
+    if (!validation.isValid) {
+      console.warn(`Paddle configuration incomplete (${this.config.mode} mode):`, validation.missingKeys.join(', '))
     }
+    if (validation.warnings.length > 0) {
+      console.warn('Paddle configuration warnings:', validation.warnings.join(', '))
+    }
+
+    console.log(`Paddle provider initialized in ${this.config.mode} mode`)
   }
 
   async createSession(params: CreateSessionParams, payment: PaymentRecord): Promise<SessionResult> {
@@ -232,8 +264,13 @@ export class PaddleProvider extends PaymentProvider {
       this.validateAmount(payment.amount)
       this.validateCurrency(payment.currency)
 
-      // 如果没有配置真实的 API key，返回模拟数据
-      if (!this.apiKey || this.apiKey.startsWith('pk_test_mock')) {
+      // Check if using mock configuration
+      const isMockMode = !this.config.apiKey || 
+                        (this.config.apiKey && this.config.apiKey.includes('mock')) || 
+                        this.config.apiKey === 'sk_live_your_production_key_here'
+
+      if (isMockMode) {
+        console.log(`[PADDLE ${this.config.mode.toUpperCase()}] Using mock mode - no real API key configured`)
         return this.createMockSession(params, payment)
       }
 
@@ -252,10 +289,10 @@ export class PaddleProvider extends PaymentProvider {
         }
       }
 
-      const response = await fetch(`${this.apiUrl}/checkout/sessions`, {
+      const response = await fetch(`${this.config.apiUrl}/checkout/sessions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.config.apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(sessionParams)
@@ -280,8 +317,8 @@ export class PaddleProvider extends PaymentProvider {
   }
 
   verifyWebhook(payload: string, signature: string): boolean {
-    if (!this.webhookSecret) {
-      console.warn('Paddle webhook secret not configured, skipping verification')
+    if (!this.config.webhookSecret || (this.config.webhookSecret && this.config.webhookSecret.includes('mock'))) {
+      console.warn(`[PADDLE ${this.config.mode.toUpperCase()}] Webhook secret not configured, skipping verification`)
       return true // 在测试模式下跳过验证
     }
 
@@ -289,16 +326,20 @@ export class PaddleProvider extends PaymentProvider {
       // Paddle 使用不同的签名验证方式
       // 这里简化处理，实际应用中需要根据 Paddle 文档实现
       const expectedSignature = crypto
-        .createHmac('sha256', this.webhookSecret)
+        .createHmac('sha256', this.config.webhookSecret)
         .update(payload)
         .digest('hex')
 
-      return crypto.timingSafeEqual(
+      const isValid = crypto.timingSafeEqual(
         Buffer.from(signature),
         Buffer.from(expectedSignature)
       )
+
+      console.log(`[PADDLE ${this.config.mode.toUpperCase()}] Webhook signature verification:`, isValid ? 'VALID' : 'INVALID')
+      return isValid
+
     } catch (error) {
-      console.error('Paddle webhook signature verification failed:', error)
+      console.error(`[PADDLE ${this.config.mode.toUpperCase()}] Webhook signature verification failed:`, error)
       return false
     }
   }
@@ -379,10 +420,10 @@ export class PaddleProvider extends PaymentProvider {
   }
 
   private createMockSession(params: CreateSessionParams, payment: PaymentRecord): SessionResult {
-    const mockSessionId = `paddle_mock_${Date.now()}`
-    const mockUrl = `https://checkout-mock.paddle.com/session/${mockSessionId}?payment_id=${payment.id}`
+    const mockSessionId = `paddle_${this.config.mode}_mock_${Date.now()}`
+    const mockUrl = `https://checkout-mock.paddle.com/session/${mockSessionId}?payment_id=${payment.id}&mode=${this.config.mode}`
 
-    console.log(`[MOCK] Paddle session created: ${mockSessionId}`)
+    console.log(`[PADDLE ${this.config.mode.toUpperCase()}] Mock session created: ${mockSessionId}`)
 
     return {
       session_url: mockUrl,
@@ -422,95 +463,6 @@ export class PaymentProviderFactory {
   }
 }
 
-// 支付平台配置验证
-export function validateProviderConfig(provider: 'creem' | 'paddle'): {
-  isValid: boolean
-  missingKeys: string[]
-} {
-  const requiredKeys: Record<string, string[]> = {
-    creem: ['CREEM_SECRET_KEY', 'CREEM_WEBHOOK_SECRET'],
-    paddle: ['PADDLE_API_KEY', 'PADDLE_WEBHOOK_SECRET']
-  }
-
-  const keys = requiredKeys[provider] || []
-  const missingKeys = keys.filter(key => !process.env[key])
-
-  return {
-    isValid: missingKeys.length === 0,
-    missingKeys
-  }
-}
-
-// 支付平台健康检查
-export async function checkProviderHealth(provider: 'creem' | 'paddle'): Promise<{
-  isHealthy: boolean
-  message: string
-  responseTime?: number
-}> {
-  const startTime = Date.now()
-  
-  try {
-    const providerInstance = PaymentProviderFactory.getProvider(provider)
-    
-    // 创建一个测试会话请求来检查 API 连通性
-    const testParams: CreateSessionParams = {
-      provider,
-      product_id: 'test-health-check',
-      success_url: 'https://example.com/success',
-      cancel_url: 'https://example.com/cancel',
-      customer_email: 'test@example.com'
-    }
-
-    const testPayment: PaymentRecord = {
-      id: 'test-payment-health-check',
-      user_id: 'test-user',
-      payment_provider: provider,
-      provider_payment_id: null,
-      provider_session_id: null,
-      amount: 1.00,
-      currency: 'USD',
-      status: 'pending',
-      product_info: {
-        product_id: 'test-health-check',
-        name: 'Health Check',
-        price: 1.00,
-        currency: 'USD'
-      },
-      customer_info: {
-        email: 'test@example.com',
-        user_id: 'test-user'
-      },
-      metadata: {},
-      created_at: new Date().toISOString(),
-      completed_at: null,
-      webhook_received_at: null
-    }
-
-    // 注意：在健康检查中，我们不实际创建会话，只检查配置
-    const config = validateProviderConfig(provider)
-    
-    if (!config.isValid) {
-      return {
-        isHealthy: false,
-        message: `Missing configuration: ${config.missingKeys.join(', ')}`,
-        responseTime: Date.now() - startTime
-      }
-    }
-
-    return {
-      isHealthy: true,
-      message: 'Provider is healthy',
-      responseTime: Date.now() - startTime
-    }
-
-  } catch (error) {
-    return {
-      isHealthy: false,
-      message: `Health check failed: ${error.message}`,
-      responseTime: Date.now() - startTime
-    }
-  }
-}
 
 // 便捷函数
 export const { getProvider, getSupportedProviders, isProviderSupported } = PaymentProviderFactory

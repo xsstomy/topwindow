@@ -27,7 +27,7 @@ export class PaymentUIService {
     try {
       this.trackEvent('payment_session_create_started', {
         provider: config.provider,
-        productId: config.productId
+        productId: config.product_id
       })
 
       const response = await fetch('/api/payments/create-session', {
@@ -39,10 +39,22 @@ export class PaymentUIService {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw this.createPaymentError('provider_error', errorData.message || 'Failed to create payment session', {
+        let errorMessage = 'Failed to create payment session'
+        let errorData: any = {}
+        
+        try {
+          errorData = await response.json()
+          errorMessage = errorData.message || errorData.error?.message || errorMessage
+        } catch (parseError) {
+          // 如果无法解析错误响应，使用状态码信息
+          errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
+        }
+        
+        throw this.createPaymentError('provider_error', errorMessage, {
           provider: config.provider,
-          productId: config.productId
+          productId: config.product_id,
+          httpStatus: response.status,
+          errorCode: errorData.error?.code
         })
       }
 
@@ -50,19 +62,19 @@ export class PaymentUIService {
       
       this.trackEvent('payment_session_created', {
         provider: config.provider,
-        productId: config.productId,
-        sessionId: sessionData.session_id
+        productId: config.product_id,
+        sessionId: sessionData.data.session_id
       })
 
       return {
-        sessionId: sessionData.session_id,
-        sessionUrl: sessionData.session_url,
-        paymentId: sessionData.payment_id
+        sessionId: sessionData.data.session_id,
+        sessionUrl: sessionData.data.session_url,
+        paymentId: sessionData.data.payment_id
       }
     } catch (error) {
       this.trackEvent('payment_session_create_failed', {
         provider: config.provider,
-        productId: config.productId,
+        productId: config.product_id,
         error: error instanceof Error ? error.message : 'Unknown error'
       })
       throw error
@@ -161,7 +173,7 @@ export class PaymentUIService {
   validatePaymentConfig(config: PaymentSessionConfig): { isValid: boolean; errors: string[] } {
     const errors: string[] = []
 
-    if (!config.productId) {
+    if (!config.product_id) {
       errors.push('产品ID不能为空')
     }
 
@@ -169,15 +181,15 @@ export class PaymentUIService {
       errors.push('请选择有效的支付方式')
     }
 
-    if (!config.successUrl) {
+    if (!config.success_url) {
       errors.push('成功回调URL不能为空')
     }
 
-    if (!config.cancelUrl) {
+    if (!config.cancel_url) {
       errors.push('取消回调URL不能为空')
     }
 
-    if (config.customerEmail && !this.isValidEmail(config.customerEmail)) {
+    if (config.customer_email && !this.isValidEmail(config.customer_email)) {
       errors.push('邮箱格式不正确')
     }
 
