@@ -130,37 +130,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 检查用户是否已有该产品的有效许可证
-    const { data: existingLicense } = await supabase
-      .from('licenses')
-      .select('license_key, status, expires_at')
-      .eq('user_id', user.id)
-      .eq('product_id', product_id)
-      .in('status', ['active'])
-      .single()
-
-    if (existingLicense) {
-      // 检查许可证是否过期
-      const isExpired = existingLicense.expires_at && 
-        new Date(existingLicense.expires_at) < new Date()
-
-      if (!isExpired) {
-        return NextResponse.json(
-          {
-            status: 'error',
-            message: 'You already have an active license for this product',
-            error: { 
-              code: 'LICENSE_ALREADY_EXISTS',
-              details: { 
-                license_key: existingLicense.license_key,
-                status: existingLicense.status
-              }
-            }
-          } satisfies ApiResponse,
-          { status: 409 }
-        )
-      }
-    }
+    // 注释：允许用户购买多个许可证以支持多设备使用、团队购买等场景
+    // 这里移除了原有的许可证检查限制，用户可以自由购买多个许可证
+    // 如果将来需要限制，可以在这里添加更复杂的业务逻辑，比如：
+    // - 检查已购买数量是否超过某个合理限制
+    // - 根据产品类型决定是否允许多次购买
+    // - 提供升级而非重复购买的选项
 
     // 创建支付会话（包含用户信息）
     const sessionParams = {
@@ -315,7 +290,7 @@ export async function OPTIONS(request: NextRequest) {
 // 2. 参数验证失败 - 缺失/无效参数处理
 // 3. 用户认证失败 - 未登录用户访问
 // 4. 产品验证失败 - 不存在/已停用产品
-// 5. 重复许可证检查 - 已有有效许可证的用户
+// 5. 多次购买测试 - 用户购买多个许可证的场景
 // 6. 限流保护测试 - 超出频次限制
 // 7. 支付平台错误 - 外部服务不可用
 // 8. 数据库错误处理 - 写入失败恢复
