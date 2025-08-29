@@ -76,13 +76,13 @@ export async function POST(request: NextRequest) {
       user_id,
       product_id,
       status: 'active' as const,
-      activation_limit: activation_limit || product.activation_limit,
+      activation_limit: activation_limit || (product as any).activation_limit,
       activated_devices: [] as any,
       expires_at: expiresAt.toISOString(),
       metadata: {
         generated_at: new Date().toISOString(),
         generated_by: 'api',
-        product_name: product.name
+        product_name: (product as any).name
       } as any
     }
 
