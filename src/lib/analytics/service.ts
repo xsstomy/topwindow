@@ -21,6 +21,11 @@ import type {
   TrialExportFilters
 } from '@/types/analytics';
 import type { Database } from '@/types/supabase';
+import type {
+  TrialAnalyticsInsertData,
+  TrialAnalyticsUpdateData,
+  TrialStatusUpdateData
+} from '@/types/database-insert-update';
 
 export class TrialAnalyticsService {
   /**
@@ -60,19 +65,21 @@ export class TrialAnalyticsService {
     const deviceFingerprintHash = this.hashDeviceFingerprint(data.deviceFingerprint);
 
     try {
+      const insertData: TrialAnalyticsInsertData = {
+        trial_id: trialId,
+        device_fingerprint_hash: deviceFingerprintHash,
+        trial_start_at: new Date().toISOString(),
+        app_version: data.appVersion,
+        system_version: data.systemVersion,
+        install_channel: data.installChannel || null,
+        device_type: data.deviceType || null,
+        trial_status: 'active',
+        metadata: {}
+      };
+
       const { error } = await supabase
         .from('trial_analytics')
-        .insert({
-          trial_id: trialId,
-          device_fingerprint_hash: deviceFingerprintHash,
-          trial_start_at: new Date().toISOString(),
-          app_version: data.appVersion,
-          system_version: data.systemVersion,
-          install_channel: data.installChannel || null,
-          device_type: data.deviceType || null,
-          trial_status: 'active',
-          metadata: {}
-        } as any)
+        .insert(insertData)
 
       if (error) {
         console.error('Failed to start trial:', error);
@@ -116,14 +123,16 @@ export class TrialAnalyticsService {
       const duration = Math.round((new Date(endTime).getTime() - startTime.getTime()) / 1000);
 
       // Update the trial record
+      const updateData: TrialAnalyticsUpdateData = {
+        trial_end_at: endTime,
+        trial_duration_seconds: duration,
+        trial_status: 'completed',
+        updated_at: endTime
+      };
+      
       const { error: updateError } = await supabase
         .from('trial_analytics')
-        .update({
-          trial_end_at: endTime,
-          trial_duration_seconds: duration,
-          trial_status: 'completed',
-          updated_at: endTime
-        } as any)
+        .update(updateData)
         .eq('trial_id', data.trialId);
 
       if (updateError) {
@@ -359,7 +368,7 @@ export class TrialAnalyticsService {
     try {
       const { data, error } = await supabase
         .from('trial_analytics')
-        .update({ trial_status: 'abandoned' } as any)
+        .update({ trial_status: 'abandoned' } satisfies TrialStatusUpdateData)
         .eq('trial_status', 'active')
         .lt('trial_start_at', cutoffTime.toISOString())
         .select();

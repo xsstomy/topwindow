@@ -1,6 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import type { UserProfileInsertData } from '@/types/database-insert-update'
 
 // Edge Runtime configuration for Cloudflare compatibility
 export const runtime = 'edge'
@@ -39,11 +40,13 @@ export async function GET(request: NextRequest) {
 
         // 如果用户资料不存在，创建它
         if (!profile) {
-          await supabase.from('user_profiles').insert({
+          const profileData: UserProfileInsertData = {
             id: data.user.id,
-            full_name: data.user.user_metadata?.full_name || data.user.user_metadata?.name || '',
-            avatar_url: data.user.user_metadata?.avatar_url || data.user.user_metadata?.picture || ''
-          } as any)
+            full_name: data.user.user_metadata?.full_name || data.user.user_metadata?.name || null,
+            avatar_url: data.user.user_metadata?.avatar_url || data.user.user_metadata?.picture || null
+          }
+          
+          await supabase.from('user_profiles').insert(profileData)
         }
       }
       

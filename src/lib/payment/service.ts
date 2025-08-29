@@ -18,6 +18,10 @@ import type {
   PaymentFlowState,
   PaymentProvider
 } from '@/types/payment'
+import type {
+  PaymentInsertData,
+  PaymentSessionUpdateData
+} from '@/types/database-insert-update'
 import { PaymentErrorType } from '@/types/payment'
 
 const supabase = createClient(
@@ -483,7 +487,7 @@ export class PaymentService {
 
     const { data, error } = await supabase
       .from('payments')
-      .insert(paymentData as any)
+      .insert(paymentData satisfies PaymentInsertData)
       .select()
       .single()
 
@@ -500,7 +504,7 @@ export class PaymentService {
   ): Promise<void> {
     const { error } = await supabase
       .from('payments')
-      .update(updates as any)
+      .update(updates satisfies Partial<PaymentSessionUpdateData>)
       .eq('id', paymentId)
 
     if (error) {
@@ -520,7 +524,7 @@ export class PaymentService {
 
     const { error } = await supabase
       .from('payments')
-      .update(updates as any)
+      .update(updates satisfies Partial<PaymentSessionUpdateData>)
       .eq('id', paymentId)
 
     if (error) {

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import type { ProductInsertData } from '@/types/database-insert-update'
 
 // Edge Runtime configuration for Cloudflare compatibility
 export const runtime = 'edge'
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建 TopWindow 产品
-    const productData = {
+    const productData: ProductInsertData = {
       id: 'topwindow-license',
       name: 'TopWindow Professional License',
       description: 'Professional macOS window management tool with lifetime license',
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     const { data: product, error } = await supabase
       .from('products')
-      .insert(productData as any)
+      .insert(productData)
       .select()
       .single()
 

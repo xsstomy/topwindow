@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateLicenseKey } from '@/lib/license/generator'
 import { validateRequiredFields } from '@/lib/utils/validators'
+import type { LicenseInsertData } from '@/types/database-insert-update'
 
 // Edge Runtime configuration for Cloudflare compatibility
 export const runtime = 'edge'
@@ -77,18 +78,18 @@ export async function POST(request: NextRequest) {
       product_id,
       status: 'active' as const,
       activation_limit: activation_limit || (product as any).activation_limit,
-      activated_devices: [] as any,
+      activated_devices: [],
       expires_at: expiresAt.toISOString(),
       metadata: {
         generated_at: new Date().toISOString(),
         generated_by: 'api',
         product_name: (product as any).name
-      } as any
+      }
     }
 
     const { data: license, error: licenseError } = await supabaseAdmin
       .from('licenses')
-      .insert(licenseData as any)
+      .insert(licenseData satisfies LicenseInsertData)
       .select()
       .single()
 
