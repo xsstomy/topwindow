@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
     const licenseData: LicenseInsertData = {
       license_key: licenseKey,
       user_id,
+      payment_id: null, // 直接生成的许可证没有关联的支付记录
       product_id,
       status: 'active',
       activation_limit: activation_limit || product.activation_limit,
