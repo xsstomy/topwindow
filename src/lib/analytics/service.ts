@@ -78,8 +78,8 @@ export class TrialAnalyticsService {
         metadata: {}
       };
 
-      const { error } = await supabase
-        .from('trial_analytics')
+      const { error } = await (supabase
+        .from('trial_analytics') as any)
         .insert(insertData)
 
       if (error) {

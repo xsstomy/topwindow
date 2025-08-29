@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
             avatar_url: data.user.user_metadata?.avatar_url || data.user.user_metadata?.picture || null
           }
           
-          await supabase.from('user_profiles').insert(profileData)
+          await (supabase.from('user_profiles') as any).insert(profileData)
         }
       }
       
