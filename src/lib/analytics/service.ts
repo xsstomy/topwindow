@@ -24,7 +24,8 @@ import type { Database } from '@/types/supabase';
 import type {
   TrialAnalyticsInsertData,
   TrialAnalyticsUpdateData,
-  TrialStatusUpdateData
+  TrialStatusUpdateData,
+  TrialAnalyticsQueryResult
 } from '@/types/database-insert-update';
 
 export class TrialAnalyticsService {
@@ -107,19 +108,22 @@ export class TrialAnalyticsService {
         .from('trial_analytics')
         .select('trial_start_at, device_fingerprint_hash')
         .eq('trial_id', data.trialId)
-        .single();
+        .single() as {
+          data: TrialAnalyticsQueryResult | null;
+          error: any;
+        };
 
       if (fetchError || !trialData) {
         throw new Error('Trial session not found');
       }
 
       // Verify device fingerprint matches
-      if ((trialData as any).device_fingerprint_hash !== deviceFingerprintHash) {
+      if (trialData.device_fingerprint_hash !== deviceFingerprintHash) {
         throw new Error('Device fingerprint mismatch');
       }
 
       // Calculate duration in seconds
-      const startTime = new Date((trialData as any).trial_start_at);
+      const startTime = new Date(trialData.trial_start_at);
       const duration = Math.round((new Date(endTime).getTime() - startTime.getTime()) / 1000);
 
       // Update the trial record

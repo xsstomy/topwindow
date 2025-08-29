@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateLicenseKey } from '@/lib/license/generator'
 import { validateRequiredFields } from '@/lib/utils/validators'
-import type { LicenseInsertData } from '@/types/database-insert-update'
+import type { LicenseInsertData, ProductQueryResult } from '@/types/database-insert-update'
 
 // Edge Runtime configuration for Cloudflare compatibility
 export const runtime = 'edge'
@@ -31,7 +31,10 @@ export async function POST(request: NextRequest) {
       .from('products')
       .select('id, name, activation_limit')
       .eq('id', product_id)
-      .single()
+      .single() as { 
+        data: ProductQueryResult | null; 
+        error: any; 
+      }
 
     if (productError || !product) {
       return NextResponse.json(

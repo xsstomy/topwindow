@@ -26,6 +26,12 @@ export interface TrialAnalyticsUpdateData {
   updated_at: string;
 }
 
+/** 试用查询结果接口 */
+export interface TrialAnalyticsQueryResult {
+  trial_start_at: string;
+  device_fingerprint_hash: string;
+}
+
 /** 试用状态更新接口 - 仅状态更新 */
 export interface TrialStatusUpdateData {
   trial_status: 'abandoned';
@@ -158,6 +164,13 @@ export interface DeviceLastSeenUpdateData {
 // =============================================================================
 // Product 相关接口
 // =============================================================================
+
+/** 产品查询结果接口 */
+export interface ProductQueryResult {
+  id: string;
+  name: string;
+  activation_limit: number;
+}
 
 /** 产品插入接口 */
 export interface ProductInsertData {

@@ -223,8 +223,8 @@ export class PaymentUIService {
     this.analytics.push(analyticsEvent)
 
     // 发送到 Google Analytics
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', event, {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', event, {
         event_category: 'payment',
         ...properties
       })
@@ -283,7 +283,7 @@ export class PaymentUIService {
   private getCurrentUserId(): string | undefined {
     // 从认证上下文获取用户ID
     return typeof window !== 'undefined' ? 
-      (window as any).__USER_ID__ : undefined
+      window.__USER_ID__ : undefined
   }
 
   private getSessionId(): string {
