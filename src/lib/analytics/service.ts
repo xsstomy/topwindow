@@ -134,8 +134,8 @@ export class TrialAnalyticsService {
         updated_at: endTime
       };
       
-      const { error: updateError } = await supabase
-        .from('trial_analytics')
+      const { error: updateError } = await (supabase
+        .from('trial_analytics') as any)
         .update(updateData)
         .eq('trial_id', data.trialId);
 
@@ -370,8 +370,8 @@ export class TrialAnalyticsService {
     cutoffTime.setHours(cutoffTime.getHours() - hoursThreshold);
 
     try {
-      const { data, error } = await supabase
-        .from('trial_analytics')
+      const { data, error } = await (supabase
+        .from('trial_analytics') as any)
         .update({ trial_status: 'abandoned' } satisfies TrialStatusUpdateData)
         .eq('trial_status', 'active')
         .lt('trial_start_at', cutoffTime.toISOString())
