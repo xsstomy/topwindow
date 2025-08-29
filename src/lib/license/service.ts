@@ -74,7 +74,7 @@ export class LicenseService {
               currency: product.currency
             }
           }
-        })
+        } as any)
         .select()
         .single()
 
@@ -245,7 +245,7 @@ export class LicenseService {
           device_type: deviceInfo.type || 'mac',
           device_info: deviceInfo,
           status: 'active'
-        })
+        } as any)
         .select()
         .single()
 

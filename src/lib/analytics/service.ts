@@ -72,7 +72,7 @@ export class TrialAnalyticsService {
           device_type: data.deviceType || null,
           trial_status: 'active',
           metadata: {}
-        });
+        } as any)
 
       if (error) {
         console.error('Failed to start trial:', error);

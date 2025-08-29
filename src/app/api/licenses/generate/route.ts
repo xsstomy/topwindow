@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     const { data: license, error: licenseError } = await supabaseAdmin
       .from('licenses')
-      .insert(licenseData)
+      .insert(licenseData as any)
       .select()
       .single()
 
