@@ -5,6 +5,9 @@ import { validateValidationRequest } from '@/lib/license/validator'
 import { checkRateLimit } from '@/lib/utils/validators'
 import type { ValidationResponse } from '@/types/license'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     // 获取客户端IP进行限流

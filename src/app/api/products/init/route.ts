@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies })
@@ -25,17 +28,20 @@ export async function POST(request: NextRequest) {
     // 创建 TopWindow 产品
     const productData = {
       id: 'topwindow-license',
-      name: 'TopWindow License',
-      description: 'TopWindow 永久使用许可证',
-      price: 29.99,
+      name: 'TopWindow Professional License',
+      description: 'Professional macOS window management tool with lifetime license',
+      price: 4.99,
       currency: 'USD',
-      activation_limit: 3,
+      activation_limit: 1,
       features: [
-        "永久使用权",
-        "支持3台设备", 
-        "免费更新",
-        "优先技术支持",
-        "30天退款保证"
+        "Lifetime license",
+        "Single device activation",
+        "Free version updates",
+        "Technical support",
+        "30-day money-back guarantee",
+        "Complete professional features",
+        "Advanced hotkey settings",
+        "Multi-monitor support (Coming Soon)"
       ],
       is_active: true,
       metadata: {
@@ -56,7 +62,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           message: 'Failed to create product',
-          error: error.message
+          error: error instanceof Error ? error.message : 'Unknown error'
         },
         { status: 500 }
       )
@@ -76,7 +82,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         message: 'Product initialization failed',
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     )
@@ -95,7 +101,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       return NextResponse.json(
-        { error: error.message },
+        { error: error instanceof Error ? error.message : 'Unknown error' },
         { status: 500 }
       )
     }
@@ -109,7 +115,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get products error:', error)
     return NextResponse.json(
-      { error: error.message },
+      { error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

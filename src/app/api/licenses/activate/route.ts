@@ -13,6 +13,9 @@ import {
 } from '@/lib/utils/error-handler'
 import type { ActivationResponse } from '@/types/license'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     // 获取客户端IP进行限流
@@ -77,12 +80,7 @@ export async function POST(request: NextRequest) {
     if (!limitValidation.canActivate) {
       return NextResponse.json({
         status: 'error',
-        message: limitValidation.reason!,
-        activation_info: {
-          activated_count: activatedDevices.filter(d => d.status === 'active').length,
-          activation_limit: license.activation_limit,
-          remaining_activations: limitValidation.remainingSlots || 0
-        }
+        message: limitValidation.reason!
       } satisfies ActivationResponse, { status: 403 })
     }
 
@@ -113,7 +111,7 @@ export async function POST(request: NextRequest) {
       message: isNewActivation ? 'Activation successful.' : activationResult.message,
       expires_at: license.expires_at || undefined,
       activation_info: {
-        activated_at: activationResult.deviceData!.first_activated_at || activationResult.deviceData!.created_at,
+        activated_at: activationResult.deviceData!.first_activated_at,
         device_name: activationResult.deviceData!.device_name,
         remaining_activations: remainingActivations
       }

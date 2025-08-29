@@ -121,12 +121,12 @@ export default function DocumentationPage() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Multiple Pinned Windows</h4>
-                    <p className="text-gray-600 text-sm mb-3">Pin multiple windows simultaneously and manage them all from one place.</p>
+                    <h4 className="font-medium text-gray-900 mb-2">Multiple Pinned Windows (Coming Soon)</h4>
+                    <p className="text-gray-600 text-sm mb-3">Multiple window pinning feature will be available in a future update.</p>
                     <ul className="text-gray-600 text-sm space-y-1">
-                      <li>• Pin unlimited windows</li>
-                      <li>• Quick overview of all pinned windows</li>
-                      <li>• Individual control for each window</li>
+                      <li>• Enhanced single window management currently available</li>
+                      <li>• Multiple window support planned for future release</li>
+                      <li>• Stay tuned for updates</li>
                     </ul>
                   </div>
                 </div>

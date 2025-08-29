@@ -1,7 +1,17 @@
 // License Key 生成器
 import { v4 as uuidv4 } from 'uuid'
-import crypto from 'crypto'
 import type { LicenseKeyConfig } from '@/types/license'
+
+// Simple hash function for compatibility
+function simpleHash(text: string): string {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    const char = text.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(16);
+}
 
 export class LicenseKeyGenerator {
   private config: LicenseKeyConfig
@@ -103,7 +113,10 @@ export class LicenseKeyGenerator {
     let result = ''
     
     for (let i = 0; i < length; i++) {
-      const randomIndex = crypto.randomInt(0, chars.length)
+      // 使用 Web Crypto API 生成安全的随机数
+      const array = new Uint32Array(1)
+      crypto.getRandomValues(array)
+      const randomIndex = array[0] % chars.length
       result += chars[randomIndex]
     }
     
@@ -114,10 +127,8 @@ export class LicenseKeyGenerator {
    * 生成校验码
    */
   private generateChecksum(key: string): string {
-    const hash = crypto
-      .createHash('sha256')
-      .update(key + 'topwindow-salt-2024')
-      .digest('hex')
+    // 使用简单哈希函数生成校验码
+    const hash = simpleHash(key + 'topwindow-salt-2024')
     
     return hash.slice(0, 4).toUpperCase()
   }

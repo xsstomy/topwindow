@@ -6,6 +6,9 @@ import { LicenseService } from '@/lib/license/service'
 import { checkRateLimit } from '@/lib/utils/validators'
 import type { UserLicensesResponse } from '@/types/license'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function GET(request: NextRequest) {
   try {
     // 创建Supabase客户端

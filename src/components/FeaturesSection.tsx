@@ -20,8 +20,8 @@ const features = [
   },
   {
     icon: Monitor,
-    title: 'Multi-Window Support',
-    description: 'Keep multiple windows on top at the same time.',
+    title: 'Multi-Window Support (Coming Soon)',
+    description: 'Multiple window pinning feature will be available soon.',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50'
   },

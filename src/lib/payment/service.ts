@@ -14,11 +14,11 @@ import type {
   PaginatedResult,
   PaymentMetrics,
   PaymentError,
-  PaymentErrorType,
   PaymentFlowContext,
   PaymentFlowState,
   PaymentProvider
 } from '@/types/payment'
+import { PaymentErrorType } from '@/types/payment'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,6 +43,7 @@ export class PaymentService {
       // 创建支付记录
       const payment = await this.createPaymentRecord({
         ...params,
+        customer_email: params.customer_email || '',
         amount: product.price,
         currency: product.currency,
         productInfo: product,
@@ -74,7 +75,7 @@ export class PaymentService {
 
     } catch (error) {
       console.error('Create payment session error:', error)
-      throw this.createPaymentError('PROVIDER_ERROR', error.message)
+      throw this.createPaymentError(PaymentErrorType.PROVIDER_ERROR, error instanceof Error ? error.message : 'Unknown error')
     }
   }
 
@@ -132,13 +133,13 @@ export class PaymentService {
       // 标记支付为失败，但保留原始 webhook 数据以便重试
       await this.updatePaymentStatus(paymentId, 'failed', {
         metadata: {
-          processing_error: error.message,
+          processing_error: error instanceof Error ? error.message : 'Unknown error',
           webhook_data: webhookData,
           retry_scheduled: true
         }
       })
 
-      throw this.createPaymentError('LICENSE_GENERATION_ERROR', error.message)
+      throw this.createPaymentError(PaymentErrorType.LICENSE_GENERATION_ERROR, error instanceof Error ? error.message : 'Unknown error')
     }
   }
 
@@ -169,7 +170,7 @@ export class PaymentService {
 
     } catch (error) {
       console.error(`Handle payment failed error for ${paymentId}:`, error)
-      throw this.createPaymentError('WEBHOOK_ERROR', error.message)
+      throw this.createPaymentError(PaymentErrorType.WEBHOOK_ERROR, error instanceof Error ? error.message : 'Unknown error')
     }
   }
 
@@ -203,7 +204,7 @@ export class PaymentService {
       console.error('Process webhook event error:', error)
       return {
         success: false,
-        message: `Webhook processing failed: ${error.message}`,
+        message: `Webhook processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
         shouldRetry: true
       }
     }
@@ -238,7 +239,7 @@ export class PaymentService {
 
     } catch (error) {
       console.error('Get payment status error:', error)
-      throw this.createPaymentError('NETWORK_ERROR', error.message)
+      throw this.createPaymentError(PaymentErrorType.NETWORK_ERROR, error instanceof Error ? error.message : 'Unknown error')
     }
   }
 
@@ -306,7 +307,7 @@ export class PaymentService {
 
     } catch (error) {
       console.error('Get user payments error:', error)
-      throw this.createPaymentError('NETWORK_ERROR', error.message)
+      throw this.createPaymentError(PaymentErrorType.NETWORK_ERROR, error instanceof Error ? error.message : 'Unknown error')
     }
   }
 
@@ -358,7 +359,7 @@ export class PaymentService {
 
     } catch (error) {
       console.error('Get payment metrics error:', error)
-      throw this.createPaymentError('NETWORK_ERROR', error.message)
+      throw this.createPaymentError(PaymentErrorType.NETWORK_ERROR, error instanceof Error ? error.message : 'Unknown error')
     }
   }
 
@@ -401,7 +402,7 @@ export class PaymentService {
       console.error(`Retry failed payment error for ${paymentId}:`, error)
       return {
         success: false,
-        message: `Retry failed: ${error.message}`
+        message: `Retry failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       }
     }
   }
@@ -555,7 +556,7 @@ export class PaymentService {
     return {
       type,
       message,
-      retryable: type === 'NETWORK_ERROR' || type === 'WEBHOOK_ERROR'
+      retryable: type === PaymentErrorType.NETWORK_ERROR || type === PaymentErrorType.WEBHOOK_ERROR
     }
   }
 }

@@ -10,6 +10,9 @@ import {
 } from '@/lib/analytics/auth-helpers';
 import type { TrialExportFilters } from '@/types/analytics';
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function GET(request: NextRequest) {
   try {
     // Check if analytics is enabled

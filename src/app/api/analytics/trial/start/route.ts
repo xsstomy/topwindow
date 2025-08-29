@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TrialAnalyticsService } from '@/lib/analytics/service';
 import type { TrialStartRequest, TrialStartResponse } from '@/types/analytics';
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     // Check if analytics is enabled

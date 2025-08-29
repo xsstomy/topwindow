@@ -10,6 +10,9 @@ import type {
   ApiResponse
 } from '@/types/payment'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -104,7 +107,7 @@ export async function POST(request: NextRequest) {
     const errorContext = {
       provider: 'paddle',
       processing_time: processingTime,
-      error_message: error.message,
+      error_message: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }
 
@@ -256,7 +259,7 @@ async function handleTransactionCompleted(
           metadata: {
             ...payment.metadata,
             license_generation_failed: true,
-            license_error: licenseError.message,
+            license_error: licenseError instanceof Error ? licenseError.message : 'Unknown error',
             requires_manual_processing: true
           }
         })
@@ -267,7 +270,7 @@ async function handleTransactionCompleted(
         payment_id: paymentId,
         transaction_id: id,
         user_id: payment.user_id,
-        error: licenseError.message
+        error: licenseError instanceof Error ? licenseError.message : 'Unknown error'
       })
     }
 
@@ -279,7 +282,7 @@ async function handleTransactionCompleted(
           userName: payment.customer_info.name || payment.customer_info.email,
           licenseKey,
           productName: payment.product_info.name,
-          activationLimit: 3 // 从产品配置获取
+          activationLimit: 1 // 从产品配置获取
         })
 
         console.log(`License email sent for Paddle payment ${paymentId}`)
@@ -293,7 +296,7 @@ async function handleTransactionCompleted(
             metadata: {
               ...payment.metadata,
               email_send_failed: true,
-              email_error: emailError.message
+              email_error: emailError instanceof Error ? emailError.message : 'Unknown error'
             }
           })
           .eq('id', paymentId)

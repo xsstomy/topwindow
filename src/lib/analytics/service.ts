@@ -1,5 +1,15 @@
-import { createHash } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
+
+// Simple hash function for Edge Runtime compatibility
+function createSimpleHash(data: string): string {
+  let hash = 0;
+  for (let i = 0; i < data.length; i++) {
+    const char = data.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(16);
+}
 import { createClient } from '@supabase/supabase-js';
 import { createRouteClient } from '@/lib/supabase/server';
 import type { 
@@ -38,9 +48,7 @@ export class TrialAnalyticsService {
    */
   private static hashDeviceFingerprint(fingerprint: string): string {
     const salt = process.env.DEVICE_FINGERPRINT_SALT || 'default-salt-change-in-production';
-    return createHash('sha256')
-      .update(fingerprint + salt)
-      .digest('hex');
+    return createSimpleHash(fingerprint + salt);
   }
 
   /**

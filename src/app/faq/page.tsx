@@ -40,7 +40,7 @@ const faqData = {
     },
     {
       question: "Can I install TopWindow on multiple Macs?",
-      answer: "Yes, you can install TopWindow on all your personal Macs. There are no license restrictions for personal use."
+      answer: "Yes, you can install TopWindow on multiple Macs with a valid license. Each installation requires a proper license for commercial or multi-device use."
     }
   ],
   usage: [
@@ -50,7 +50,7 @@ const faqData = {
     },
     {
       question: "Can I pin multiple windows at once?",
-      answer: "Yes, you can pin as many windows as you need. Each window can be pinned and unpinned independently."
+      answer: "Multiple window pinning feature is coming soon. Currently, you can pin one window at a time."
     },
     {
       question: "Will pinned windows stay on top of full-screen applications?",

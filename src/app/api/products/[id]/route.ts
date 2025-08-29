@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProductPricing, PRICING_CONFIG } from '@/config/pricing'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 // 产品数据现在从统一的价格配置获取
 function getProductData(productId: string) {
   const pricing = getProductPricing(productId)

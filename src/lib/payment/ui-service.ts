@@ -4,7 +4,8 @@ import {
   PaymentStatus, 
   ProductInfo, 
   PaymentError,
-  PaymentAnalyticsEvent 
+  PaymentAnalyticsEvent,
+  ErrorContext 
 } from '@/types/payment-ui'
 
 export class PaymentUIService {
@@ -53,8 +54,7 @@ export class PaymentUIService {
         throw this.createPaymentError('provider_error', errorMessage, {
           provider: config.provider,
           productId: config.product_id,
-          httpStatus: response.status,
-          errorCode: errorData.error?.code
+          timestamp: new Date().toISOString()
         })
       }
 
@@ -223,8 +223,8 @@ export class PaymentUIService {
     this.analytics.push(analyticsEvent)
 
     // 发送到 Google Analytics
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', event, {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', event, {
         event_category: 'payment',
         ...properties
       })

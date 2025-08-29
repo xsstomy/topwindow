@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PaymentService } from '@/lib/payment/service'
 import type { ApiResponse } from '@/types/payment'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     // 只在开发环境启用
@@ -99,8 +102,8 @@ export async function POST(request: NextRequest) {
         error: { 
           code: 'INTERNAL_ERROR',
           details: process.env.NODE_ENV === 'development' ? {
-            originalError: error.message,
-            stack: error.stack
+            originalError: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : 'No stack trace'
           } : undefined
         }
       } satisfies ApiResponse,

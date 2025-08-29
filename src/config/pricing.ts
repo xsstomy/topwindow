@@ -55,26 +55,23 @@ export const PRODUCT_PRICES: Record<string, ProductPricing> = {
   'topwindow-license': {
     id: 'topwindow-license',
     name: 'TopWindow Professional License',
-    description: 'TopWindow 专业版一次性买断许可证 - 功能强大的 macOS 窗口管理工具',
+    description: 'Professional macOS window management tool with lifetime license',
     price: 4.99,
-    originalPrice: 29.99, // 显示原价以突出优惠
     currency: 'USD',
-    activationLimit: 3,
+    activationLimit: 1,
     features: [
       'Lifetime license',
-      'Activate up to 3 devices total',
+      'Single device activation',
       'Free version updates',
-      'Priority technical support', 
-      '30-day money back guarantee',
+      'Technical support', 
+      '30-day money-back guarantee',
       'Complete professional features',
       'Advanced hotkey settings',
-      'Multi-monitor support'
+      'Multi-monitor support (Coming Soon)'
     ],
     isActive: true,
     metadata: {
-      popular: true,
-      recommended: true,
-      discountPercentage: 83 // (29.99 - 4.99) / 29.99 * 100
+      recommended: true
     }
   },
   
@@ -82,19 +79,18 @@ export const PRODUCT_PRICES: Record<string, ProductPricing> = {
   'topwindow-basic': {
     id: 'topwindow-basic',
     name: 'TopWindow Basic License',
-    description: 'TopWindow 基础版许可证，支持单台设备使用',
+    description: 'Basic macOS window management license for single device',
     price: 2.99,
     currency: 'USD',
     activationLimit: 1,
     features: [
       'Lifetime license',
-      'Activate 1 device total',
+      'Single device activation',
       'Basic technical support',
-      '30-day money back guarantee'
+      '30-day money-back guarantee'
     ],
     isActive: false, // 暂时不启用
     metadata: {
-      popular: false,
       recommended: false
     }
   }
@@ -117,13 +113,10 @@ export function formatPrice(price: number, currency: Currency = 'USD'): string {
   return formatters[currency](price)
 }
 
-// 工具函数：获取折扣信息
-export function getDiscountInfo(productId: string): {
-  hasDiscount: boolean
-  originalPrice?: number
+// 工具函数：获取价格信息（简化版，移除折扣逻辑）
+export function getPriceInfo(productId: string): {
   currentPrice: number
-  discountPercentage?: number
-  savings?: number
+  currency: string
 } {
   const product = getProductPricing(productId)
   
@@ -131,14 +124,9 @@ export function getDiscountInfo(productId: string): {
     throw new Error(`Product not found: ${productId}`)
   }
   
-  const hasDiscount = Boolean(product.originalPrice && product.originalPrice > product.price)
-  
   return {
-    hasDiscount,
-    originalPrice: product.originalPrice,
     currentPrice: product.price,
-    discountPercentage: product.metadata?.discountPercentage,
-    savings: hasDiscount ? (product.originalPrice! - product.price) : undefined
+    currency: product.currency
   }
 }
 
@@ -186,7 +174,7 @@ export function getTrialInfo(): {
     durationDays: PRICING_CONFIG.FREE_TRIAL.DURATION_DAYS,
     includesAllFeatures: PRICING_CONFIG.FREE_TRIAL.INCLUDES_ALL_FEATURES,
     downloadUrl: PRICING_CONFIG.FREE_TRIAL.DOWNLOAD_URL,
-    description: `免费体验${PRICING_CONFIG.FREE_TRIAL.DURATION_DAYS}天完整专业功能`
+    description: `${PRICING_CONFIG.FREE_TRIAL.DURATION_DAYS}-day free trial with full professional features`
   }
 }
 
@@ -198,5 +186,4 @@ export const TOPWINDOW_LICENSE_CURRENCY = PRODUCT_PRICES['topwindow-license'].cu
 export const FREE_TRIAL_DAYS = PRICING_CONFIG.FREE_TRIAL.DURATION_DAYS
 export const FREE_TRIAL_DOWNLOAD_URL = PRICING_CONFIG.FREE_TRIAL.DOWNLOAD_URL
 
-// 类型导出
-export type { ProductPricing, Currency }
+// 类型导出 - ProductPricing 和 Currency 已经在上面通过 interface 和 type 导出了

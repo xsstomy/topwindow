@@ -389,7 +389,7 @@ export default function LicenseTestPage() {
         body: JSON.stringify({
           product_id: selectedProductId,
           user_id: user.id, // 使用真实的登录用户ID
-          activation_limit: 3
+          activation_limit: 1
         }),
       })
 

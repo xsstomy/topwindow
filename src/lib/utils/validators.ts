@@ -151,7 +151,7 @@ export function checkRateLimit(
 export function cleanupRateLimitMap(): void {
   const now = Date.now()
   
-  for (const [key, value] of rateLimitMap.entries()) {
+  for (const [key, value] of Array.from(rateLimitMap.entries())) {
     if (now > value.resetTime) {
       rateLimitMap.delete(key)
     }

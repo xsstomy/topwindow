@@ -28,7 +28,7 @@ const releases = [
     ],
     bugFixes: [
       "Fixed issue with some windows not staying pinned",
-      "Resolved crash when unpinning multiple windows quickly",
+      "Resolved crash when unpinning windows quickly",
       "Fixed menu bar icon disappearing on some systems",
       "Corrected keyboard shortcut conflicts with other apps"
     ]
@@ -94,7 +94,7 @@ const releases = [
     features: [
       "Complete rewrite for better performance and reliability",
       "New modern interface design",
-      "Support for multiple pinned windows management",
+      "Support for multiple pinned windows management (Coming Soon)",
       "Customizable keyboard shortcuts",
       "Enhanced preferences panel",
       "Dark mode support"

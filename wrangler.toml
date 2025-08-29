@@ -1,0 +1,17 @@
+name = "topwindow-website"
+compatibility_date = "2024-08-29"
+
+[env.production]
+compatibility_date = "2024-08-29"
+
+[env.preview]
+compatibility_date = "2024-08-29"
+
+# Build configuration for Pages
+[build]
+command = "npm run pages:build"
+cwd = "./"
+
+# Pages configuration
+[[pages_build_output_dir]]
+name = "dist"

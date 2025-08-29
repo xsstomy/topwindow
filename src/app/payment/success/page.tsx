@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle, Download, Mail, ArrowRight, RefreshCw } from 'lucide-react'
 import { useAuth } from '@/lib/context/AuthContext'

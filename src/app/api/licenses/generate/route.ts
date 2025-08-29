@@ -3,6 +3,9 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateLicenseKey } from '@/lib/license/generator'
 import { validateRequiredFields } from '@/lib/utils/validators'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -20,7 +23,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { product_id, user_id, activation_limit = 3 } = body
+    const { product_id, user_id, activation_limit = 1 } = body
 
     // 验证产品是否存在
     const { data: product, error: productError } = await supabaseAdmin

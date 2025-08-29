@@ -20,6 +20,11 @@ const nextConfig = {
         permanent: true
       }
     ]
+  },
+
+  // 跳过有问题的页面预渲染
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
   }
 }
 

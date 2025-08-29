@@ -64,7 +64,7 @@ export class LicenseService {
           payment_id: paymentId,
           product_id: productId,
           status: 'active',
-          activation_limit: product.activation_limit || 3,
+          activation_limit: product.activation_limit || 1,
           activated_devices: [],
           metadata: {
             generated_at: new Date().toISOString(),
@@ -96,7 +96,7 @@ export class LicenseService {
           userName: user.user.user_metadata?.full_name || user.user.email!,
           licenseKey,
           productName: product.name,
-          activationLimit: product.activation_limit || 3
+          activationLimit: product.activation_limit || 1
         }).catch(emailError => {
           console.error('Failed to send license email:', emailError)
           // 邮件发送失败不应影响许可证生成流程
@@ -107,7 +107,7 @@ export class LicenseService {
         license_key: licenseKey,
         user_id: userId,
         product_id: productId,
-        activation_limit: product.activation_limit || 3
+        activation_limit: product.activation_limit || 1
       }
 
     } catch (error) {
@@ -660,7 +660,7 @@ export class LicenseService {
           results.details.push({
             licenseKey: license.license_key,
             success: false,
-            error: error.message
+            error: error instanceof Error ? error.message : 'Unknown error'
           })
         }
       }

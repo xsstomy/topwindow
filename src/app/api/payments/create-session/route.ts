@@ -11,6 +11,9 @@ import type {
   ApiResponse 
 } from '@/types/payment'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     // 检查支付处理是否启用
@@ -178,11 +181,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     // 详细的错误日志记录
     console.error('=== Create payment session error ===')
-    console.error('Error message:', error.message)
-    console.error('Error stack:', error.stack)
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error')
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     console.error('Error details:', {
-      name: error.name,
-      cause: error.cause,
+      name: error instanceof Error ? error.name : 'Unknown',
+      cause: error instanceof Error ? (error as any).cause : undefined,
       timestamp: new Date().toISOString()
     })
     console.error('=====================================')
@@ -193,23 +196,23 @@ export async function POST(request: NextRequest) {
     let errorMessage = 'An unexpected error occurred'
 
     // 更具体的错误处理
-    if (error.message?.includes('Product not found')) {
+    if ((error instanceof Error ? error.message : '').includes('Product not found')) {
       statusCode = 404
       errorCode = 'PRODUCT_NOT_FOUND'
       errorMessage = 'Product not found or inactive'
-    } else if (error.message?.includes('payment provider')) {
+    } else if ((error instanceof Error ? error.message : '').includes('payment provider')) {
       statusCode = 400
       errorCode = 'PROVIDER_ERROR'
       errorMessage = 'Payment provider error'
-    } else if (error.message?.includes('validation') || error.message?.includes('required')) {
+    } else if ((error instanceof Error ? error.message : '').includes('validation') || (error instanceof Error ? error.message : '').includes('required')) {
       statusCode = 400
       errorCode = 'VALIDATION_ERROR'
       errorMessage = 'Invalid request parameters'
-    } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+    } else if ((error instanceof Error ? error.message : '').includes('network') || (error instanceof Error ? error.message : '').includes('fetch')) {
       statusCode = 503
       errorCode = 'SERVICE_UNAVAILABLE'
       errorMessage = 'Payment service temporarily unavailable'
-    } else if (error.message?.includes('Database') || error.message?.includes('Supabase')) {
+    } else if ((error instanceof Error ? error.message : '').includes('Database') || (error instanceof Error ? error.message : '').includes('Supabase')) {
       statusCode = 503
       errorCode = 'DATABASE_ERROR'
       errorMessage = 'Database connection error'
@@ -222,8 +225,8 @@ export async function POST(request: NextRequest) {
         error: { 
           code: errorCode,
           details: process.env.NODE_ENV === 'development' ? {
-            originalError: error.message,
-            stack: error.stack
+            originalError: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : 'No stack trace'
           } : undefined
         }
       } satisfies ApiResponse,
@@ -265,7 +268,7 @@ export async function GET(request: NextRequest) {
         message: 'Health check failed',
         error: { 
           code: 'HEALTH_CHECK_FAILED',
-          details: { message: error.message }
+          details: { message: error instanceof Error ? error.message : 'Unknown error' }
         }
       } satisfies ApiResponse,
       { status: 503 }

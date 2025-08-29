@@ -32,12 +32,11 @@ const trialFeatures = [
 ]
 
 const licenseFeatures = [
-  "Lifetime Usage Rights, No Time Limit",
-  "Supports 3 Device Activations",
+  "Lifetime Usage Rights",
+  "Single Device Activation",
   "Free Version Updates",
-  "Priority Technical Support",
-  "30-Day Unconditional Money-Back Guarantee",
-  "No Trial Period Restrictions"
+  "Technical Support",
+  "30-Day Money-Back Guarantee"
 ]
 
 export default function PricingSection() {
@@ -136,12 +135,11 @@ export default function PricingSection() {
                 </div>
 
                 {/* Professional License */}
-                <div className="bg-gradient-to-br from-primary/20 to-blue-500/20 backdrop-blur-lg rounded-3xl p-8 border-2 border-primary/50 shadow-2xl relative">
-                  {/* Recommended Badge */}
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-primary to-blue-500 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
-                      <Star className="w-4 h-4" />
-                      Lifetime Usage
+                <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl relative">
+                  {/* Simple badge */}
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <div className="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">
+                      Professional
                     </div>
                   </div>
                   
@@ -167,12 +165,7 @@ export default function PricingSection() {
                         <span className="text-white font-medium">{feature}</span>
                       </motion.div>
                     ))}
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-yellow-500/30 rounded-full flex items-center justify-center">
-                        <Star className="w-4 h-4 text-yellow-400" />
-                      </div>
-                      <span className="text-yellow-200">Complete Professional Features</span>
-                    </div>
+                    {/* Removed extra promotional content */}
                   </div>
                   
                   <button

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { seedProducts, checkProducts } from '@/lib/database/seed'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🌱 开始数据库种子数据初始化...')
@@ -15,13 +18,13 @@ export async function POST(request: NextRequest) {
       success: true,
       message: '数据库初始化成功',
       productsCount: products.length,
-      products: products.map(p => ({
+      products: products.length > 0 ? products.map((p: any) => ({
         id: p.id,
         name: p.name,
         price: p.price,
         currency: p.currency,
         activation_limit: p.activation_limit
-      }))
+      })) : []
     })
 
   } catch (error: any) {
@@ -43,7 +46,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       productsCount: products.length,
-      products: products.map(p => ({
+      products: products.map((p: any) => ({
         id: p.id,
         name: p.name,
         price: p.price,

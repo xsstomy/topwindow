@@ -68,7 +68,7 @@ export default function PaymentSelector({
       <div className={`flex items-center justify-center p-12 ${className}`}>
         <div className="flex items-center gap-3 text-gray-600">
           <Loader2 className="w-6 h-6 animate-spin" />
-          <span>加载产品信息中...</span>
+          <span>Loading product information...</span>
         </div>
       </div>
     )
@@ -80,9 +80,9 @@ export default function PaymentSelector({
         <div className="flex items-center gap-3 text-red-600">
           <AlertCircle className="w-6 h-6" />
           <div>
-            <h3 className="font-semibold">加载失败</h3>
+            <h3 className="font-semibold">Loading Failed</h3>
             <p className="text-sm mt-1">
-              {productError?.message || '无法加载产品信息，请刷新页面重试'}
+              {productError?.message || 'Unable to load product information, please refresh and try again'}
             </p>
           </div>
         </div>
@@ -131,24 +131,24 @@ export default function PaymentSelector({
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
                 <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                   <Shield className="w-5 h-5" />
-                  购买保障
+                  Purchase Protection
                 </h4>
                 <div className="space-y-2 text-sm text-blue-800">
                   <div className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-blue-600" />
-                    <span>30天无条件退款保证</span>
+                    <span>30-day unconditional money-back guarantee</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-blue-600" />
-                    <span>一次购买，永久使用</span>
+                    <span>One-time purchase, lifetime usage</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-blue-600" />
-                    <span>免费技术支持和更新</span>
+                    <span>Free technical support and updates</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-blue-600" />
-                    <span>支持最多 {product.activationLimit} 台设备</span>
+                    <span>Support for {product.activationLimit} device</span>
                   </div>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function PaymentSelector({
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <h4 className="text-xl font-semibold text-gray-900 mb-6">选择支付方式</h4>
+            <h4 className="text-xl font-semibold text-gray-900 mb-6">Choose Payment Method</h4>
             
             <div className="space-y-4 mb-6">
               {paymentOptions.map((option) => (
@@ -202,26 +202,26 @@ export default function PaymentSelector({
               {(paymentLoading || isProcessing) ? (
                 <>
                   <Loader2 className="w-6 h-6 animate-spin" />
-                  处理中...
+                  Processing...
                 </>
               ) : (
                 <>
                   <CreditCard className="w-6 h-6" />
-                  立即购买 - ${product.price}
+                  Buy Now - ${product.price}
                 </>
               )}
             </motion.button>
 
             {!user && (
               <p className="text-center text-gray-600 text-sm mt-3">
-                请先登录后再购买
+                Please login before purchase
               </p>
             )}
 
             {/* 安全提示 */}
             <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
               <Shield className="w-4 h-4" />
-              <span>SSL 加密安全支付</span>
+              <span>SSL Encrypted Secure Payment</span>
             </div>
           </motion.div>
         </div>
@@ -238,8 +238,8 @@ export default function PaymentSelector({
               <Check className="w-6 h-6 text-green-500" />
             </div>
             <div>
-              <h5 className="font-semibold text-gray-900">即时激活</h5>
-              <p className="text-gray-600 text-sm">支付成功后立即获得许可证</p>
+              <h5 className="font-semibold text-gray-900">Instant Activation</h5>
+              <p className="text-gray-600 text-sm">Get license immediately after successful payment</p>
             </div>
           </div>
           
@@ -248,8 +248,8 @@ export default function PaymentSelector({
               <Shield className="w-6 h-6 text-blue-500" />
             </div>
             <div>
-              <h5 className="font-semibold text-gray-900">安全保障</h5>
-              <p className="text-gray-600 text-sm">银行级 SSL 加密保护</p>
+              <h5 className="font-semibold text-gray-900">Security Protection</h5>
+              <p className="text-gray-600 text-sm">Bank-level SSL encryption protection</p>
             </div>
           </div>
           
@@ -258,8 +258,8 @@ export default function PaymentSelector({
               <Zap className="w-6 h-6 text-purple-500" />
             </div>
             <div>
-              <h5 className="font-semibold text-gray-900">技术支持</h5>
-              <p className="text-gray-600 text-sm">专业团队随时为您服务</p>
+              <h5 className="font-semibold text-gray-900">Technical Support</h5>
+              <p className="text-gray-600 text-sm">Professional team ready to assist you</p>
             </div>
           </div>
         </motion.div>

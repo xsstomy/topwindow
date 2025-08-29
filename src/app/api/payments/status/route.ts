@@ -7,6 +7,9 @@ import type {
   ApiResponse 
 } from '@/types/payment'
 
+// Edge Runtime configuration for Cloudflare compatibility
+export const runtime = 'edge'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -80,15 +83,7 @@ export async function GET(request: NextRequest) {
       status: 'success',
       message: 'Payment status retrieved successfully',
       data: {
-        payment: {
-          id: payment.id,
-          amount: payment.amount,
-          currency: payment.currency,
-          status: payment.status,
-          product_info: payment.product_info,
-          customer_info: payment.customer_info,
-          completed_at: payment.completed_at || payment.created_at
-        },
+        payment: payment,
         license: license ? {
           license_key: license.license_key,
           status: license.status,
@@ -109,7 +104,7 @@ export async function GET(request: NextRequest) {
         error: { 
           code: 'INTERNAL_ERROR',
           details: process.env.NODE_ENV === 'development' ? {
-            originalError: error.message
+            originalError: error instanceof Error ? error.message : 'Unknown error'
           } : undefined
         }
       } satisfies ApiResponse,
