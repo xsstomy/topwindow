@@ -189,7 +189,7 @@ export default function PricingSection() {
               <div className="flex justify-center mb-8">
                 <button
                   onClick={() => setViewMode('overview')}
-                  className="text-gray-300 hover:text-white transition-colors flex items-center gap-2"
+                  className="text-gray-secondary hover:text-gray-text transition-colors flex items-center gap-2"
                 >
                   ← Back to Plans Comparison
                 </button>

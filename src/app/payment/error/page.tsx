@@ -340,11 +340,11 @@ export default function PaymentErrorPage() {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <a
-                      href="mailto:support@topwindow.app"
+                      href="mailto:xsstomy@gmail.com"
                       className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium"
                     >
                       <Mail className="w-4 h-4" />
-                      support@topwindow.app
+                      xsstomy@gmail.com
                     </a>
                     <div className="flex items-center gap-2 text-purple-600 font-medium">
                       <Phone className="w-4 h-4" />

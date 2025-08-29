@@ -215,10 +215,10 @@ export default function PaymentCancelPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <a
-                    href="mailto:support@topwindow.app"
+                    href="mailto:xsstomy@gmail.com"
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
-                    📧 support@topwindow.app
+                    📧 xsstomy@gmail.com
                   </a>
                   <Link
                     href="/help"

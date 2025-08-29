@@ -317,7 +317,7 @@ export default function PaymentSuccessPage() {
                   需要帮助？请查看我们的
                   <a href="/help" className="text-blue-600 hover:text-blue-700 ml-1">帮助文档</a>
                   或联系
-                  <a href="mailto:support@topwindow.app" className="text-blue-600 hover:text-blue-700 ml-1">技术支持</a>
+                  <a href="mailto:xsstomy@gmail.com" className="text-blue-600 hover:text-blue-700 ml-1">技术支持</a>
                 </p>
                 <p className="text-xs text-gray-500">
                   支付 ID: {paymentData.payment.id}

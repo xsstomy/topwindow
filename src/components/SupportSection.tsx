@@ -108,7 +108,7 @@ export default function SupportSection() {
                 <Mail className="w-6 h-6 text-primary" />
               </div>
               <h4 className="font-semibold text-gray-text mb-2">Email Address</h4>
-              <p className="text-gray-secondary">support@topwindow.app</p>
+              <p className="text-gray-secondary">xsstomy@gmail.com</p>
             </div>
             
             <div className="text-center">

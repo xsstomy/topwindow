@@ -464,7 +464,7 @@ PADDLE_WEBHOOK_SECRET=whsec_xxx
 # Resend 邮件服务
 RESEND_API_KEY=re_xxx
 FROM_EMAIL=noreply@topwindow.app
-SUPPORT_EMAIL=support@topwindow.app
+SUPPORT_EMAIL=xsstomy@gmail.com
 ```
 
 ### 应用配置

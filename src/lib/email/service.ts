@@ -9,7 +9,7 @@ import type {
 export class EmailService {
   private static readonly apiKey = process.env.RESEND_API_KEY || ''
   private static readonly fromEmail = process.env.FROM_EMAIL || 'noreply@topwindow.app'
-  private static readonly supportEmail = process.env.SUPPORT_EMAIL || 'support@topwindow.app'
+  private static readonly supportEmail = process.env.SUPPORT_EMAIL || 'xsstomy@gmail.com'
   private static readonly apiUrl = 'https://api.resend.com/emails'
 
   /**

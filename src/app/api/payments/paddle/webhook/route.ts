@@ -513,7 +513,7 @@ async function handleTransactionCancelled(
 // 通知技术团队 (内部函数)
 async function notifyTechnicalTeam(subject: string, details: any): Promise<void> {
   try {
-    const supportEmail = process.env.SUPPORT_EMAIL || 'support@topwindow.app'
+    const supportEmail = process.env.SUPPORT_EMAIL || 'xsstomy@gmail.com'
     
     // 这里可以发送邮件给技术团队
     // 暂时只记录日志
