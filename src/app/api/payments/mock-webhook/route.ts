@@ -3,8 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PaymentService } from '@/lib/payment/service'
 import type { ApiResponse } from '@/types/payment'
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Using Node.js Runtime for better TypeScript compatibility
 
 export async function POST(request: NextRequest) {
   try {

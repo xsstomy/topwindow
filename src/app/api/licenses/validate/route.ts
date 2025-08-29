@@ -5,8 +5,7 @@ import { validateValidationRequest } from '@/lib/license/validator'
 import { checkRateLimit } from '@/lib/utils/validators'
 import type { ValidationResponse } from '@/types/license'
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Using Node.js Runtime for better TypeScript compatibility
 
 export async function POST(request: NextRequest) {
   try {

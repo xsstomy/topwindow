@@ -4,6 +4,7 @@ import { generateLicenseKey } from '@/lib/license/generator'
 import { validateRequiredFields } from '@/lib/utils/validators'
 import type { LicenseInsertData, ProductQueryResult } from '@/types/database-insert-update'
 import type { Database } from '@/types/supabase'
+import { edgeInsert } from '@/lib/supabase/edge-runtime-helper'
 
 // Edge Runtime configuration for Cloudflare compatibility
 export const runtime = 'edge'
@@ -92,11 +93,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { data: license, error: licenseError } = await (supabaseAdmin
-      .from('licenses') as any)
-      .insert(licenseData)
-      .select()
-      .single()
+    const { data: license, error: licenseError } = await edgeInsert(
+      supabaseAdmin,
+      'licenses',
+      licenseData
+    ).select().single()
 
     if (licenseError) {
       console.error('创建许可证失败:', licenseError)

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { seedProducts, checkProducts } from '@/lib/database/seed'
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Using Node.js Runtime for better TypeScript compatibility
 
 export async function POST(request: NextRequest) {
   try {

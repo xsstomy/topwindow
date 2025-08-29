@@ -13,8 +13,7 @@ import {
 } from '@/lib/utils/error-handler'
 import type { ActivationResponse } from '@/types/license'
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Using Node.js Runtime for better TypeScript compatibility
 
 export async function POST(request: NextRequest) {
   try {

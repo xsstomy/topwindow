@@ -10,8 +10,7 @@ import {
 } from '@/lib/analytics/auth-helpers';
 import type { TrialStatsResponse, TrialStatsFilters } from '@/types/analytics';
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Using Node.js Runtime for better TypeScript compatibility
 
 export async function GET(request: NextRequest) {
   try {

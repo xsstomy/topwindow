@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TrialAnalyticsService } from '@/lib/analytics/service';
 import type { TrialEndRequest, TrialEndResponse } from '@/types/analytics';
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Using Node.js Runtime for better TypeScript compatibility
 
 export async function POST(request: NextRequest) {
   try {

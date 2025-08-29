@@ -6,8 +6,7 @@ import { LicenseService } from '@/lib/license/service'
 import { checkRateLimit } from '@/lib/utils/validators'
 import type { UserLicensesResponse } from '@/types/license'
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Using Node.js Runtime for better TypeScript compatibility
 
 export async function GET(request: NextRequest) {
   try {

@@ -7,8 +7,7 @@ import { LicenseValidator } from '@/lib/license/validator'
 import { checkRateLimit, validators } from '@/lib/utils/validators'
 import type { DeviceListResponse } from '@/types/license'
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Using Node.js Runtime for better TypeScript compatibility
 
 export async function GET(request: NextRequest) {
   try {
