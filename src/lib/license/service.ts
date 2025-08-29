@@ -66,8 +66,8 @@ export class LicenseService {
       } while (attempts < maxAttempts)
 
       // 插入许可证记录
-      const { data: license, error: licenseError } = await supabase
-        .from('licenses')
+      const { data: license, error: licenseError } = await (supabase
+        .from('licenses') as any)
         .insert({
           license_key: licenseKey,
           user_id: userId,
