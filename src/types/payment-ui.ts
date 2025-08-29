@@ -78,7 +78,7 @@ export interface PaymentSessionConfig {
   provider: 'creem' | 'paddle'
   product_id: string
   success_url: string
-  cancel_url: string
+  cancel_url?: string  // 可选参数，因为Creem不支持
   customer_email?: string
 }
 

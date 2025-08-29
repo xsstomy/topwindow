@@ -185,7 +185,8 @@ export class PaymentUIService {
       errors.push('成功回调URL不能为空')
     }
 
-    if (!config.cancel_url) {
+    // Only Paddle requires cancel_url, Creem doesn't need it
+    if (config.provider === 'paddle' && !config.cancel_url) {
       errors.push('取消回调URL不能为空')
     }
 

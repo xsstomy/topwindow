@@ -26,7 +26,7 @@ export function usePayment() {
     try {
       const session = await PaymentUIService.createPaymentSession({
         ...config,
-        customerEmail: config.customerEmail || user.email!
+        customer_email: config.customer_email || user.email!
       })
 
       return session

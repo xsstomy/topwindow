@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }: CreateSessionParams = body
 
     // 基础参数验证
-    if (!provider || !product_id || !success_url || !cancel_url) {
+    if (!provider || !product_id || !success_url) {
       return NextResponse.json(
         {
           status: 'error',
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
           error: { 
             code: 'VALIDATION_ERROR',
             details: {
-              required: ['provider', 'product_id', 'success_url', 'cancel_url']
+              required: ['provider', 'product_id', 'success_url']
             }
           }
         } satisfies ApiResponse,

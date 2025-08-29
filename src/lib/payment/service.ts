@@ -418,7 +418,8 @@ export class PaymentService {
     if (!params.success_url) {
       throw new Error('Success URL is required')
     }
-    if (!params.cancel_url) {
+    // Only Paddle requires cancel_url, Creem doesn't need it
+    if (params.provider === 'paddle' && !params.cancel_url) {
       throw new Error('Cancel URL is required')
     }
     if (!params.customer_email) {

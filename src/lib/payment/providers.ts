@@ -1,6 +1,7 @@
 // 支付平台适配器实现
 import crypto from 'crypto'
 import { creemConfig, paddleConfig, validateProviderConfig } from './config'
+import { verifyCreemSignature } from './creem-signature'
 import type { 
   PaymentProviderInterface,
   CreateSessionParams,
@@ -80,36 +81,34 @@ export class CreemProvider extends PaymentProvider {
       // Use configured product ID or fall back to params
       const productId = this.config.productId || params.product_id
 
-      const sessionParams: CreemSessionParams = {
+      // Use Creem's official API format as per documentation
+      const sessionParams = {
         product_id: productId,
-        amount: Math.round(payment.amount * 100), // 转换为分
-        currency: payment.currency,
-        customer: {
-          email: params.customer_email!,
-          name: params.customer_name
-        },
+        units: 1,
         success_url: `${params.success_url}?payment_id=${payment.id}&provider=creem`,
-        cancel_url: `${params.cancel_url}?payment_id=${payment.id}&provider=creem`,
+        // Customer information in correct format
+        customer: {
+          email: params.customer_email
+        },
+        // Optional metadata for tracking
         metadata: {
           payment_id: payment.id,
-          user_id: payment.user_id,
-          product_id: productId,
-          generate_license: 'true',
-          mode: this.config.mode
+          user_id: payment.user_id || '',
+          product_id: params.product_id
         }
       }
 
       console.log(`[CREEM ${this.config.mode.toUpperCase()}] Creating session:`, {
         product_id: productId,
-        amount: sessionParams.amount,
-        currency: sessionParams.currency,
-        api_url: this.config.apiUrl
+        api_url: this.config.apiUrl,
+        endpoint: '/v1/checkouts'
       })
 
-      const response = await fetch(`${this.config.apiUrl}/v1/checkout/sessions`, {
+      // Use correct Creem API format
+      const response = await fetch(`${this.config.apiUrl}/v1/checkouts`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.config.secretKey}`,
+          'x-api-key': this.config.secretKey,  // Correct authentication header
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(sessionParams)
@@ -117,19 +116,30 @@ export class CreemProvider extends PaymentProvider {
 
       if (!response.ok) {
         const errorData = await response.text()
+        console.error(`[CREEM ${this.config.mode.toUpperCase()}] API Error:`, {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorData
+        })
         throw new Error(`Creem API error (${response.status}): ${errorData}`)
       }
 
-      const sessionData: CreemSessionResponse = await response.json()
+      const sessionData = await response.json()
 
       console.log(`[CREEM ${this.config.mode.toUpperCase()}] Session created:`, {
         session_id: sessionData.id,
+        checkout_url: sessionData.checkout_url ? 'present' : 'missing',
         payment_id: payment.id
       })
 
+      // Creem returns checkout_url in response
+      if (!sessionData.checkout_url) {
+        throw new Error('Creem API response missing checkout_url')
+      }
+
       return {
-        session_url: sessionData.url,
-        session_id: sessionData.id,
+        session_url: sessionData.checkout_url,
+        session_id: sessionData.id || `creem_${Date.now()}`,
         payment_id: payment.id
       }
 
@@ -145,15 +155,11 @@ export class CreemProvider extends PaymentProvider {
     }
 
     try {
-      const expectedSignature = crypto
-        .createHmac('sha256', this.config.webhookSecret)
-        .update(payload)
-        .digest('hex')
-
-      const isValid = crypto.timingSafeEqual(
-        Buffer.from(signature.replace('sha256=', '')),
-        Buffer.from(expectedSignature)
-      )
+      // Parse payload to get parameters for Creem signature verification
+      const webhookData = JSON.parse(payload);
+      
+      // Use Creem's signature verification method
+      const isValid = verifyCreemSignature(webhookData, signature);
 
       console.log(`[CREEM ${this.config.mode.toUpperCase()}] Webhook signature verification:`, isValid ? 'VALID' : 'INVALID')
       return isValid

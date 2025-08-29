@@ -44,7 +44,6 @@ export default function PaymentSelector({
         provider: selectedProvider,
         product_id: product.id,
         success_url: `${window.location.origin}/payment/success`,
-        cancel_url: `${window.location.origin}/payment/cancel`,
         customer_email: user.email!
       })
 
