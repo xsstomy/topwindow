@@ -104,13 +104,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       license: {
-        license_key: license.license_key,
-        product_id: license.product_id,
-        product_name: product.name,
-        status: license.status,
-        activation_limit: license.activation_limit,
-        expires_at: license.expires_at,
-        created_at: license.created_at
+        license_key: (license as any).license_key,
+        product_id: (license as any).product_id,
+        product_name: (product as any).name,
+        status: (license as any).status,
+        activation_limit: (license as any).activation_limit,
+        expires_at: (license as any).expires_at,
+        created_at: (license as any).created_at
       }
     })
 
