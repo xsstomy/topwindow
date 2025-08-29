@@ -2,6 +2,7 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateLicenseKey } from './generator'
 import { EmailService } from '@/lib/email/service'
+import { edgeSelect, edgeInsert, edgeUpdate } from '@/lib/supabase/edge-runtime-helper'
 import type { 
   GenerateLicenseParams, 
   LicenseGenerationResult,
@@ -31,9 +32,7 @@ export class LicenseService {
 
     try {
       // 获取产品信息
-      const { data: product, error: productError } = await supabase
-        .from('products')
-        .select('*')
+      const { data: product, error: productError } = await edgeSelect(supabase, 'products')
         .eq('id', productId)
         .eq('is_active', true)
         .single()
@@ -66,25 +65,25 @@ export class LicenseService {
       } while (attempts < maxAttempts)
 
       // 插入许可证记录
-      const { data: license, error: licenseError } = await (supabase
-        .from('licenses') as any)
-        .insert({
-          license_key: licenseKey,
-          user_id: userId,
-          payment_id: paymentId,
-          product_id: productId,
-          status: 'active',
-          activation_limit: product.activation_limit || 1,
-          activated_devices: [],
-          metadata: {
-            generated_at: new Date().toISOString(),
-            product_info: {
-              name: product.name,
-              price: product.price,
-              currency: product.currency
-            }
+      const licenseData = {
+        license_key: licenseKey,
+        user_id: userId,
+        payment_id: paymentId,
+        product_id: productId,
+        status: 'active' as const,
+        activation_limit: (product as any).activation_limit || 1,
+        activated_devices: [],
+        metadata: {
+          generated_at: new Date().toISOString(),
+          product_info: {
+            name: (product as any).name,
+            price: (product as any).price,
+            currency: (product as any).currency
           }
-        } satisfies LicenseInsertData)
+        }
+      } satisfies LicenseInsertData
+
+      const { data: license, error: licenseError } = await edgeInsert(supabase, 'licenses', licenseData)
         .select()
         .single()
 
