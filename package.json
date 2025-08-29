@@ -8,13 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "pages:build": "npx @cloudflare/next-on-pages",
-    "pages:dev": "npx @cloudflare/next-on-pages --watch",
-    "pages:preview": "wrangler pages dev dist",
-    "deploy": "npm run pages:build && wrangler pages deploy dist"
+    "build:worker": "npx @opennextjs/cloudflare build",
+    "preview:worker": "npx @opennextjs/cloudflare preview",
+    "preview": "npm run build:worker && npm run preview:worker",
+    "deploy": "npm run build:worker && wrangler deploy",
+    "dev:workers": "wrangler dev",
+    "clean": "rm -rf .next .open-next node_modules/.cache"
   },
   "dependencies": {
-    "@cloudflare/next-on-pages": "^1.13.14",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.55.0",
     "framer-motion": "^10.16.0",
@@ -27,11 +28,13 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250829.0",
+    "@opennextjs/cloudflare": "^1.6.5",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.0.0",
+    "esbuild": "^0.25.9",
     "eslint": "^8.0.0",
     "eslint-config-next": "^14.0.0",
     "postcss": "^8.0.0",

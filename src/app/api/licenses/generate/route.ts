@@ -6,8 +6,8 @@ import type { LicenseInsertData, ProductQueryResult } from '@/types/database-ins
 import type { Database } from '@/types/supabase'
 import { edgeInsert } from '@/lib/supabase/edge-runtime-helper'
 
-// Edge Runtime configuration for Cloudflare compatibility
-export const runtime = 'edge'
+// Node.js Runtime for OpenNext compatibility  
+// export const runtime = 'edge'
 
 export async function POST(request: NextRequest) {
   try {

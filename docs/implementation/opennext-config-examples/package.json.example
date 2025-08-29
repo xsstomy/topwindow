@@ -1,0 +1,120 @@
+{
+  "name": "topwindow-website",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    
+    "__comment_workers": "=== Cloudflare Workers 相关脚本 ===",
+    "build:worker": "npx @opennextjs/cloudflare build",
+    "preview:worker": "npx @opennextjs/cloudflare preview", 
+    "preview": "npm run build:worker && npm run preview:worker",
+    "deploy": "wrangler deploy",
+    "dev:workers": "wrangler dev",
+    "workers:logs": "wrangler tail",
+    "workers:kv": "wrangler kv:namespace list",
+    
+    "__comment_utils": "=== 实用工具脚本 ===",
+    "clean": "rm -rf .next .open-next node_modules/.cache",
+    "clean:all": "rm -rf .next .open-next node_modules",
+    "fresh": "npm run clean:all && npm install && npm run build:workers",
+    
+    "__comment_deploy": "=== 部署相关脚本 ===",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "deploy:preview": "wrangler deploy --env preview",
+    
+    "__comment_maintenance": "=== 维护脚本 ===",
+    "analyze": "cross-env ANALYZE=true npm run build",
+    "lighthouse": "lighthouse https://topwindow.your-domain.workers.dev --output json --output html --output-path ./reports/lighthouse",
+    "test:e2e": "playwright test",
+    "test:api": "jest --testPathPattern=api",
+    
+    "__comment_security": "=== 安全检查 ===",
+    "audit": "npm audit --audit-level moderate",
+    "security:check": "npm audit && snyk test"
+  },
+  "dependencies": {
+    "next": "14.2.32",
+    "react": "^18",
+    "react-dom": "^18",
+    "@supabase/supabase-js": "^2.38.0",
+    "@supabase/ssr": "^0.0.10",
+    
+    "__comment_ui": "UI 和样式库",
+    "tailwindcss": "^3.3.0",
+    "clsx": "^2.0.0",
+    "lucide-react": "^0.263.1",
+    
+    "__comment_forms": "表单处理",
+    "react-hook-form": "^7.45.4",
+    "zod": "^3.22.2",
+    "@hookform/resolvers": "^3.3.1",
+    
+    "__comment_payments": "支付集成",
+    "stripe": "^13.6.0",
+    
+    "__comment_utils": "工具库",
+    "date-fns": "^2.30.0",
+    "uuid": "^9.0.0",
+    "crypto-js": "^4.1.1"
+  },
+  "devDependencies": {
+    "__comment_typescript": "TypeScript 相关",
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.2",
+    "@types/crypto-js": "^4.1.1",
+    
+    "__comment_cloudflare": "Cloudflare Workers 相关",
+    "@opennextjs/cloudflare": "latest",
+    "@cloudflare/workers-types": "^4.20240909.0",
+    "wrangler": "^3.99.0",
+    
+    "__comment_build": "构建工具",
+    "autoprefixer": "^10",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    
+    "__comment_linting": "代码检查",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.32",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    
+    "__comment_testing": "测试相关",
+    "@playwright/test": "^1.37.0",
+    "jest": "^29.6.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    
+    "__comment_analysis": "分析工具",
+    "cross-env": "^7.0.3",
+    "@next/bundle-analyzer": "^14.0.0",
+    "lighthouse": "^11.0.0",
+    "snyk": "^1.1200.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

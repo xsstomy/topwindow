@@ -1,0 +1,55 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "topwindow",
+	"main": ".open-next/worker.js",
+	"compatibility_date": "2024-12-30",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"vars": {
+		"ENVIRONMENT": "production",
+		"NODE_ENV": "production"
+	},
+	"env": {
+		"development": {
+			"name": "topwindow-dev",
+			"vars": {
+				"ENVIRONMENT": "development",
+				"NODE_ENV": "development",
+				"DEBUG": "true",
+				"NEXT_PUBLIC_SUPABASE_URL": "https://ezfgnejqvxsabpxckvos.supabase.co",
+				"NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6ZmduZWpxdnhzYWJweGNrdm9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NDk4OTEsImV4cCI6MjA3MTMyNTg5MX0.CybOfj96w5EJbQMPQrEIi_K1fAnv-qGr53xS-LK3gec",
+				"NEXTAUTH_URL": "http://localhost:8787",
+				"NEXT_PUBLIC_APP_URL": "http://localhost:8787",
+				"CREEM_MODE": "test",
+				"ANALYTICS_ENABLED": "true",
+				"ENABLE_EMAIL_SENDING": "false",
+				"ENABLE_PAYMENT_PROCESSING": "true"
+			}
+		},
+		"staging": {
+			"name": "topwindow-staging", 
+			"vars": {
+				"ENVIRONMENT": "staging",
+				"NODE_ENV": "production"
+			}
+		},
+		"production": {
+			"name": "topwindow",
+			"vars": {
+				"ENVIRONMENT": "production",
+				"NODE_ENV": "production",
+				"NEXT_PUBLIC_SUPABASE_URL": "https://ezfgnejqvxsabpxckvos.supabase.co",
+				"NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6ZmduZWpxdnhzYWJweGNrdm9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NDk4OTEsImV4cCI6MjA3MTMyNTg5MX0.CybOfj96w5EJbQMPQrEIi_K1fAnv-qGr53xS-LK3gec",
+				"NEXTAUTH_URL": "http://topwindow.app",
+				"NEXT_PUBLIC_APP_URL": "http://topwindow.app", 
+				"CREEM_MODE": "production",
+				"ANALYTICS_ENABLED": "true",
+				"ENABLE_EMAIL_SENDING": "false",
+				"ENABLE_PAYMENT_PROCESSING": "true"
+			}
+		}
+	}
+}
