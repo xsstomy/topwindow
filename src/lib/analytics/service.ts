@@ -158,7 +158,7 @@ export class TrialAnalyticsService {
     const supabase = this.createServiceClient();
 
     try {
-      let query = supabase.from('trial_analytics').select('*');
+      let query = (supabase.from('trial_analytics') as any).select('*');
 
       // Apply filters
       if (filters?.startDate) {
@@ -182,15 +182,18 @@ export class TrialAnalyticsService {
         throw new Error('No trial data found');
       }
 
-      // Calculate summary statistics
-      const totalTrials = data.length;
-      const activeTrials = data.filter(t => t.trial_status === 'active').length;
-      const completedTrials = data.filter(t => t.trial_status === 'completed').length;
-      const abandonedTrials = data.filter(t => t.trial_status === 'abandoned').length;
+      // Type assertion for Edge Runtime compatibility
+      const typedData = data as any[];
 
-      const completedDurations = data
-        .filter(t => t.trial_duration_seconds !== null)
-        .map(t => t.trial_duration_seconds as number);
+      // Calculate summary statistics
+      const totalTrials = typedData.length;
+      const activeTrials = typedData.filter((t: any) => t.trial_status === 'active').length;
+      const completedTrials = typedData.filter((t: any) => t.trial_status === 'completed').length;
+      const abandonedTrials = typedData.filter((t: any) => t.trial_status === 'abandoned').length;
+
+      const completedDurations = typedData
+        .filter((t: any) => t.trial_duration_seconds !== null)
+        .map((t: any) => t.trial_duration_seconds as number);
 
       const averageDuration = completedDurations.length > 0
         ? Math.round(completedDurations.reduce((a, b) => a + b, 0) / completedDurations.length)
@@ -198,7 +201,7 @@ export class TrialAnalyticsService {
 
       // Calculate channel breakdown
       const channelCounts = new Map<string, number>();
-      data.forEach(trial => {
+      typedData.forEach((trial: any) => {
         const channel = trial.install_channel || 'unknown';
         channelCounts.set(channel, (channelCounts.get(channel) || 0) + 1);
       });
@@ -211,7 +214,7 @@ export class TrialAnalyticsService {
 
       // Calculate device type breakdown
       const deviceCounts = new Map<string, number>();
-      data.forEach(trial => {
+      typedData.forEach((trial: any) => {
         const type = trial.device_type || 'unknown';
         deviceCounts.set(type, (deviceCounts.get(type) || 0) + 1);
       });
@@ -225,7 +228,7 @@ export class TrialAnalyticsService {
       // Calculate daily stats (simplified - group by date)
       const dailyStatsMap = new Map<string, {starts: number, completions: number, durations: number[]}>();
       
-      data.forEach(trial => {
+      typedData.forEach((trial: any) => {
         const date = trial.created_at.split('T')[0]; // Get YYYY-MM-DD part
         if (!dailyStatsMap.has(date)) {
           dailyStatsMap.set(date, { starts: 0, completions: 0, durations: [] });
@@ -275,7 +278,7 @@ export class TrialAnalyticsService {
     const format = filters?.format || 'csv';
 
     try {
-      let query = supabase.from('trial_analytics').select('*');
+      let query = (supabase.from('trial_analytics') as any).select('*');
 
       // Apply filters
       if (filters?.startDate) {
@@ -299,10 +302,13 @@ export class TrialAnalyticsService {
         throw new Error('No trial data found');
       }
 
+      // Type assertion for Edge Runtime compatibility  
+      const typedData = data as any[];
+
       if (format === 'json') {
         return {
           format: 'json',
-          data: data.map(trial => ({
+          data: typedData.map((trial: any) => ({
             // Remove sensitive hash for export
             ...trial,
             device_fingerprint_hash: '[HASHED]'
@@ -326,7 +332,7 @@ export class TrialAnalyticsService {
 
         const csvRows = [
           headers.join(','),
-          ...data.map(trial => [
+          ...typedData.map((trial: any) => [
             trial.trial_id,
             trial.user_id || '',
             trial.trial_start_at,
