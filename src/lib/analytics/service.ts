@@ -107,12 +107,12 @@ export class TrialAnalyticsService {
       }
 
       // Verify device fingerprint matches
-      if (trialData.device_fingerprint_hash !== deviceFingerprintHash) {
+      if ((trialData as any).device_fingerprint_hash !== deviceFingerprintHash) {
         throw new Error('Device fingerprint mismatch');
       }
 
       // Calculate duration in seconds
-      const startTime = new Date(trialData.trial_start_at);
+      const startTime = new Date((trialData as any).trial_start_at);
       const duration = Math.round((new Date(endTime).getTime() - startTime.getTime()) / 1000);
 
       // Update the trial record
