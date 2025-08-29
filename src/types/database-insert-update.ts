@@ -95,6 +95,8 @@ export interface LicenseInsertData {
   expires_at?: string | null;
   metadata: {
     generated_at: string;
+    generated_by?: string;
+    product_name?: string;
     product_info?: {
       name: string;
       price: number;

@@ -72,24 +72,24 @@ export async function POST(request: NextRequest) {
     expiresAt.setFullYear(expiresAt.getFullYear() + 1)
 
     // 插入新的许可证记录
-    const licenseData = {
+    const licenseData: LicenseInsertData = {
       license_key: licenseKey,
       user_id,
       product_id,
-      status: 'active' as const,
-      activation_limit: activation_limit || (product as any).activation_limit,
+      status: 'active',
+      activation_limit: activation_limit || product.activation_limit,
       activated_devices: [],
       expires_at: expiresAt.toISOString(),
       metadata: {
         generated_at: new Date().toISOString(),
         generated_by: 'api',
-        product_name: (product as any).name
+        product_name: product.name
       }
     }
 
     const { data: license, error: licenseError } = await supabaseAdmin
       .from('licenses')
-      .insert(licenseData satisfies LicenseInsertData)
+      .insert(licenseData)
       .select()
       .single()
 
@@ -105,13 +105,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       license: {
-        license_key: (license as any).license_key,
-        product_id: (license as any).product_id,
-        product_name: (product as any).name,
-        status: (license as any).status,
-        activation_limit: (license as any).activation_limit,
-        expires_at: (license as any).expires_at,
-        created_at: (license as any).created_at
+        license_key: license.license_key,
+        product_id: license.product_id,
+        product_name: product.name,
+        status: license.status,
+        activation_limit: license.activation_limit,
+        expires_at: license.expires_at,
+        created_at: license.created_at
       }
     })
 
