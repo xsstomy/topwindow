@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateLicenseKey } from '@/lib/license/generator'
 import { validateRequiredFields } from '@/lib/utils/validators'
 import type { LicenseInsertData, ProductQueryResult } from '@/types/database-insert-update'
+import type { Database } from '@/types/supabase'
 
 // Edge Runtime configuration for Cloudflare compatibility
 export const runtime = 'edge'
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
     expiresAt.setFullYear(expiresAt.getFullYear() + 1)
 
     // 插入新的许可证记录
-    const licenseData: LicenseInsertData = {
+    const licenseData: Database['public']['Tables']['licenses']['Insert'] = {
       license_key: licenseKey,
       user_id,
       payment_id: null, // 直接生成的许可证没有关联的支付记录

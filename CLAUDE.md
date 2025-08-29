@@ -25,6 +25,28 @@
 - Consider cultural differences for international users
 - Use clear, simple English for better accessibility
 
+## TypeScript Guidelines
+
+**CRITICAL**: Maintain strict type safety throughout the codebase.
+
+### Type Safety Rules:
+- ❌ **NO `as any` type assertions** - Avoid using `as any` which bypasses TypeScript's type checking
+- ✅ **Use proper interfaces** - Define specific interfaces for all data structures
+- ✅ **Type database operations** - Use typed interfaces for all Supabase insert/update operations
+- ✅ **Explicit return types** - Specify return types for functions when not obvious
+
+### Database Operations:
+- All database insert/update operations must use interfaces from `@/types/database-insert-update.ts`
+- Query results should have dedicated interface definitions
+- Use `satisfies` keyword for type checking when appropriate
+- Never use `as any` for Supabase operations
+
+### Type Assertion Guidelines:
+- Only use type assertions when absolutely necessary (e.g., external library types)
+- Prefer creating proper interfaces over inline type definitions
+- Document why type assertions are needed in comments
+- Use the most specific type possible instead of `any`
+
 ---
 
 *This file ensures consistent language requirements across the project.*
