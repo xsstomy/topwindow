@@ -13,5 +13,4 @@ command = "npm run pages:build"
 cwd = "./"
 
 # Pages configuration
-[[pages_build_output_dir]]
-name = "dist"
+pages_build_output_dir = ".vercel/output/static"
