@@ -197,7 +197,7 @@ export class LicenseService {
             device_name: deviceInfo.name || existingDevice.device_name,
             // 确保设备状态为激活状态（防止之前被撤销的设备重新激活）
             status: 'active'
-          })
+          } as any)
           .eq('id', existingDevice.id)
           .select()
           .single()
@@ -256,7 +256,7 @@ export class LicenseService {
       // 更新许可证的最后验证时间
       await supabase
         .from('licenses')
-        .update({ last_validated_at: new Date().toISOString() })
+        .update({ last_validated_at: new Date().toISOString() } as any)
         .eq('license_key', licenseKey)
 
       return {
@@ -321,7 +321,7 @@ export class LicenseService {
           // 更新许可证状态为过期
           await supabase
             .from('licenses')
-            .update({ status: 'expired' })
+            .update({ status: 'expired' } as any)
             .eq('license_key', licenseKey)
 
           return {
@@ -334,14 +334,14 @@ export class LicenseService {
       // 更新设备最后活跃时间
       await supabase
         .from('user_devices')
-        .update({ last_seen_at: new Date().toISOString() })
+        .update({ last_seen_at: new Date().toISOString() } as any)
         .eq('license_key', licenseKey)
         .eq('device_id', deviceId)
 
       // 更新许可证最后验证时间
       await supabase
         .from('licenses')
-        .update({ last_validated_at: new Date().toISOString() })
+        .update({ last_validated_at: new Date().toISOString() } as any)
         .eq('license_key', licenseKey)
 
       return {
@@ -442,7 +442,7 @@ export class LicenseService {
       // 验证权限并更新设备名称
       const { data, error } = await supabase
         .from('user_devices')
-        .update({ device_name: newName })
+        .update({ device_name: newName } as any)
         .eq('license_key', licenseKey)
         .eq('device_id', deviceId)
         .eq('user_id', userId)
@@ -481,7 +481,7 @@ export class LicenseService {
       // 验证权限并撤销设备
       const { data, error } = await supabase
         .from('user_devices')
-        .update({ status: 'revoked' })
+        .update({ status: 'revoked' } as any)
         .eq('license_key', licenseKey)
         .eq('device_id', deviceId)
         .eq('user_id', userId)

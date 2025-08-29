@@ -500,7 +500,7 @@ export class PaymentService {
   ): Promise<void> {
     const { error } = await supabase
       .from('payments')
-      .update(updates)
+      .update(updates as any)
       .eq('id', paymentId)
 
     if (error) {
@@ -520,7 +520,7 @@ export class PaymentService {
 
     const { error } = await supabase
       .from('payments')
-      .update(updates)
+      .update(updates as any)
       .eq('id', paymentId)
 
     if (error) {

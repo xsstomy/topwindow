@@ -123,7 +123,7 @@ export class TrialAnalyticsService {
           trial_duration_seconds: duration,
           trial_status: 'completed',
           updated_at: endTime
-        })
+        } as any)
         .eq('trial_id', data.trialId);
 
       if (updateError) {
@@ -359,7 +359,7 @@ export class TrialAnalyticsService {
     try {
       const { data, error } = await supabase
         .from('trial_analytics')
-        .update({ trial_status: 'abandoned' })
+        .update({ trial_status: 'abandoned' } as any)
         .eq('trial_status', 'active')
         .lt('trial_start_at', cutoffTime.toISOString())
         .select();
