@@ -15,8 +15,8 @@ export default function RegisterPage() {
   return (
     <>
       <AuthFormContainer
-        title="创建账户"
-        subtitle="加入 TopWindow，开始管理您的窗口"
+        title="Create Account"
+        subtitle="Join TopWindow and start managing your windows"
       >
         <RegisterForm onSuccess={handleRegisterSuccess} />
       </AuthFormContainer>

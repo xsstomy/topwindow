@@ -30,14 +30,14 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
 
     // 验证密码匹配
     if (formData.password !== formData.confirmPassword) {
-      setError('两次输入的密码不一致')
+      setError('Passwords do not match')
       setLoading(false)
       return
     }
 
     // 验证密码强度
     if (formData.password.length < 6) {
-      setError('密码长度至少需要6位字符')
+      setError('Password must be at least 6 characters long')
       setLoading(false)
       return
     }
@@ -46,7 +46,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       await signUp(formData.email, formData.password, formData.fullName)
       onSuccess?.()
     } catch (err: any) {
-      setError(err.message || '注册失败，请重试')
+      setError(err.message || 'Registration failed, please try again')
     } finally {
       setLoading(false)
     }
@@ -59,7 +59,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     try {
       await signInWithGoogle()
     } catch (err: any) {
-      setError(err.message || 'Google 登录失败，请重试')
+      setError(err.message || 'Google sign in failed, please try again')
       setLoading(false)
     }
   }
@@ -86,7 +86,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       {/* 姓名输入 */}
       <div className="space-y-2">
         <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-          姓名
+          Full Name
         </label>
         <motion.div
           variants={inputVariants}
@@ -100,7 +100,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             value={formData.fullName}
             onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 bg-white/50"
-            placeholder="输入您的姓名"
+            placeholder="Enter your full name"
             required
           />
         </motion.div>
@@ -109,7 +109,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       {/* 邮箱输入 */}
       <div className="space-y-2">
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          邮箱地址
+          Email Address
         </label>
         <motion.div
           variants={inputVariants}
@@ -123,7 +123,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 bg-white/50"
-            placeholder="输入您的邮箱地址"
+            placeholder="Enter your email address"
             required
           />
         </motion.div>
@@ -132,7 +132,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       {/* 密码输入 */}
       <div className="space-y-2">
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          密码
+          Password
         </label>
         <motion.div
           variants={inputVariants}
@@ -146,7 +146,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 bg-white/50"
-            placeholder="设置密码（至少6位字符）"
+            placeholder="Set password (at least 6 characters)"
             required
           />
           <button
@@ -162,7 +162,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       {/* 确认密码输入 */}
       <div className="space-y-2">
         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-          确认密码
+          Confirm Password
         </label>
         <motion.div
           variants={inputVariants}
@@ -176,7 +176,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             value={formData.confirmPassword}
             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
             className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 bg-white/50"
-            placeholder="再次输入密码"
+            placeholder="Enter password again"
             required
           />
           <button
@@ -202,7 +202,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
           </div>
         )}
-        <span className={loading ? 'invisible' : ''}>创建账户</span>
+        <span className={loading ? 'invisible' : ''}>Create Account</span>
       </motion.button>
 
       {/* 分隔线 */}
@@ -211,7 +211,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-white text-gray-500">或使用</span>
+          <span className="px-4 bg-white text-gray-500">or use</span>
         </div>
       </div>
 
@@ -230,18 +230,18 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
         </svg>
-        使用 Google 账户注册
+        Sign up with Google
       </motion.button>
 
       {/* 登录链接 */}
       <div className="text-center">
         <p className="text-gray-600 text-sm">
-          已有账户？{' '}
+          Already have an account?{' '}
           <Link
             href="/auth/login"
             className="text-primary hover:text-primary-dark font-medium transition-colors"
           >
-            立即登录
+            Sign In Now
           </Link>
         </p>
       </div>

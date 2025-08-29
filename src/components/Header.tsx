@@ -85,27 +85,27 @@ export default function Header({
   const userMenuItems = [
     {
       href: '/dashboard',
-      label: '仪表板总览',
+      label: 'Dashboard Overview',
       icon: User
     },
     {
       href: '/dashboard/profile',
-      label: '个人资料设置',
+      label: 'Profile Settings',
       icon: Settings
     },
     {
       href: '/dashboard/licenses',
-      label: '许可证管理',
+      label: 'License Management',
       icon: Shield
     },
     {
       href: '/dashboard/devices',
-      label: '设备管理',
+      label: 'Device Management',
       icon: Monitor
     },
     {
       href: '/dashboard/billing',
-      label: '账单管理',
+      label: 'Billing Management',
       icon: CreditCard
     },
   ]

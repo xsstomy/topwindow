@@ -45,12 +45,12 @@ export default function PricingSection() {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'license'>('license')
 
   return (
-    <section id="pricing" className="section-padding bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+    <section id="pricing" className="section-padding bg-gradient-to-br from-gray-light to-blue-50 relative overflow-hidden">
       
       {/* Background Decoration */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-blue-300/5 rounded-full blur-3xl"></div>
       </div>
       
       <div className="container-custom relative">
@@ -69,7 +69,7 @@ export default function PricingSection() {
             <h2 className="heading-md mb-6">
               Start Your TopWindow Journey
             </h2>
-            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-secondary leading-relaxed max-w-3xl mx-auto">
               First, experience 30 days of full professional features for free,
               then choose a one-time purchase for lifetime usage rights.
             </p>
@@ -87,11 +87,11 @@ export default function PricingSection() {
                 viewport={{ once: true }}
               >
                 {/* 30-Day Free Trial */}
-                <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl relative">
+                <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-2xl relative">
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold mb-2">30-Day Free Trial</h3>
-                    <div className="text-4xl font-bold text-green-400 mb-2">FREE</div>
-                    <p className="text-gray-300">Full Features • No Limitations • 30-Day Experience</p>
+                    <h3 className="text-2xl font-bold text-gray-text mb-2">30-Day Free Trial</h3>
+                    <div className="text-4xl font-bold text-green-600 mb-2">FREE</div>
+                    <p className="text-gray-secondary">Full Features • No Limitations • 30-Day Experience</p>
                   </div>
                   
                   <div className="space-y-3 mb-8">
@@ -104,20 +104,20 @@ export default function PricingSection() {
                         transition={{ duration: 0.5, delay: 0.1 * index }}
                         viewport={{ once: true }}
                       >
-                        <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                          <feature.icon className="w-4 h-4 text-green-400" />
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                          <feature.icon className="w-4 h-4 text-green-600" />
                         </div>
-                        <span className="text-gray-200">{feature.text}</span>
+                        <span className="text-gray-text">{feature.text}</span>
                       </motion.div>
                     ))}
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                        <Check className="w-4 h-4 text-green-400" />
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <Check className="w-4 h-4 text-green-600" />
                       </div>
-                      <span className="text-green-200">All Professional Features Available</span>
+                      <span className="text-green-700">All Professional Features Available</span>
                     </div>
-                    <div className="mt-4 p-3 bg-blue-500/20 rounded-lg border border-blue-400/30">
-                      <p className="text-blue-200 text-sm text-center">
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-blue-700 text-sm text-center">
                         ⏰ Choose to purchase professional version after trial period to continue using
                       </p>
                     </div>
@@ -135,7 +135,7 @@ export default function PricingSection() {
                 </div>
 
                 {/* Professional License */}
-                <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl relative">
+                <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-2xl relative">
                   {/* Simple badge */}
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <div className="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">
@@ -144,9 +144,9 @@ export default function PricingSection() {
                   </div>
                   
                   <div className="text-center mb-6 mt-4">
-                    <h3 className="text-2xl font-bold mb-2">Professional License</h3>
+                    <h3 className="text-2xl font-bold text-gray-text mb-2">Professional License</h3>
                     <div className="text-4xl font-bold text-primary mb-2">{formatPrice(TOPWINDOW_LICENSE_PRICE)}</div>
-                    <p className="text-gray-300">One-time Purchase • Lifetime Usage</p>
+                    <p className="text-gray-secondary">One-time Purchase • Lifetime Usage</p>
                   </div>
                   
                   <div className="space-y-3 mb-8">
@@ -159,10 +159,10 @@ export default function PricingSection() {
                         transition={{ duration: 0.5, delay: 0.1 * index }}
                         viewport={{ once: true }}
                       >
-                        <div className="w-8 h-8 bg-primary/30 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                           <Check className="w-4 h-4 text-primary" />
                         </div>
-                        <span className="text-white font-medium">{feature}</span>
+                        <span className="text-gray-text font-medium">{feature}</span>
                       </motion.div>
                     ))}
                     {/* Removed extra promotional content */}
@@ -222,36 +222,36 @@ export default function PricingSection() {
               viewport={{ once: true }}
             >
               <div className="flex flex-col items-center gap-3">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
-                  <Check className="w-8 h-8 text-green-400" />
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <Check className="w-8 h-8 text-green-600" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white mb-1">30-Day Free Trial</h4>
-                  <p className="text-gray-400 text-sm">
+                  <h4 className="font-semibold text-gray-text mb-1">30-Day Free Trial</h4>
+                  <p className="text-gray-secondary text-sm">
                     Complete feature experience, zero risk
                   </p>
                 </div>
               </div>
               
               <div className="flex flex-col items-center gap-3">
-                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <Shield className="w-8 h-8 text-blue-400" />
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white mb-1">Privacy First</h4>
-                  <p className="text-gray-400 text-sm">
+                  <h4 className="font-semibold text-gray-text mb-1">Privacy First</h4>
+                  <p className="text-gray-secondary text-sm">
                     No data collection and tracking
                   </p>
                 </div>
               </div>
               
               <div className="flex flex-col items-center gap-3">
-                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
-                  <RotateCcw className="w-8 h-8 text-purple-400" />
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                  <RotateCcw className="w-8 h-8 text-purple-600" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white mb-1">One-time Payment</h4>
-                  <p className="text-gray-400 text-sm">
+                  <h4 className="font-semibold text-gray-text mb-1">One-time Payment</h4>
+                  <p className="text-gray-secondary text-sm">
                     Buy-to-own, no subscription required
                   </p>
                 </div>

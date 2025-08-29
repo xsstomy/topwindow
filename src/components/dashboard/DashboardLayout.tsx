@@ -24,33 +24,33 @@ interface DashboardLayoutProps {
 const navigationItems = [
   {
     href: '/dashboard',
-    label: '总览',
+    label: 'Overview',
     icon: Home,
-    description: '账户概览和快速操作'
+    description: 'Account overview and quick actions'
   },
   {
     href: '/dashboard/licenses',
-    label: '许可证',
+    label: 'Licenses',
     icon: Key,
-    description: '管理您的软件许可证'
+    description: 'Manage your software licenses'
   },
   {
     href: '/dashboard/devices',
-    label: '设备',
+    label: 'Devices',
     icon: Monitor,
-    description: '查看和管理激活的设备'
+    description: 'View and manage activated devices'
   },
   {
     href: '/dashboard/profile',
-    label: '个人资料',
+    label: 'Profile',
     icon: User,
-    description: '编辑您的账户信息'
+    description: 'Edit your account information'
   },
   {
     href: '/dashboard/billing',
-    label: '账单',
+    label: 'Billing',
     icon: CreditCard,
-    description: '查看支付历史和发票'
+    description: 'View payment history and invoices'
   }
 ]
 
@@ -140,7 +140,7 @@ export default function DashboardLayout({
             <button
               onClick={handleSignOut}
               className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              title="退出登录"
+              title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -160,7 +160,7 @@ export default function DashboardLayout({
               <Menu className="w-6 h-6" />
             </button>
             <h1 className="text-lg font-semibold text-gray-900">
-              {title || '仪表板'}
+              {title || 'Dashboard'}
             </h1>
             <div className="w-6" /> {/* Spacer for balance */}
           </div>

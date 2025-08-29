@@ -27,12 +27,12 @@ export default function PaymentSelector({
 
   const handlePurchase = async () => {
     if (!user) {
-      alert('请先登录后再购买')
+      alert('Please login before purchase')
       return
     }
 
     if (!product) {
-      alert('产品信息加载中，请稍后重试')
+      alert('Loading product information, please try again later')
       return
     }
 

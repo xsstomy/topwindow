@@ -30,18 +30,18 @@ export default function BillingPage() {
 
   return (
     <DashboardLayout
-      title="账单管理"
-      description="查看您的购买历史和账单信息"
+      title="Billing Management"
+      description="View your purchase history and billing information"
     >
       {/* 暂无账单状态 */}
       <div className="text-center py-12">
         <Receipt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">暂无账单记录</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Billing Records</h3>
         <p className="text-gray-600 mb-6">
-          您还没有任何购买记录，购买后的账单将在这里显示。
+          You don't have any purchase records yet. Bills from purchases will appear here.
         </p>
         <button className="btn-primary">
-          查看产品
+          View Products
         </button>
       </div>
     </DashboardLayout>

@@ -29,18 +29,18 @@ export default function ProfilePage() {
 
   return (
     <DashboardLayout
-      title="个人设置"
-      description="管理您的账户信息和偏好设置"
+      title="Profile Settings"
+      description="Manage your account information and preferences"
     >
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">
-          基本信息
+          Basic Information
         </h2>
         
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              邮箱地址
+              Email Address
             </label>
             <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-lg">
               {user.email}
@@ -50,7 +50,7 @@ export default function ProfilePage() {
           {user.user_metadata?.full_name && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                姓名
+                Full Name
               </label>
               <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-lg">
                 {user.user_metadata.full_name}
@@ -60,10 +60,10 @@ export default function ProfilePage() {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              注册时间
+              Registration Date
             </label>
             <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-lg">
-              {new Date(user.created_at).toLocaleString('zh-CN')}
+              {new Date(user.created_at).toLocaleString('en-US')}
             </p>
           </div>
         </div>

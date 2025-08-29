@@ -17,7 +17,7 @@ export function usePayment() {
 
   const createPaymentSession = useCallback(async (config: PaymentSessionConfig) => {
     if (!user) {
-      throw new Error('用户未登录')
+      throw new Error('User not logged in')
     }
 
     setLoading(true)
@@ -130,7 +130,7 @@ export function usePaymentRetry(paymentFn: Function, maxRetries = 3) {
 
   const retry = useCallback(async (...args: any[]) => {
     if (retryCount >= maxRetries) {
-      throw new Error(`已达到最大重试次数 (${maxRetries})`)
+      throw new Error(`Maximum retry attempts reached (${maxRetries})`)
     }
 
     setLoading(true)

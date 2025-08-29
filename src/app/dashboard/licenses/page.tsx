@@ -30,18 +30,18 @@ export default function LicensesPage() {
 
   return (
     <DashboardLayout
-      title="许可证管理"
-      description="管理您的 TopWindow 许可证和设备"
+      title="License Management"
+      description="Manage your TopWindow licenses and devices"
     >
       {/* 暂无许可证状态 */}
       <div className="text-center py-12">
         <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">暂无许可证</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Licenses</h3>
         <p className="text-gray-600 mb-6">
-          您还没有购买任何许可证，购买后将在这里显示。
+          You haven't purchased any licenses yet. Purchased licenses will appear here.
         </p>
         <button className="btn-primary">
-          立即购买许可证
+          Purchase License Now
         </button>
       </div>
     </DashboardLayout>

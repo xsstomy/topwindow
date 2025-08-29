@@ -15,8 +15,8 @@ export default function LoginPage() {
   return (
     <>
       <AuthFormContainer
-        title="欢迎回来"
-        subtitle="登录您的 TopWindow 账户"
+        title="Welcome Back"
+        subtitle="Sign in to your TopWindow account"
       >
         <LoginForm onSuccess={handleLoginSuccess} />
       </AuthFormContainer>

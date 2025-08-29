@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
       await new Promise(resolve => setTimeout(resolve, 2000)) // 模拟API调用
       setSent(true)
     } catch (err: any) {
-      setError(err.message || '发送重置邮件失败，请重试')
+      setError(err.message || 'Failed to send reset email, please try again')
     } finally {
       setLoading(false)
     }
@@ -30,8 +30,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthFormContainer
-      title="重置密码"
-      subtitle="输入您的邮箱地址，我们将发送重置链接"
+      title="Reset Password"
+      subtitle="Enter your email address and we'll send you a reset link"
     >
       {sent ? (
         <motion.div
@@ -41,16 +41,16 @@ export default function ForgotPasswordPage() {
         >
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            邮件已发送
+            Email Sent
           </h3>
           <p className="text-gray-600 mb-6">
-            我们已向 {email} 发送了密码重置链接，请检查您的邮箱。
+            We've sent a password reset link to {email}. Please check your inbox.
           </p>
           <Link
             href="/auth/login"
             className="text-primary hover:text-primary-dark font-medium"
           >
-            返回登录
+            Back to Login
           </Link>
         </motion.div>
       ) : (
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
 
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              邮箱地址
+              Email Address
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -78,7 +78,7 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 bg-white/50"
-                placeholder="输入您的邮箱地址"
+                placeholder="Enter your email address"
                 required
               />
             </div>
@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               </div>
             )}
-            <span className={loading ? 'invisible' : ''}>发送重置邮件</span>
+            <span className={loading ? 'invisible' : ''}>Send Reset Email</span>
           </motion.button>
 
           <div className="text-center">
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
               href="/auth/login"
               className="text-sm text-primary hover:text-primary-dark transition-colors"
             >
-              返回登录
+              Back to Login
             </Link>
           </div>
         </form>

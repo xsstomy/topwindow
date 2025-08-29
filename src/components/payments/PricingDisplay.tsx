@@ -39,7 +39,7 @@ export default function PricingDisplay({
             animate={{ scale: 1 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
-            <span>省 {discountPercentage}%</span>
+            <span>Save {discountPercentage}%</span>
           </motion.div>
         )}
 
@@ -56,7 +56,7 @@ export default function PricingDisplay({
         </div>
 
         <p className="text-gray-600 font-medium">
-          一次性购买 • 永久使用
+          One-time purchase • Lifetime usage
         </p>
 
         {discountAmount > 0 && (
@@ -66,7 +66,7 @@ export default function PricingDisplay({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
           >
-            立即节省 {formatPrice(discountAmount, currency)}
+            Save instantly {formatPrice(discountAmount, currency)}
           </motion.p>
         )}
       </div>
@@ -74,7 +74,7 @@ export default function PricingDisplay({
       {/* 功能列表 */}
       <div className="p-6">
         <h4 className="font-semibold text-gray-900 mb-4 text-center">
-          包含功能
+          Included features
         </h4>
         <FeatureList features={features} showCheckmarks={true} />
         
@@ -87,11 +87,11 @@ export default function PricingDisplay({
         >
           <div className="flex items-center gap-2 mb-2">
             <Check className="w-5 h-5 text-green-600" />
-            <span className="font-medium text-green-800">最佳价值</span>
+            <span className="font-medium text-green-800">Best value</span>
           </div>
           <p className="text-sm text-green-700">
-            相比市面上其他窗口管理工具，TopWindow 提供更全面的功能，
-            更优惠的价格，以及永久免费更新。
+            Compared to other window management tools on the market, TopWindow provides more comprehensive features,
+            better pricing, and free lifetime updates.
           </p>
         </motion.div>
 
@@ -103,9 +103,9 @@ export default function PricingDisplay({
           transition={{ duration: 0.4, delay: 0.4 }}
         >
           <p className="text-sm text-gray-600">
-            <span className="font-medium">30天退款保证</span>
+            <span className="font-medium">30-day money-back guarantee</span>
             <br />
-            不满意？无条件全额退款
+            Not satisfied? Unconditional full refund
           </p>
         </motion.div>
       </div>
