@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Download, CheckCircle, Monitor, HardDrive, Cpu } from 'lucide-react'
+import Link from 'next/link'
 
 export default function DownloadSection() {
   return (
@@ -43,10 +44,10 @@ export default function DownloadSection() {
                 </div>
               </div>
               
-              <button className="btn-primary w-full text-lg mb-4">
+              <Link href="/download" className="btn-primary w-full text-lg mb-4 inline-flex items-center justify-center gap-2">
                 <Download className="w-5 h-5" />
-                Download for macOS
-              </button>
+                View All Download Options
+              </Link>
               
               <div className="text-center text-sm text-gray-500">
                 Version 2.1.0 • 15.2 MB • Free Download

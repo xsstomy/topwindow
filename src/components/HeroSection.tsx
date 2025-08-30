@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Download, ArrowRight, Command } from 'lucide-react'
+import DownloadButton from '@/components/DownloadButton'
 
 export default function HeroSection() {
   return (
@@ -47,10 +48,12 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              <button className="btn-primary inline-flex items-center gap-2 text-lg">
-                <Download size={20} />
-                Download for macOS
-              </button>
+              <DownloadButton 
+                variant="primary" 
+                size="lg"
+                platform="macos"
+                className="inline-flex items-center gap-2 text-lg"
+              />
               
               <button className="btn-secondary inline-flex items-center gap-2 text-lg">
                 Learn More

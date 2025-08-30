@@ -5,7 +5,7 @@ import { Mail, Twitter, ExternalLink, Heart } from 'lucide-react'
 
 const footerLinks = {
   product: [
-    { name: 'Download', href: '#download' },
+    { name: 'Download', href: '/download' },
     { name: 'Features', href: '#features' },
     { name: 'Pricing', href: '#pricing' },
     { name: 'Release Notes', href: '/releases' }

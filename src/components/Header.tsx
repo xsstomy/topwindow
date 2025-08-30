@@ -78,6 +78,7 @@ export default function Header({
     { href: '/', label: 'Home' },
     { href: '/#features', label: 'Features' },
     { href: '/#pricing', label: 'Pricing' },
+    { href: '/download', label: 'Download' },
     { href: '/#support', label: 'Support' },
   ]
 
