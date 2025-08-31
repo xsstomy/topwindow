@@ -1,215 +1,217 @@
-import { 
-  PaymentSessionConfig, 
-  PaymentSession, 
-  PaymentStatus, 
-  ProductInfo, 
+import {
+  PaymentSessionConfig,
+  PaymentSession,
+  PaymentStatus,
+  ProductInfo,
   PaymentError,
   PaymentAnalyticsEvent,
-  ErrorContext 
-} from '@/types/payment-ui'
+  ErrorContext,
+} from '@/types/payment-ui';
 
 export class PaymentUIService {
-  private static instance: PaymentUIService
-  private analytics: PaymentAnalyticsEvent[] = []
+  private static instance: PaymentUIService;
+  private analytics: PaymentAnalyticsEvent[] = [];
 
   private constructor() {}
 
   static getInstance(): PaymentUIService {
     if (!PaymentUIService.instance) {
-      PaymentUIService.instance = new PaymentUIService()
+      PaymentUIService.instance = new PaymentUIService();
     }
-    return PaymentUIService.instance
+    return PaymentUIService.instance;
   }
 
   /**
-   * 创建支付会话
+   * Create payment session
    */
-  async createPaymentSession(config: PaymentSessionConfig): Promise<PaymentSession> {
+  async createPaymentSession(
+    config: PaymentSessionConfig
+  ): Promise<PaymentSession> {
     try {
       this.trackEvent('payment_session_create_started', {
         provider: config.provider,
-        productId: config.product_id
-      })
+        productId: config.product_id,
+      });
 
       const response = await fetch('/api/payments/create-session', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(config)
-      })
+        body: JSON.stringify(config),
+      });
 
       if (!response.ok) {
-        let errorMessage = 'Failed to create payment session'
-        let errorData: any = {}
-        
+        let errorMessage = 'Failed to create payment session';
+        let errorData: any = {};
+
         try {
-          errorData = await response.json()
-          errorMessage = errorData.message || errorData.error?.message || errorMessage
+          errorData = await response.json();
+          errorMessage =
+            errorData.message || errorData.error?.message || errorMessage;
         } catch (parseError) {
-          // 如果无法解析错误响应，使用状态码信息
-          errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
+          // If unable to parse error response, use status code information
+          errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`;
         }
-        
+
         throw this.createPaymentError('provider_error', errorMessage, {
           provider: config.provider,
           productId: config.product_id,
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+        });
       }
 
-      const sessionData = await response.json()
-      
+      const sessionData = await response.json();
+
       this.trackEvent('payment_session_created', {
         provider: config.provider,
         productId: config.product_id,
-        sessionId: sessionData.data.session_id
-      })
+        sessionId: sessionData.data.session_id,
+      });
 
       return {
         sessionId: sessionData.data.session_id,
         sessionUrl: sessionData.data.session_url,
-        paymentId: sessionData.data.payment_id
-      }
+        paymentId: sessionData.data.payment_id,
+      };
     } catch (error) {
       this.trackEvent('payment_session_create_failed', {
         provider: config.provider,
         productId: config.product_id,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      })
-      throw error
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
     }
   }
 
   /**
-   * 跟踪支付状态
+   * Track payment status
    */
   async trackPaymentStatus(paymentId: string): Promise<PaymentStatus> {
     try {
-      const response = await fetch(`/api/payments/status?payment_id=${paymentId}`)
-      
+      const response = await fetch(
+        `/api/payments/status?payment_id=${paymentId}`
+      );
+
       if (!response.ok) {
-        throw this.createPaymentError('network_error', 'Failed to fetch payment status')
+        throw this.createPaymentError(
+          'network_error',
+          'Failed to fetch payment status'
+        );
       }
 
-      const statusData = await response.json()
-      const status = statusData.status as PaymentStatus
+      const statusData = await response.json();
+      const status = statusData.status as PaymentStatus;
 
       this.trackEvent('payment_status_checked', {
         paymentId,
-        status
-      })
+        status,
+      });
 
-      return status
+      return status;
     } catch (error) {
       this.trackEvent('payment_status_check_failed', {
         paymentId,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      })
-      throw error
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
     }
   }
 
   /**
-   * 获取产品信息
+   * Get product information
    */
   async getProductInfo(productId: string): Promise<ProductInfo> {
     try {
-      // 使用缓存避免重复请求
-      const cacheKey = `product_${productId}`
-      const cached = this.getFromCache(cacheKey)
+      // Use cache to avoid duplicate requests
+      const cacheKey = `product_${productId}`;
+      const cached = this.getFromCache(cacheKey);
       if (cached) {
-        return cached
+        return cached;
       }
 
-      const response = await fetch(`/api/products/${productId}`)
-      
+      const response = await fetch(`/api/products/${productId}`);
+
       if (!response.ok) {
-        throw this.createPaymentError('network_error', 'Failed to fetch product info')
+        throw this.createPaymentError(
+          'network_error',
+          'Failed to fetch product info'
+        );
       }
 
-      const productData = await response.json()
-      
-      // 缓存 5 分钟
-      this.setCache(cacheKey, productData, 5 * 60 * 1000)
-      
-      return productData
+      const productData = await response.json();
+
+      // Cache for 5 minutes
+      this.setCache(cacheKey, productData, 5 * 60 * 1000);
+
+      return productData;
     } catch (error) {
       this.trackEvent('product_info_fetch_failed', {
         productId,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      })
-      throw error
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
     }
   }
 
   /**
-   * 获取支付选项
+   * Get payment options
    */
   getPaymentOptions() {
     return [
       {
         provider: 'creem' as const,
         name: 'Creem Pay',
-        description: '推荐 • 专为数字产品设计',
-        features: ['快速处理', '低手续费', '自动发票', '退款保护'],
+        description: 'Digital Product Payment',
+        features: ['Secure Payment'],
         recommended: true,
-        processingFee: '2.9% + $0.30'
       },
-      {
-        provider: 'paddle' as const,
-        name: 'Paddle',
-        description: '全球支付 • 自动税务处理',
-        features: ['全球支持', '税务合规', '多币种', '企业级'],
-        recommended: false,
-        processingFee: '5% + 税费'
-      }
-    ]
+    ];
   }
 
   /**
-   * 验证支付配置
+   * Validate payment configuration
    */
-  validatePaymentConfig(config: PaymentSessionConfig): { isValid: boolean; errors: string[] } {
-    const errors: string[] = []
+  validatePaymentConfig(config: PaymentSessionConfig): {
+    isValid: boolean;
+    errors: string[];
+  } {
+    const errors: string[] = [];
 
     if (!config.product_id) {
-      errors.push('产品ID不能为空')
+      errors.push('Product ID cannot be empty');
     }
 
-    if (!config.provider || !['creem', 'paddle'].includes(config.provider)) {
-      errors.push('请选择有效的支付方式')
+    if (!config.provider || config.provider !== 'creem') {
+      errors.push('Please select a valid payment method');
     }
 
     if (!config.success_url) {
-      errors.push('成功回调URL不能为空')
+      errors.push('Success callback URL cannot be empty');
     }
 
-    // Only Paddle requires cancel_url, Creem doesn't need it
-    if (config.provider === 'paddle' && !config.cancel_url) {
-      errors.push('取消回调URL不能为空')
-    }
+    // Creem doesn't require cancel_url
 
     if (config.customer_email && !this.isValidEmail(config.customer_email)) {
-      errors.push('邮箱格式不正确')
+      errors.push('Invalid email format');
     }
 
     return {
       isValid: errors.length === 0,
-      errors
-    }
+      errors,
+    };
   }
 
   /**
-   * 重定向到支付页面
+   * Redirect to payment page
    */
   redirectToPayment(sessionUrl: string): void {
-    this.trackEvent('redirect_to_payment', { sessionUrl })
-    window.location.href = sessionUrl
+    this.trackEvent('redirect_to_payment', { sessionUrl });
+    window.location.href = sessionUrl;
   }
 
   /**
-   * 跟踪分析事件
+   * Track analytics events
    */
   private trackEvent(event: string, properties?: Record<string, any>): void {
     const analyticsEvent: PaymentAnalyticsEvent = {
@@ -217,111 +219,114 @@ export class PaymentUIService {
       properties,
       timestamp: new Date().toISOString(),
       userId: this.getCurrentUserId(),
-      sessionId: this.getSessionId()
-    }
+      sessionId: this.getSessionId(),
+    };
 
-    this.analytics.push(analyticsEvent)
+    this.analytics.push(analyticsEvent);
 
-    // 发送到 Google Analytics
+    // Send to Google Analytics
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', event, {
         event_category: 'payment',
-        ...properties
-      })
+        ...properties,
+      });
     }
 
-    // 发送到其他分析服务
-    this.sendToAnalytics(analyticsEvent)
+    // Send to other analytics services
+    this.sendToAnalytics(analyticsEvent);
   }
 
   /**
-   * 创建支付错误
+   * Create payment error
    */
   private createPaymentError(
-    type: PaymentError['type'], 
-    message: string, 
+    type: PaymentError['type'],
+    message: string,
     context?: Partial<ErrorContext>
   ): PaymentError {
-    const error = new Error(message) as PaymentError
-    error.type = type
-    error.severity = this.getErrorSeverity(type)
-    error.recoverable = this.isRecoverable(type)
+    const error = new Error(message) as PaymentError;
+    error.type = type;
+    error.severity = this.getErrorSeverity(type);
+    error.recoverable = this.isRecoverable(type);
     error.context = {
       timestamp: new Date().toISOString(),
-      userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined,
-      location: typeof window !== 'undefined' ? window.location.href : undefined,
-      ...context
-    }
-    return error
+      userAgent:
+        typeof window !== 'undefined' ? window.navigator.userAgent : undefined,
+      location:
+        typeof window !== 'undefined' ? window.location.href : undefined,
+      ...context,
+    };
+    return error;
   }
 
-  private getErrorSeverity(type: PaymentError['type']): PaymentError['severity'] {
+  private getErrorSeverity(
+    type: PaymentError['type']
+  ): PaymentError['severity'] {
     switch (type) {
       case 'network_error':
-        return 'medium'
+        return 'medium';
       case 'validation_error':
-        return 'low'
+        return 'low';
       case 'provider_error':
-        return 'high'
+        return 'high';
       case 'webhook_error':
-        return 'critical'
+        return 'critical';
       case 'license_generation_error':
-        return 'critical'
+        return 'critical';
       default:
-        return 'medium'
+        return 'medium';
     }
   }
 
   private isRecoverable(type: PaymentError['type']): boolean {
-    return ['network_error', 'provider_error'].includes(type)
+    return ['network_error', 'provider_error'].includes(type);
   }
 
   private isValidEmail(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   private getCurrentUserId(): string | undefined {
-    // 从认证上下文获取用户ID
-    return typeof window !== 'undefined' ? 
-      window.__USER_ID__ : undefined
+    // Get user ID from authentication context
+    return typeof window !== 'undefined' ? window.__USER_ID__ : undefined;
   }
 
   private getSessionId(): string {
-    // 生成或获取会话ID
+    // Generate or get session ID
     if (typeof window !== 'undefined') {
-      let sessionId = sessionStorage.getItem('payment_session_id')
+      let sessionId = sessionStorage.getItem('payment_session_id');
       if (!sessionId) {
-        sessionId = crypto.randomUUID()
-        sessionStorage.setItem('payment_session_id', sessionId)
+        sessionId = crypto.randomUUID();
+        sessionStorage.setItem('payment_session_id', sessionId);
       }
-      return sessionId
+      return sessionId;
     }
-    return crypto.randomUUID()
+    return crypto.randomUUID();
   }
 
   private sendToAnalytics(event: PaymentAnalyticsEvent): void {
-    // 可以集成其他分析服务
-    console.log('Analytics Event:', event)
+    // Can integrate other analytics services
+    console.log('Analytics Event:', event);
   }
 
-  // 简单的内存缓存实现
-  private cache = new Map<string, { data: any; expires: number }>()
+  // Simple in-memory cache implementation
+  private cache = new Map<string, { data: any; expires: number }>();
 
   private getFromCache(key: string): any {
-    const cached = this.cache.get(key)
+    const cached = this.cache.get(key);
     if (cached && cached.expires > Date.now()) {
-      return cached.data
+      return cached.data;
     }
-    this.cache.delete(key)
-    return null
+    this.cache.delete(key);
+    return null;
   }
 
   private setCache(key: string, data: any, ttl: number): void {
     this.cache.set(key, {
       data,
-      expires: Date.now() + ttl
-    })
+      expires: Date.now() + ttl,
+    });
   }
 }
 
-export default PaymentUIService.getInstance()
+export default PaymentUIService.getInstance();

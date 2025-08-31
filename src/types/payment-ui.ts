@@ -1,135 +1,140 @@
-// 支付界面相关类型定义
+// Payment UI related type definitions
 export interface PaymentSelectorProps {
-  productId: string
-  onPaymentStart?: () => void
-  onPaymentSuccess?: () => void
-  onPaymentCancel?: () => void
-  className?: string
-  showComparison?: boolean
+  productId: string;
+  onPaymentStart?: () => void;
+  onPaymentSuccess?: () => void;
+  onPaymentCancel?: () => void;
+  className?: string;
+  showComparison?: boolean;
 }
 
 export interface PaymentSelectorConfig {
-  productId: string
-  showComparison: boolean
-  enableAnalytics: boolean
-  theme: 'light' | 'dark' | 'auto'
+  productId: string;
+  showComparison: boolean;
+  enableAnalytics: boolean;
+  theme: 'light' | 'dark' | 'auto';
 }
 
 export interface PaymentOption {
-  provider: 'creem' | 'paddle'
-  name: string
-  description: string
-  features: string[]
-  recommended: boolean
-  processingFee?: string
+  provider: 'creem';
+  name: string;
+  description: string;
+  features: string[];
+  recommended: boolean;
+  processingFee?: string;
 }
 
 export interface PaymentStatusTrackerProps {
-  paymentId: string
-  onStatusChange?: (status: PaymentStatus) => void
-  autoRefresh?: boolean
-  refreshInterval?: number
+  paymentId: string;
+  onStatusChange?: (status: PaymentStatus) => void;
+  autoRefresh?: boolean;
+  refreshInterval?: number;
 }
 
 export enum PaymentStatus {
   PENDING = 'pending',
-  PROCESSING = 'processing', 
+  PROCESSING = 'processing',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 export interface PricingDisplayProps {
-  price: number
-  currency: string
-  originalPrice?: number
-  discount?: number
-  features: string[]
-  className?: string
+  price: number;
+  currency: string;
+  originalPrice?: number;
+  discount?: number;
+  features: string[];
+  className?: string;
 }
 
 export interface FeatureListProps {
-  features: string[]
-  className?: string
-  showCheckmarks?: boolean
+  features: string[];
+  className?: string;
+  showCheckmarks?: boolean;
 }
 
 export interface PaymentOptionCardProps {
-  option: PaymentOption
-  selected: boolean
-  onSelect: (provider: 'creem' | 'paddle') => void
-  className?: string
+  option: PaymentOption;
+  selected: boolean;
+  onSelect: (provider: 'creem') => void;
+  className?: string;
 }
 
-// 产品信息接口
+// Product information interface
 export interface ProductInfo {
-  id: string
-  name: string
-  description: string
-  price: number
-  currency: string
-  features: string[]
-  activationLimit: number
-  isActive: boolean
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  features: string[];
+  activationLimit: number;
+  isActive: boolean;
 }
 
-// 支付会话配置
+// Payment session configuration
 export interface PaymentSessionConfig {
-  provider: 'creem' | 'paddle'
-  product_id: string
-  success_url: string
-  cancel_url?: string  // 可选参数，因为Creem不支持
-  customer_email?: string
+  provider: 'creem';
+  product_id: string;
+  success_url: string;
+  cancel_url?: string; // Optional parameter, not used by Creem
+  customer_email?: string;
 }
 
-// 支付会话结果
+// Payment session result
 export interface PaymentSession {
-  sessionId: string
-  sessionUrl: string
-  paymentId: string
-  expiresAt?: string
+  sessionId: string;
+  sessionUrl: string;
+  paymentId: string;
+  expiresAt?: string;
 }
 
-// 支付进度步骤
+// Payment progress steps
 export interface PaymentStep {
-  id: string
-  title: string
-  description: string
-  status: 'pending' | 'current' | 'completed' | 'error'
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'current' | 'completed' | 'error';
 }
 
-// 错误上下文
+// Error context
 export interface ErrorContext {
-  provider?: string
-  productId?: string
-  userId?: string
-  timestamp: string
-  userAgent?: string
-  location?: string
+  provider?: string;
+  productId?: string;
+  userId?: string;
+  timestamp: string;
+  userAgent?: string;
+  location?: string;
 }
 
-// 支付错误类型
+// Payment error types
 export interface PaymentError extends Error {
-  type: 'network_error' | 'validation_error' | 'provider_error' | 'webhook_error' | 'license_generation_error'
-  code?: string
-  severity: 'low' | 'medium' | 'high' | 'critical'
-  recoverable: boolean
-  context?: ErrorContext
+  type:
+    | 'network_error'
+    | 'validation_error'
+    | 'provider_error'
+    | 'webhook_error'
+    | 'license_generation_error';
+  code?: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  recoverable: boolean;
+  context?: ErrorContext;
 }
 
-// 分析事件
+// Analytics events
 export interface PaymentAnalyticsEvent {
-  event: string
-  properties?: Record<string, any>
-  timestamp: string
-  userId?: string
-  sessionId?: string
+  event: string;
+  properties?: Record<string, any>;
+  timestamp: string;
+  userId?: string;
+  sessionId?: string;
 }
 
-// A/B 测试变体
+// A/B testing variants
 export interface PaymentVariant {
-  id: string
-  name: string
-  config: PaymentSelectorConfig
-  weight: number
+  id: string;
+  name: string;
+  config: PaymentSelectorConfig;
+  weight: number;
 }
