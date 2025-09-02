@@ -59,7 +59,7 @@ export default function PaymentSuccessPage() {
     fetchPaymentStatus();
   }, [paymentId]);
 
-  // 倒计时自动跳转
+  // Countdown and auto redirect
   useEffect(() => {
     if (paymentData && countdown > 0) {
       const timer = setTimeout(() => {
@@ -99,7 +99,7 @@ export default function PaymentSuccessPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('zh-CN', {
+    return new Date(dateString).toLocaleString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -111,7 +111,7 @@ export default function PaymentSuccessPage() {
   const copyLicenseKey = () => {
     if (paymentData?.license?.license_key) {
       navigator.clipboard.writeText(paymentData.license.license_key);
-      // 可以添加复制成功的提示
+      // Could add a success toast here
     }
   };
 
@@ -181,9 +181,9 @@ export default function PaymentSuccessPage() {
     <div className='min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50'>
       <div className='container mx-auto px-4 py-12'>
         <div className='max-w-2xl mx-auto'>
-          {/* 成功提示 */}
+          {/* Success message */}
           <div className='bg-white rounded-2xl shadow-xl overflow-hidden'>
-            {/* 头部 */}
+            {/* Header */}
             <div className='bg-gradient-to-r from-green-500 to-blue-600 px-8 py-12 text-center'>
               <CheckCircle className='w-20 h-20 text-white mx-auto mb-6' />
               <h1 className='text-3xl font-bold text-white mb-2'>
@@ -194,9 +194,9 @@ export default function PaymentSuccessPage() {
               </p>
             </div>
 
-            {/* 内容区域 */}
+            {/* Content area */}
             <div className='p-8'>
-              {/* 支付详情 */}
+              {/* Payment details */}
               <div className='mb-8'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                   📋 Payment Details
@@ -236,7 +236,7 @@ export default function PaymentSuccessPage() {
                 </div>
               </div>
 
-              {/* 许可证信息 */}
+              {/* License information */}
               {paymentData.license ? (
                 <div className='mb-8'>
                   <h3 className='text-lg font-semibold text-gray-900 mb-4'>
@@ -277,7 +277,7 @@ export default function PaymentSuccessPage() {
                 </div>
               )}
 
-              {/* 产品功能 */}
+              {/* Product features */}
               <div className='mb-8'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                   ✨ Product Features
@@ -297,7 +297,7 @@ export default function PaymentSuccessPage() {
                 </div>
               </div>
 
-              {/* 下一步操作 */}
+              {/* Next steps */}
               <div className='mb-8'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                   📱 Next Steps
@@ -350,7 +350,7 @@ export default function PaymentSuccessPage() {
                 </div>
               </div>
 
-              {/* 操作按钮 */}
+              {/* Action buttons */}
               <div className='flex flex-col sm:flex-row gap-4'>
                 <a
                   href='https://downloads.topwindow.app/releases/latest/topwindow-setup.dmg'
@@ -373,7 +373,7 @@ export default function PaymentSuccessPage() {
                 )}
               </div>
 
-              {/* 帮助信息 */}
+              {/* Help information */}
               <div className='mt-8 p-4 bg-gray-50 rounded-lg text-center'>
                 <p className='text-sm text-gray-600 mb-2'>
                   Need help? Please check our

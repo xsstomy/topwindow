@@ -68,7 +68,7 @@ const faqData = {
     {
       question: 'Can I pin multiple windows at once?',
       answer:
-        'Multiple window pinning feature is coming soon. Currently, you can pin one window at a time.',
+        'Yes, TopWindow supports pinning and managing multiple windows simultaneously.',
     },
     {
       question: 'Will pinned windows stay on top of full-screen applications?',

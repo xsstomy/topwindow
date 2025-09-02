@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         '7-day money-back guarantee',
         'Complete professional features',
         'Advanced hotkey settings',
-        'Multi-monitor support (Coming Soon)',
+        'Multi-monitor support',
       ],
       is_active: true,
       metadata: {

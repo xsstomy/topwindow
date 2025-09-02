@@ -69,7 +69,7 @@ export const PRODUCT_PRICES: Record<string, ProductPricing> = {
       '7-day money-back guarantee',
       'Complete professional features',
       'Advanced hotkey settings',
-      'Multi-monitor support (Coming Soon)',
+      'Multi-monitor support',
     ],
     isActive: true,
     metadata: {

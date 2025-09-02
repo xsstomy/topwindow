@@ -1,8 +1,8 @@
-// 支付业务逻辑服务
-import { createClient } from '@supabase/supabase-js'
-import { PaymentProviderFactory } from './providers'
-import { LicenseService } from '@/lib/license/service'
-import type { 
+// Payment business logic service
+import { createClient } from '@supabase/supabase-js';
+import { PaymentProviderFactory } from './providers';
+import { LicenseService } from '@/lib/license/service';
+import type {
   CreateSessionParams,
   SessionResult,
   PaymentRecord,
@@ -16,149 +16,160 @@ import type {
   PaymentError,
   PaymentFlowContext,
   PaymentFlowState,
-  PaymentProvider
-} from '@/types/payment'
+  PaymentProvider,
+} from '@/types/payment';
 import type {
   PaymentInsertData,
-  PaymentSessionUpdateData
-} from '@/types/database-insert-update'
-import { PaymentErrorType } from '@/types/payment'
+  PaymentSessionUpdateData,
+} from '@/types/database-insert-update';
+import { PaymentErrorType } from '@/types/payment';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+);
 
 export class PaymentService {
   /**
-   * 创建支付会话
+   * Create payment session
    */
-  static async createPaymentSession(params: CreateSessionParams & { user_id?: string }): Promise<SessionResult> {
+  static async createPaymentSession(
+    params: CreateSessionParams & { user_id?: string }
+  ): Promise<SessionResult> {
     try {
-      // 验证输入参数
-      this.validateSessionParams(params)
+      // Validate input parameters
+      this.validateSessionParams(params);
 
-      // 获取产品信息
-      const product = await this.getProductInfo(params.product_id)
+      // Get product information
+      const product = await this.getProductInfo(params.product_id);
       if (!product) {
-        throw new Error(`Product not found: ${params.product_id}`)
+        throw new Error(`Product not found: ${params.product_id}`);
       }
 
-      // 创建支付记录
+      // Create payment record
       const payment = await this.createPaymentRecord({
         ...params,
         customer_email: params.customer_email || '',
         amount: product.price,
         currency: product.currency,
         productInfo: product,
-        user_id: params.user_id
-      })
+        user_id: params.user_id,
+      });
 
-      // 获取支付平台实例
-      const provider = PaymentProviderFactory.getProvider(params.provider)
+      // Get payment provider instance
+      const provider = PaymentProviderFactory.getProvider(params.provider);
 
-      // 创建支付会话
-      const sessionResult = await provider.createSession(params, payment)
+      // Create payment session
+      const sessionResult = await provider.createSession(params, payment);
 
-      // 更新支付记录的会话ID
+      // Update payment record with session ID
       await this.updatePaymentSession(payment.id, {
         provider_session_id: sessionResult.session_id,
         metadata: {
           ...payment.metadata,
           session_url: sessionResult.session_url,
-          created_at: new Date().toISOString()
-        }
-      })
+          created_at: new Date().toISOString(),
+        },
+      });
 
-      console.log(`Payment session created: ${sessionResult.session_id} for payment ${payment.id}`)
+      console.log(
+        `Payment session created: ${sessionResult.session_id} for payment ${payment.id}`
+      );
 
       return {
         ...sessionResult,
-        payment_id: payment.id
-      }
-
+        payment_id: payment.id,
+      };
     } catch (error) {
-      console.error('Create payment session error:', error)
-      throw this.createPaymentError(PaymentErrorType.PROVIDER_ERROR, error instanceof Error ? error.message : 'Unknown error')
+      console.error('Create payment session error:', error);
+      throw this.createPaymentError(
+        PaymentErrorType.PROVIDER_ERROR,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     }
   }
 
   /**
-   * 处理支付完成
+   * Handle payment completed
    */
   static async handlePaymentCompleted(
-    paymentId: string, 
+    paymentId: string,
     webhookData: any
   ): Promise<{ success: boolean; licenseKey?: string; message: string }> {
     try {
-      // 获取支付记录
-      const payment = await this.getPaymentById(paymentId)
+      // Get payment record
+      const payment = await this.getPaymentById(paymentId);
       if (!payment) {
-        throw new Error(`Payment not found: ${paymentId}`)
+        throw new Error(`Payment not found: ${paymentId}`);
       }
 
       if (payment.status === 'completed') {
-        console.log(`Payment ${paymentId} already completed`)
+        console.log(`Payment ${paymentId} already completed`);
         return {
           success: true,
-          message: 'Payment already processed'
-        }
+          message: 'Payment already processed',
+        };
       }
 
-      // 更新支付状态
+      // Update payment status
       await this.updatePaymentStatus(paymentId, 'completed', {
         provider_payment_id: webhookData.payment_id || webhookData.id,
         completed_at: new Date().toISOString(),
         webhook_received_at: new Date().toISOString(),
         metadata: {
           ...payment.metadata,
-          webhook_data: webhookData
-        }
-      })
+          webhook_data: webhookData,
+        },
+      });
 
-      // 生成许可证
+      // Generate license
       const license = await LicenseService.generateLicense({
         userId: payment.user_id,
         paymentId: payment.id,
-        productId: payment.product_info.product_id
-      })
+        productId: payment.product_info.product_id,
+      });
 
-      console.log(`Payment ${paymentId} completed successfully, license generated: ${license.license_key}`)
+      console.log(
+        `Payment ${paymentId} completed successfully, license generated: ${license.license_key}`
+      );
 
       return {
         success: true,
         licenseKey: license.license_key,
-        message: 'Payment completed and license generated'
-      }
-
+        message: 'Payment completed and license generated',
+      };
     } catch (error) {
-      console.error(`Handle payment completed error for ${paymentId}:`, error)
-      
-      // 标记支付为失败，但保留原始 webhook 数据以便重试
+      console.error(`Handle payment completed error for ${paymentId}:`, error);
+
+      // Mark payment as failed but keep webhook data for retry
       await this.updatePaymentStatus(paymentId, 'failed', {
         metadata: {
-          processing_error: error instanceof Error ? error.message : 'Unknown error',
+          processing_error:
+            error instanceof Error ? error.message : 'Unknown error',
           webhook_data: webhookData,
-          retry_scheduled: true
-        }
-      })
+          retry_scheduled: true,
+        },
+      });
 
-      throw this.createPaymentError(PaymentErrorType.LICENSE_GENERATION_ERROR, error instanceof Error ? error.message : 'Unknown error')
+      throw this.createPaymentError(
+        PaymentErrorType.LICENSE_GENERATION_ERROR,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     }
   }
 
   /**
-   * 处理支付失败
+   * Handle payment failed
    */
   static async handlePaymentFailed(
-    paymentId: string, 
+    paymentId: string,
     reason: string
   ): Promise<void> {
     try {
-      const payment = await this.getPaymentById(paymentId)
+      const payment = await this.getPaymentById(paymentId);
       if (!payment) {
-        console.warn(`Payment not found for failure handling: ${paymentId}`)
-        return
+        console.warn(`Payment not found for failure handling: ${paymentId}`);
+        return;
       }
 
       await this.updatePaymentStatus(paymentId, 'failed', {
@@ -166,20 +177,22 @@ export class PaymentService {
         metadata: {
           ...payment.metadata,
           failure_reason: reason,
-          failed_at: new Date().toISOString()
-        }
-      })
+          failed_at: new Date().toISOString(),
+        },
+      });
 
-      console.log(`Payment ${paymentId} marked as failed: ${reason}`)
-
+      console.log(`Payment ${paymentId} marked as failed: ${reason}`);
     } catch (error) {
-      console.error(`Handle payment failed error for ${paymentId}:`, error)
-      throw this.createPaymentError(PaymentErrorType.WEBHOOK_ERROR, error instanceof Error ? error.message : 'Unknown error')
+      console.error(`Handle payment failed error for ${paymentId}:`, error);
+      throw this.createPaymentError(
+        PaymentErrorType.WEBHOOK_ERROR,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     }
   }
 
   /**
-   * 处理 Webhook 事件
+   * Handle Webhook event
    */
   static async processWebhookEvent(
     provider: PaymentProvider,
@@ -187,68 +200,75 @@ export class PaymentService {
     paymentId?: string
   ): Promise<WebhookProcessResult> {
     try {
-      const providerInstance = PaymentProviderFactory.getProvider(provider)
-      const result = await providerInstance.processWebhookEvent(event)
+      const providerInstance = PaymentProviderFactory.getProvider(provider);
+      const result = await providerInstance.processWebhookEvent(event);
 
-      // 如果处理成功且是支付完成事件，触发许可证生成
+      // If successful and payment complete event, trigger license generation
       if (result.success && result.paymentId) {
-        const finalPaymentId = paymentId || result.paymentId
-        
+        const finalPaymentId = paymentId || result.paymentId;
+
         if (this.isPaymentCompletedEvent(event)) {
-          const licenseResult = await this.handlePaymentCompleted(finalPaymentId, event.data)
-          result.licenseKey = licenseResult.licenseKey
+          const licenseResult = await this.handlePaymentCompleted(
+            finalPaymentId,
+            event.data
+          );
+          result.licenseKey = licenseResult.licenseKey;
         } else if (this.isPaymentFailedEvent(event)) {
-          await this.handlePaymentFailed(finalPaymentId, event.data.status || 'Payment failed')
+          await this.handlePaymentFailed(
+            finalPaymentId,
+            event.data.status || 'Payment failed'
+          );
         }
       }
 
-      return result
-
+      return result;
     } catch (error) {
-      console.error('Process webhook event error:', error)
+      console.error('Process webhook event error:', error);
       return {
         success: false,
         message: `Webhook processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        shouldRetry: true
-      }
+        shouldRetry: true,
+      };
     }
   }
 
   /**
-   * 查询支付状态
+   * Query payment status
    */
   static async getPaymentStatus(paymentId: string): Promise<{
-    payment: PaymentRecord | null
-    license?: any
+    payment: PaymentRecord | null;
+    license?: any;
   }> {
     try {
-      const payment = await this.getPaymentById(paymentId)
+      const payment = await this.getPaymentById(paymentId);
       if (!payment) {
-        return { payment: null }
+        return { payment: null };
       }
 
-      let license = null
+      let license = null;
       if (payment.status === 'completed') {
-        // 查询关联的许可证
+        // Query associated license
         const { data: licenses } = await supabase
           .from('licenses')
           .select('license_key, status, expires_at')
           .eq('payment_id', paymentId)
-          .single()
+          .single();
 
-        license = licenses
+        license = licenses;
       }
 
-      return { payment, license }
-
+      return { payment, license };
     } catch (error) {
-      console.error('Get payment status error:', error)
-      throw this.createPaymentError(PaymentErrorType.NETWORK_ERROR, error instanceof Error ? error.message : 'Unknown error')
+      console.error('Get payment status error:', error);
+      throw this.createPaymentError(
+        PaymentErrorType.NETWORK_ERROR,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     }
   }
 
   /**
-   * 获取用户的支付历史
+   * Get user payment history
    */
   static async getUserPayments(
     userId: string,
@@ -259,43 +279,43 @@ export class PaymentService {
       let query = supabase
         .from('payments')
         .select('*', { count: 'exact' })
-        .eq('user_id', userId)
+        .eq('user_id', userId);
 
-      // 应用过滤器
+      // Apply filters
       if (filter.status) {
-        query = query.eq('status', filter.status)
+        query = query.eq('status', filter.status);
       }
       if (filter.provider) {
-        query = query.eq('payment_provider', filter.provider)
+        query = query.eq('payment_provider', filter.provider);
       }
       if (filter.startDate) {
-        query = query.gte('created_at', filter.startDate)
+        query = query.gte('created_at', filter.startDate);
       }
       if (filter.endDate) {
-        query = query.lte('created_at', filter.endDate)
+        query = query.lte('created_at', filter.endDate);
       }
       if (filter.minAmount) {
-        query = query.gte('amount', filter.minAmount)
+        query = query.gte('amount', filter.minAmount);
       }
       if (filter.maxAmount) {
-        query = query.lte('amount', filter.maxAmount)
+        query = query.lte('amount', filter.maxAmount);
       }
 
-      // 应用分页和排序
-      const offset = (pagination.page - 1) * pagination.limit
+      // Apply pagination and sorting
+      const offset = (pagination.page - 1) * pagination.limit;
       query = query
-        .order(pagination.sortBy || 'created_at', { 
-          ascending: pagination.sortOrder === 'asc' 
+        .order(pagination.sortBy || 'created_at', {
+          ascending: pagination.sortOrder === 'asc',
         })
-        .range(offset, offset + pagination.limit - 1)
+        .range(offset, offset + pagination.limit - 1);
 
-      const { data, error, count } = await query
+      const { data, error, count } = await query;
 
       if (error) {
-        throw error
+        throw error;
       }
 
-      const totalPages = Math.ceil((count || 0) / pagination.limit)
+      const totalPages = Math.ceil((count || 0) / pagination.limit);
 
       return {
         data: data || [],
@@ -305,18 +325,20 @@ export class PaymentService {
           total: count || 0,
           totalPages,
           hasNext: pagination.page < totalPages,
-          hasPrev: pagination.page > 1
-        }
-      }
-
+          hasPrev: pagination.page > 1,
+        },
+      };
     } catch (error) {
-      console.error('Get user payments error:', error)
-      throw this.createPaymentError(PaymentErrorType.NETWORK_ERROR, error instanceof Error ? error.message : 'Unknown error')
+      console.error('Get user payments error:', error);
+      throw this.createPaymentError(
+        PaymentErrorType.NETWORK_ERROR,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     }
   }
 
   /**
-   * 获取支付统计数据
+   * Get payment statistics
    */
   static async getPaymentMetrics(
     startDate?: string,
@@ -325,32 +347,37 @@ export class PaymentService {
     try {
       let query = supabase
         .from('payments')
-        .select('status, amount, currency, created_at')
+        .select('status, amount, currency, created_at');
 
       if (startDate) {
-        query = query.gte('created_at', startDate)
+        query = query.gte('created_at', startDate);
       }
       if (endDate) {
-        query = query.lte('created_at', endDate)
+        query = query.lte('created_at', endDate);
       }
 
-      const { data, error } = await query
+      const { data, error } = await query;
 
       if (error) {
-        throw error
+        throw error;
       }
 
-      const payments = data || []
-      const completedPayments = payments.filter(p => p.status === 'completed')
-      const failedPayments = payments.filter(p => p.status === 'failed')
+      const payments = data || [];
+      const completedPayments = payments.filter(p => p.status === 'completed');
+      const failedPayments = payments.filter(p => p.status === 'failed');
 
-      const totalSessions = payments.length
-      const completedCount = completedPayments.length
-      const failedCount = failedPayments.length
+      const totalSessions = payments.length;
+      const completedCount = completedPayments.length;
+      const failedCount = failedPayments.length;
 
-      const revenueTotal = completedPayments.reduce((sum, p) => sum + p.amount, 0)
-      const averageAmount = completedCount > 0 ? revenueTotal / completedCount : 0
-      const conversionRate = totalSessions > 0 ? (completedCount / totalSessions) * 100 : 0
+      const revenueTotal = completedPayments.reduce(
+        (sum, p) => sum + p.amount,
+        0
+      );
+      const averageAmount =
+        completedCount > 0 ? revenueTotal / completedCount : 0;
+      const conversionRate =
+        totalSessions > 0 ? (completedCount / totalSessions) * 100 : 0;
 
       return {
         totalSessions,
@@ -358,80 +385,81 @@ export class PaymentService {
         failedPayments: failedCount,
         conversionRate: Math.round(conversionRate * 100) / 100,
         averageAmount: Math.round(averageAmount * 100) / 100,
-        revenueTotal: Math.round(revenueTotal * 100) / 100
-      }
-
+        revenueTotal: Math.round(revenueTotal * 100) / 100,
+      };
     } catch (error) {
-      console.error('Get payment metrics error:', error)
-      throw this.createPaymentError(PaymentErrorType.NETWORK_ERROR, error instanceof Error ? error.message : 'Unknown error')
+      console.error('Get payment metrics error:', error);
+      throw this.createPaymentError(
+        PaymentErrorType.NETWORK_ERROR,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     }
   }
 
   /**
-   * 重试失败的支付处理
+   * Retry failed payment processing
    */
   static async retryFailedPayment(paymentId: string): Promise<{
-    success: boolean
-    message: string
-    licenseKey?: string
+    success: boolean;
+    message: string;
+    licenseKey?: string;
   }> {
     try {
-      const payment = await this.getPaymentById(paymentId)
+      const payment = await this.getPaymentById(paymentId);
       if (!payment) {
-        throw new Error(`Payment not found: ${paymentId}`)
+        throw new Error(`Payment not found: ${paymentId}`);
       }
 
       if (payment.status !== 'failed') {
         return {
           success: false,
-          message: 'Payment is not in failed status'
-        }
+          message: 'Payment is not in failed status',
+        };
       }
 
-      // 检查是否有 webhook 数据可以重试
-      const webhookData = payment.metadata.webhook_data
+      // Check if there's webhook data to retry
+      const webhookData = payment.metadata.webhook_data;
       if (!webhookData) {
         return {
           success: false,
-          message: 'No webhook data available for retry'
-        }
+          message: 'No webhook data available for retry',
+        };
       }
 
-      // 重新处理支付完成流程
-      const result = await this.handlePaymentCompleted(paymentId, webhookData)
+      // Reprocess payment completion flow
+      const result = await this.handlePaymentCompleted(paymentId, webhookData);
 
-      return result
-
+      return result;
     } catch (error) {
-      console.error(`Retry failed payment error for ${paymentId}:`, error)
+      console.error(`Retry failed payment error for ${paymentId}:`, error);
       return {
         success: false,
-        message: `Retry failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      }
+        message: `Retry failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
     }
   }
 
-  // 私有辅助方法
+  // Private helper methods
 
   private static validateSessionParams(params: CreateSessionParams): void {
     if (!params.provider) {
-      throw new Error('Payment provider is required')
+      throw new Error('Payment provider is required');
     }
     if (!params.product_id) {
-      throw new Error('Product ID is required')
+      throw new Error('Product ID is required');
     }
     if (!params.success_url) {
-      throw new Error('Success URL is required')
+      throw new Error('Success URL is required');
     }
     // Only Paddle requires cancel_url, Creem doesn't need it
     if (params.provider === 'paddle' && !params.cancel_url) {
-      throw new Error('Cancel URL is required')
+      throw new Error('Cancel URL is required');
     }
     if (!params.customer_email) {
-      throw new Error('Customer email is required')
+      throw new Error('Customer email is required');
     }
     if (!PaymentProviderFactory.isProviderSupported(params.provider)) {
-      throw new Error(`Unsupported payment provider: ${params.provider}`)
+      throw new Error(`Unsupported payment provider: ${params.provider}`);
     }
   }
 
@@ -441,24 +469,24 @@ export class PaymentService {
       .select('*')
       .eq('id', productId)
       .eq('is_active', true)
-      .single()
+      .single();
 
     if (error) {
-      throw new Error(`Failed to get product info: ${error.message}`)
+      throw new Error(`Failed to get product info: ${error.message}`);
     }
 
-    return data
+    return data;
   }
 
   private static async createPaymentRecord(params: {
-    provider: PaymentProvider
-    product_id: string
-    customer_email: string
-    customer_name?: string
-    amount: number
-    currency: string
-    productInfo: any
-    user_id?: string
+    provider: PaymentProvider;
+    product_id: string;
+    customer_email: string;
+    customer_name?: string;
+    amount: number;
+    currency: string;
+    productInfo: any;
+    user_id?: string;
   }): Promise<PaymentRecord> {
     const paymentData = {
       user_id: params.user_id || null,
@@ -471,44 +499,44 @@ export class PaymentService {
         name: params.productInfo.name,
         price: params.amount,
         currency: params.currency,
-        features: params.productInfo.features
+        features: params.productInfo.features,
       },
       customer_info: {
         email: params.customer_email,
         name: params.customer_name,
-        user_id: params.user_id || ''
+        user_id: params.user_id || '',
       },
       metadata: {
         created_via: 'api',
-        user_agent: '', // 将在 API 层填入
-        ip_address: '' // 将在 API 层填入
-      }
-    }
+        user_agent: '', // Will be filled in API layer
+        ip_address: '', // Will be filled in API layer
+      },
+    };
 
     const { data, error } = await supabase
       .from('payments')
       .insert(paymentData satisfies PaymentInsertData)
       .select()
-      .single()
+      .single();
 
     if (error) {
-      throw new Error(`Failed to create payment record: ${error.message}`)
+      throw new Error(`Failed to create payment record: ${error.message}`);
     }
 
-    return data
+    return data;
   }
 
   private static async updatePaymentSession(
-    paymentId: string, 
+    paymentId: string,
     updates: Partial<PaymentRecord>
   ): Promise<void> {
     const { error } = await supabase
       .from('payments')
       .update(updates satisfies Partial<PaymentSessionUpdateData>)
-      .eq('id', paymentId)
+      .eq('id', paymentId);
 
     if (error) {
-      throw new Error(`Failed to update payment session: ${error.message}`)
+      throw new Error(`Failed to update payment session: ${error.message}`);
     }
   }
 
@@ -519,53 +547,64 @@ export class PaymentService {
   ): Promise<void> {
     const updates = {
       status,
-      ...additionalData
-    }
+      ...additionalData,
+    };
 
     const { error } = await supabase
       .from('payments')
       .update(updates satisfies Partial<PaymentSessionUpdateData>)
-      .eq('id', paymentId)
+      .eq('id', paymentId);
 
     if (error) {
-      throw new Error(`Failed to update payment status: ${error.message}`)
+      throw new Error(`Failed to update payment status: ${error.message}`);
     }
   }
 
-  private static async getPaymentById(paymentId: string): Promise<PaymentRecord | null> {
+  private static async getPaymentById(
+    paymentId: string
+  ): Promise<PaymentRecord | null> {
     const { data, error } = await supabase
       .from('payments')
       .select('*')
       .eq('id', paymentId)
-      .single()
+      .single();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = not found
-      throw new Error(`Failed to get payment: ${error.message}`)
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 = not found
+      throw new Error(`Failed to get payment: ${error.message}`);
     }
 
-    return data
+    return data;
   }
 
   private static isPaymentCompletedEvent(event: WebhookEventData): boolean {
-    return event.type === 'payment.completed' || 
-           event.type === 'transaction.completed'
+    return (
+      event.type === 'payment.completed' ||
+      event.type === 'transaction.completed'
+    );
   }
 
   private static isPaymentFailedEvent(event: WebhookEventData): boolean {
-    return event.type === 'payment.failed' || 
-           event.type === 'transaction.cancelled'
+    return (
+      event.type === 'payment.failed' || event.type === 'transaction.cancelled'
+    );
   }
 
-  private static createPaymentError(type: PaymentErrorType, message: string): PaymentError {
+  private static createPaymentError(
+    type: PaymentErrorType,
+    message: string
+  ): PaymentError {
     return {
       type,
       message,
-      retryable: type === PaymentErrorType.NETWORK_ERROR || type === PaymentErrorType.WEBHOOK_ERROR
-    }
+      retryable:
+        type === PaymentErrorType.NETWORK_ERROR ||
+        type === PaymentErrorType.WEBHOOK_ERROR,
+    };
   }
 }
 
-// 便捷函数导出
+// Convenience function exports
 export const {
   createPaymentSession,
   handlePaymentCompleted,
@@ -574,13 +613,13 @@ export const {
   getPaymentStatus,
   getUserPayments,
   getPaymentMetrics,
-  retryFailedPayment
-} = PaymentService
+  retryFailedPayment,
+} = PaymentService;
 
-// 支付流程管理器
+// Payment flow manager
 export class PaymentFlowManager {
   /**
-   * 创建支付流程上下文
+   * Create payment flow context
    */
   static createFlowContext(
     paymentId: string,
@@ -602,12 +641,12 @@ export class PaymentFlowManager {
       errors: [],
       retryCount: 0,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
   }
 
   /**
-   * 转换流程状态
+   * Transition flow state
    */
   static transitionState(
     context: PaymentFlowContext,
@@ -618,12 +657,12 @@ export class PaymentFlowManager {
       ...context,
       currentState: newState,
       metadata: { ...context.metadata, ...metadata },
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
   }
 
   /**
-   * 记录流程错误
+   * Log flow error
    */
   static recordError(
     context: PaymentFlowContext,
@@ -632,25 +671,25 @@ export class PaymentFlowManager {
     return {
       ...context,
       errors: [...context.errors, error],
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
   }
 
   /**
-   * 增加重试计数
+   * Increment retry count
    */
   static incrementRetry(context: PaymentFlowContext): PaymentFlowContext {
     return {
       ...context,
       retryCount: context.retryCount + 1,
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
   }
 }
 
-// TESTING-GUIDE: 需覆盖用例
-// 1. 支付会话创建 - 成功创建/产品不存在/参数验证失败
-// 2. 支付完成处理 - 成功生成许可证/重复处理/许可证生成失败
-// 3. Webhook 事件处理 - 不同事件类型的正确处理
-// 4. 支付状态查询 - 各种状态下的正确响应
-// 5. 错误处理和重试 - 各种错误场景的恢复机制
+// TESTING-GUIDE: Test cases to cover
+// 1. Payment session creation - Success/Product not found/Parameter validation failure
+// 2. Payment completion - Successful license generation/Duplicate processing/License generation failure
+// 3. Webhook event handling - Proper handling of different event types
+// 4. Payment status query - Correct responses for various statuses
+// 5. Error handling and retry - Recovery mechanisms for various error scenarios
