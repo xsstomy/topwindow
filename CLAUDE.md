@@ -47,9 +47,48 @@
 - Document why type assertions are needed in comments
 - Use the most specific type possible instead of `any`
 
+## DMG Release & R2 Upload Configuration
+
+**CRITICAL**: Wrangler R2 upload configuration for automated DMG releases.
+
+### R2 Upload Commands
+- ❌ **Default wrangler mode is LOCAL** - Without `--remote` flag, files upload to local simulation only
+- ✅ **Always use `--remote` flag** - Required for actual R2 bucket uploads
+- ✅ **Automated DMG sync** - Use `npm run sync-dmg` for one-click releases
+
+### DMG Release Workflow
+```bash
+# 1. Build and sign DMG (in PinTop project)
+cd /Users/xiashishi/github/ios/macosapp/projects/PinTop/dmg/
+bash build_topwindow_dmg.sh
+
+# 2. Sync to R2 storage (in topwindow project)
+cd /Users/xiashishi/github/ios/macosapp/projects/topwindow/
+npm run sync-dmg
+```
+
+### Critical Configuration Notes
+- **R2 Bucket**: `topwindow-releases` 
+- **Upload Path**: `/releases/latest/` and `/releases/v{version}/`
+- **Domain**: `downloads.topwindow.app` (configured to point to R2)
+- **Wrangler Command**: Must include `--remote` flag for production uploads
+- **Version Detection**: Automatically extracted from DMG filename (TopWindow-1.1.2.dmg → 1.1.2)
+
+### Automated Website Updates
+After DMG upload, the website automatically:
+1. Fetches latest `version.json` from R2
+2. Updates download links and version numbers
+3. Displays current file size and checksums
+4. No manual code changes required
+
+### Files Modified for DMG Sync
+- `scripts/sync-dmg.sh` - Main upload script with `--remote` flag
+- `package.json` - Added `"sync-dmg": "bash scripts/sync-dmg.sh"`
+- `wrangler.jsonc` - R2 bucket binding configuration
+
 ---
 
-*This file ensures consistent language requirements across the project.*
+*This file ensures consistent language requirements and deployment processes across the project.*
 
 When asked to design UI & frontend interface
 When asked to design UI & frontend interface

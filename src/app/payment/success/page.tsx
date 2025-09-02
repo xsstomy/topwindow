@@ -353,7 +353,7 @@ export default function PaymentSuccessPage() {
               {/* 操作按钮 */}
               <div className='flex flex-col sm:flex-row gap-4'>
                 <a
-                  href='https://github.com/TopWindow/TopWindow/releases/latest'
+                  href='https://downloads.topwindow.app/releases/latest/topwindow-setup.dmg'
                   target='_blank'
                   rel='noopener noreferrer'
                   className='flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2'

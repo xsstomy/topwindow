@@ -1,0 +1,16 @@
+{
+  "version": "1.1.2",
+  "releaseDate": "2025-08-31T11:19:49Z",
+  "builds": {
+    "macos": {
+      "filename": "topwindow-setup.dmg",
+      "size": "4.2MB",
+      "checksum": "sha256:a17593d9615ae597faeff4552c149b73c5f778b15be4534fc4eade3ff5c45567",
+      "url": "https://downloads.topwindow.app/releases/latest/topwindow-setup.dmg"
+    }
+  },
+  "changelog": [
+    "Version 1.1.2 release",
+    "Performance improvements and bug fixes"
+  ]
+}

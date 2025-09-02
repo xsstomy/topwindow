@@ -153,7 +153,7 @@ export default function PaymentSelector({
                 <div className='space-y-2 text-sm text-blue-800'>
                   <div className='flex items-center gap-2'>
                     <Check className='w-4 h-4 text-blue-600' />
-                    <span>30-day unconditional money-back guarantee</span>
+                    <span>7-day unconditional money-back guarantee</span>
                   </div>
                   <div className='flex items-center gap-2'>
                     <Check className='w-4 h-4 text-blue-600' />

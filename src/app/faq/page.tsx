@@ -24,7 +24,7 @@ const faqData = {
     {
       question: 'Is TopWindow free?',
       answer:
-        'TopWindow offers a 30-day free trial with full professional features. After the trial period, you can purchase a one-time professional license for lifetime usage. There are no subscription fees.',
+        'TopWindow offers a 7-day free trial with full professional features. After the trial period, you can purchase a one-time professional license for lifetime usage. There are no subscription fees.',
     },
     {
       question: 'What macOS versions are supported?',
