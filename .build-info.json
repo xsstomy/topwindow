@@ -1,0 +1,10 @@
+{
+  "version": "v1.2.0-build.20250903.140947",
+  "timestamp": "2025-09-03T06:09:47.575Z",
+  "baseVersion": "1.2.0",
+  "gitCommit": "37d2d64",
+  "gitBranch": "main",
+  "buildDate": "20250903",
+  "buildTime": "140947",
+  "environment": "production"
+}

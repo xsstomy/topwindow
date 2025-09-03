@@ -4,10 +4,16 @@ import { useAuth } from '@/lib/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import { useDashboardData } from '@/lib/hooks/useDashboardData';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const {
+    licenseCount,
+    activeDevicesCount,
+    loading: dataLoading,
+  } = useDashboardData();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -76,9 +82,26 @@ export default function DashboardPage() {
             Quick Actions
           </h3>
           <div className='space-y-3'>
-            <button className='w-full btn-primary'>Purchase License</button>
-            <button className='w-full btn-secondary'>View Documentation</button>
-            <button className='w-full btn-outline'>Contact Support</button>
+            <button
+              onClick={() => router.push('/#pricing')}
+              className='w-full btn-primary'
+            >
+              Purchase License
+            </button>
+            <button
+              onClick={() => window.open('/docs', '_blank')}
+              className='w-full btn-secondary'
+            >
+              View Documentation
+            </button>
+            <button
+              onClick={() =>
+                (window.location.href = 'mailto:xsstomy@gmail.com')
+              }
+              className='w-full btn-outline'
+            >
+              Contact Support
+            </button>
           </div>
         </div>
 
@@ -90,11 +113,15 @@ export default function DashboardPage() {
           <div className='space-y-4'>
             <div className='flex items-center justify-between'>
               <span className='text-gray-600'>License Count</span>
-              <span className='font-semibold text-gray-900'>0</span>
+              <span className='font-semibold text-gray-900'>
+                {dataLoading ? '...' : licenseCount}
+              </span>
             </div>
             <div className='flex items-center justify-between'>
               <span className='text-gray-600'>Active Devices</span>
-              <span className='font-semibold text-gray-900'>0</span>
+              <span className='font-semibold text-gray-900'>
+                {dataLoading ? '...' : activeDevicesCount}
+              </span>
             </div>
             <div className='flex items-center justify-between'>
               <span className='text-gray-600'>Account Status</span>

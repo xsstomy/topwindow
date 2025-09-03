@@ -16,7 +16,10 @@
 	],
 	"vars": {
 		"ENVIRONMENT": "production",
-		"NODE_ENV": "production"
+		"NODE_ENV": "production",
+		"NEXT_PUBLIC_BUILD_VERSION": "v1.0.0",
+		"NEXT_PUBLIC_BUILD_TIMESTAMP": "2025-09-02T00:00:00Z",
+		"NEXT_PUBLIC_GIT_COMMIT": "unknown"
 	},
 	"env": {
 		"development": {
@@ -54,7 +57,10 @@
 				"CREEM_MODE": "production",
 				"ANALYTICS_ENABLED": "true",
 				"ENABLE_EMAIL_SENDING": "false",
-				"ENABLE_PAYMENT_PROCESSING": "true"
+				"ENABLE_PAYMENT_PROCESSING": "true",
+				"NEXT_PUBLIC_BUILD_VERSION": "v1.0.0",
+				"NEXT_PUBLIC_BUILD_TIMESTAMP": "2025-09-02T00:00:00Z",
+				"NEXT_PUBLIC_GIT_COMMIT": "unknown"
 			}
 		}
 	}

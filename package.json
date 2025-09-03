@@ -1,6 +1,6 @@
 {
     "name": "topwindow-website",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "private": true,
     "scripts": {
         "dev": "next dev",
@@ -11,7 +11,8 @@
         "build:worker": "npx @opennextjs/cloudflare build",
         "preview:worker": "npx @opennextjs/cloudflare preview",
         "pre": "npm run build:worker && npm run preview:worker",
-        "deploy": "npm run build:worker && wrangler deploy",
+        "prebuild": "node scripts/generate-build-info.js",
+        "deploy": "npm run prebuild && npm run build:worker && wrangler deploy",
         "dev:workers": "wrangler dev",
         "clean": "rm -rf .next .open-next node_modules/.cache",
         "sync-dmg": "bash scripts/sync-dmg.sh"

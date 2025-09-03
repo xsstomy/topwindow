@@ -44,10 +44,13 @@ export default function PaymentSuccessPage() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [countdown, setCountdown] = useState(10);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const paymentId = searchParams.get('payment_id');
   const provider = searchParams.get('provider');
+  const maxRetries = 10; // Max number of automatic retries
+  const retryInterval = 3000; // 3 seconds between retries
 
   useEffect(() => {
     if (!paymentId) {
@@ -59,18 +62,28 @@ export default function PaymentSuccessPage() {
     fetchPaymentStatus();
   }, [paymentId]);
 
-  // Countdown and auto redirect
+  // Auto-retry for pending payments
   useEffect(() => {
-    if (paymentData && countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    } else if (countdown === 0 && user) {
-      router.push('/dashboard');
+    if (!paymentData || paymentData.payment.status !== 'pending') {
+      return;
     }
-  }, [countdown, paymentData, user, router]);
+
+    if (retryCount >= maxRetries) {
+      // After max retries, try to manually process the payment
+      handleManualProcess();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      console.log(
+        `Auto-retry ${retryCount + 1}/${maxRetries} for payment status`
+      );
+      fetchPaymentStatus();
+      setRetryCount(prev => prev + 1);
+    }, retryInterval);
+
+    return () => clearTimeout(timer);
+  }, [paymentData, retryCount]);
 
   const fetchPaymentStatus = async () => {
     try {
@@ -112,6 +125,40 @@ export default function PaymentSuccessPage() {
     if (paymentData?.license?.license_key) {
       navigator.clipboard.writeText(paymentData.license.license_key);
       // Could add a success toast here
+    }
+  };
+
+  const handleManualProcess = async () => {
+    if (!paymentId || isProcessing) return;
+
+    console.log('Attempting manual payment processing after retries exhausted');
+    setIsProcessing(true);
+
+    try {
+      const response = await fetch('/api/admin/process-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          payment_id: paymentId,
+          action: 'complete',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        console.log('Payment processed successfully via manual process');
+        // Refresh payment status
+        await fetchPaymentStatus();
+      } else {
+        console.error('Manual processing failed:', data.message);
+      }
+    } catch (err) {
+      console.error('Error during manual processing:', err);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -263,16 +310,35 @@ export default function PaymentSuccessPage() {
                 <div className='mb-8'>
                   <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-6'>
                     <div className='flex items-center gap-3 mb-2'>
-                      <Mail className='w-5 h-5 text-yellow-600' />
+                      {isProcessing ? (
+                        <RefreshCw className='w-5 h-5 text-yellow-600 animate-spin' />
+                      ) : (
+                        <Mail className='w-5 h-5 text-yellow-600' />
+                      )}
                       <span className='font-medium text-yellow-800'>
-                        License is being generated
+                        {isProcessing
+                          ? 'Processing your payment...'
+                          : paymentData.payment.status === 'pending' &&
+                              retryCount > 0
+                            ? `Checking payment status... (Attempt ${retryCount}/${maxRetries})`
+                            : 'License is being generated'}
                       </span>
                     </div>
                     <p className='text-yellow-700 text-sm'>
-                      Your license will be sent to{' '}
-                      {paymentData.payment.customer_info.email} via email within
-                      a few minutes
+                      {isProcessing
+                        ? 'Please wait while we complete your payment processing.'
+                        : `Your license will be sent to ${paymentData.payment.customer_info.email} via email within a few minutes`}
                     </p>
+                    {paymentData.payment.status === 'pending' &&
+                      retryCount >= maxRetries &&
+                      !isProcessing && (
+                        <button
+                          onClick={handleManualProcess}
+                          className='mt-4 bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm transition-colors'
+                        >
+                          Manually Process Payment
+                        </button>
+                      )}
                   </div>
                 </div>
               )}
@@ -368,7 +434,7 @@ export default function PaymentSuccessPage() {
                     className='flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2'
                   >
                     <ArrowRight className='w-5 h-5' />
-                    Go to Dashboard ({countdown}s)
+                    Go to Dashboard
                   </button>
                 )}
               </div>
