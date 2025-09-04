@@ -1,3 +1,7 @@
+import { generatePageMetadata } from '@/lib/page-metadata';
+
+export const metadata = generatePageMetadata('privacy');
+
 export default function PrivacyPage() {
   return (
     <div className='min-h-screen bg-gray-50 pt-16'>

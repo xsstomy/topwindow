@@ -1,0 +1,32 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#f8fafc"/>
+  <rect x="50" y="50" width="1100" height="530" fill="#ffffff" rx="20"/>
+  
+  <!-- TopWindow Logo Area -->
+  <circle cx="200" cy="200" r="50" fill="#3B82F6"/>
+  <text x="200" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="white">📌</text>
+  
+  <!-- Main Title -->
+  <text x="300" y="180" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#1f2937">TopWindow</text>
+  <text x="300" y="230" font-family="Arial, sans-serif" font-size="24" fill="#6b7280">Keep Any Window Always on Top for macOS</text>
+  
+  <!-- Features -->
+  <text x="300" y="300" font-family="Arial, sans-serif" font-size="18" fill="#374151">• One-click window pinning</text>
+  <text x="300" y="330" font-family="Arial, sans-serif" font-size="18" fill="#374151">• Keyboard shortcut ⌥⌘P</text>
+  <text x="300" y="360" font-family="Arial, sans-serif" font-size="18" fill="#374151">• Free for macOS 13.0+</text>
+  
+  <!-- Window Demo -->
+  <rect x="700" y="150" width="400" height="300" fill="#f3f4f6" rx="10" stroke="#d1d5db" stroke-width="2"/>
+  <rect x="700" y="150" width="400" height="40" fill="#e5e7eb" rx="10"/>
+  <circle cx="720" cy="170" r="6" fill="#ef4444"/>
+  <circle cx="740" cy="170" r="6" fill="#f59e0b"/>
+  <circle cx="760" cy="170" r="6" fill="#10b981"/>
+  <text x="900" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#374151">Safari - Always on Top</text>
+  
+  <!-- Pin Icon -->
+  <circle cx="1070" cy="170" r="15" fill="#3B82F6"/>
+  <text x="1070" y="177" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white">📌</text>
+  
+  <!-- Website URL -->
+  <text x="600" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#6b7280">topwindow.app</text>
+</svg>

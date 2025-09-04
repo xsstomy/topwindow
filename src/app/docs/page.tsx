@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/page-metadata';
 import { motion } from 'framer-motion';
 import {
   Command,
@@ -9,11 +9,7 @@ import {
   Keyboard,
 } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Documentation - TopWindow',
-  description:
-    'Complete guide to using TopWindow for macOS. Learn shortcuts, features, and troubleshooting tips.',
-};
+export const metadata = generatePageMetadata('docs');
 
 export default function DocumentationPage() {
   return (

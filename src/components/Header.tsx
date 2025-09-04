@@ -90,9 +90,9 @@ export default function Header({
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/#features', label: 'Features' },
-    { href: '/#pricing', label: 'Pricing' },
     { href: '/download', label: 'Download' },
-    { href: '/#support', label: 'Support' },
+    { href: '/docs', label: 'Docs' },
+    { href: '/faq', label: 'FAQ' },
   ];
 
   // User menu items

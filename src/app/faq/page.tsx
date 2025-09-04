@@ -1,4 +1,5 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/page-metadata';
+import { generateFAQStructuredData } from '@/lib/faq-structured-data';
 import {
   HelpCircle,
   Download,
@@ -8,11 +9,7 @@ import {
   Monitor,
 } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'FAQ - TopWindow',
-  description:
-    'Frequently asked questions about TopWindow for macOS. Find answers to common questions about installation, usage, and features.',
-};
+export const metadata = generatePageMetadata('faq');
 
 const faqData = {
   general: [
@@ -169,128 +166,140 @@ function FAQSection({ title, icon: Icon, questions }: FAQSectionProps) {
 }
 
 export default function FAQPage() {
+  const faqStructuredData = generateFAQStructuredData(faqData);
+
   return (
-    <main className='min-h-screen bg-white'>
-      <div className='container-custom section-padding'>
-        {/* Header */}
-        <div className='text-center mb-16'>
-          <h1 className='heading-lg mb-4'>Frequently Asked Questions</h1>
-          <p className='text-body max-w-2xl mx-auto'>
-            Find answers to common questions about TopWindow. Can't find what
-            you're looking for?
-            <a
-              href='mailto:xsstomy@gmail.com'
-              className='text-primary hover:underline ml-1'
-            >
-              Contact our support team
-            </a>
-            .
-          </p>
-        </div>
+    <>
+      {/* FAQ Structured Data */}
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqStructuredData),
+        }}
+      />
 
-        <div className='max-w-4xl mx-auto'>
-          {/* General Questions */}
-          <FAQSection
-            title='General'
-            icon={HelpCircle}
-            questions={faqData.general}
-          />
-
-          {/* Installation */}
-          <FAQSection
-            title='Installation & Setup'
-            icon={Download}
-            questions={faqData.installation}
-          />
-
-          {/* Usage */}
-          <FAQSection
-            title='Using TopWindow'
-            icon={Settings}
-            questions={faqData.usage}
-          />
-
-          {/* Troubleshooting */}
-          <FAQSection
-            title='Troubleshooting'
-            icon={Monitor}
-            questions={faqData.troubleshooting}
-          />
-
-          {/* Privacy & Security */}
-          <FAQSection
-            title='Privacy & Security'
-            icon={Shield}
-            questions={faqData.privacy}
-          />
-
-          {/* Contact Support */}
-          <div className='bg-gradient-to-r from-primary/10 to-blue-50 rounded-xl p-8 text-center mt-16'>
-            <h2 className='text-xl font-semibold text-gray-900 mb-4'>
-              Still Have Questions?
-            </h2>
-            <p className='text-gray-600 mb-6 max-w-2xl mx-auto'>
-              Our support team is here to help. We typically respond within 24
-              hours and are happy to assist with any issues or questions you
-              might have.
-            </p>
-            <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-              <a href='mailto:xsstomy@gmail.com' className='btn-primary'>
-                Contact Support
+      <main className='min-h-screen bg-white'>
+        <div className='container-custom section-padding'>
+          {/* Header */}
+          <div className='text-center mb-16'>
+            <h1 className='heading-lg mb-4'>Frequently Asked Questions</h1>
+            <p className='text-body max-w-2xl mx-auto'>
+              Find answers to common questions about TopWindow. Can't find what
+              you're looking for?
+              <a
+                href='mailto:xsstomy@gmail.com'
+                className='text-primary hover:underline ml-1'
+              >
+                Contact our support team
               </a>
-              <a href='/docs' className='btn-secondary'>
-                Read Documentation
+              .
+            </p>
+          </div>
+
+          <div className='max-w-4xl mx-auto'>
+            {/* General Questions */}
+            <FAQSection
+              title='General'
+              icon={HelpCircle}
+              questions={faqData.general}
+            />
+
+            {/* Installation */}
+            <FAQSection
+              title='Installation & Setup'
+              icon={Download}
+              questions={faqData.installation}
+            />
+
+            {/* Usage */}
+            <FAQSection
+              title='Using TopWindow'
+              icon={Settings}
+              questions={faqData.usage}
+            />
+
+            {/* Troubleshooting */}
+            <FAQSection
+              title='Troubleshooting'
+              icon={Monitor}
+              questions={faqData.troubleshooting}
+            />
+
+            {/* Privacy & Security */}
+            <FAQSection
+              title='Privacy & Security'
+              icon={Shield}
+              questions={faqData.privacy}
+            />
+
+            {/* Contact Support */}
+            <div className='bg-gradient-to-r from-primary/10 to-blue-50 rounded-xl p-8 text-center mt-16'>
+              <h2 className='text-xl font-semibold text-gray-900 mb-4'>
+                Still Have Questions?
+              </h2>
+              <p className='text-gray-600 mb-6 max-w-2xl mx-auto'>
+                Our support team is here to help. We typically respond within 24
+                hours and are happy to assist with any issues or questions you
+                might have.
+              </p>
+              <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+                <a href='mailto:xsstomy@gmail.com' className='btn-primary'>
+                  Contact Support
+                </a>
+                <a href='/docs' className='btn-secondary'>
+                  Read Documentation
+                </a>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className='mt-12 grid grid-cols-1 md:grid-cols-3 gap-6'>
+              <a
+                href='/docs'
+                className='bg-white border border-gray-200 rounded-xl p-6 hover:border-primary transition-colors group'
+              >
+                <div className='w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors'>
+                  <Settings className='w-6 h-6 text-primary' />
+                </div>
+                <h3 className='font-semibold text-gray-900 mb-2'>
+                  Documentation
+                </h3>
+                <p className='text-gray-600 text-sm'>
+                  Complete guide to using TopWindow
+                </p>
+              </a>
+
+              <a
+                href='/requirements'
+                className='bg-white border border-gray-200 rounded-xl p-6 hover:border-primary transition-colors group'
+              >
+                <div className='w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors'>
+                  <Monitor className='w-6 h-6 text-primary' />
+                </div>
+                <h3 className='font-semibold text-gray-900 mb-2'>
+                  System Requirements
+                </h3>
+                <p className='text-gray-600 text-sm'>
+                  Check compatibility with your Mac
+                </p>
+              </a>
+
+              <a
+                href='#download'
+                className='bg-white border border-gray-200 rounded-xl p-6 hover:border-primary transition-colors group'
+              >
+                <div className='w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors'>
+                  <Download className='w-6 h-6 text-primary' />
+                </div>
+                <h3 className='font-semibold text-gray-900 mb-2'>Download</h3>
+                <p className='text-gray-600 text-sm'>
+                  Get TopWindow for your Mac
+                </p>
               </a>
             </div>
           </div>
-
-          {/* Quick Links */}
-          <div className='mt-12 grid grid-cols-1 md:grid-cols-3 gap-6'>
-            <a
-              href='/docs'
-              className='bg-white border border-gray-200 rounded-xl p-6 hover:border-primary transition-colors group'
-            >
-              <div className='w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors'>
-                <Settings className='w-6 h-6 text-primary' />
-              </div>
-              <h3 className='font-semibold text-gray-900 mb-2'>
-                Documentation
-              </h3>
-              <p className='text-gray-600 text-sm'>
-                Complete guide to using TopWindow
-              </p>
-            </a>
-
-            <a
-              href='/requirements'
-              className='bg-white border border-gray-200 rounded-xl p-6 hover:border-primary transition-colors group'
-            >
-              <div className='w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors'>
-                <Monitor className='w-6 h-6 text-primary' />
-              </div>
-              <h3 className='font-semibold text-gray-900 mb-2'>
-                System Requirements
-              </h3>
-              <p className='text-gray-600 text-sm'>
-                Check compatibility with your Mac
-              </p>
-            </a>
-
-            <a
-              href='#download'
-              className='bg-white border border-gray-200 rounded-xl p-6 hover:border-primary transition-colors group'
-            >
-              <div className='w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors'>
-                <Download className='w-6 h-6 text-primary' />
-              </div>
-              <h3 className='font-semibold text-gray-900 mb-2'>Download</h3>
-              <p className='text-gray-600 text-sm'>
-                Get TopWindow for your Mac
-              </p>
-            </a>
-          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

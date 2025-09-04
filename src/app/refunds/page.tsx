@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/page-metadata';
 import {
   DollarSign,
   Clock,
@@ -8,11 +8,7 @@ import {
   FileText,
 } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Refund Policy - TopWindow',
-  description:
-    'TopWindow refund policy and process. Learn about refund eligibility, how to request a refund, and our satisfaction guarantee.',
-};
+export const metadata = generatePageMetadata('refunds');
 
 export default function RefundPolicyPage() {
   return (

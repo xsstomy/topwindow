@@ -30,7 +30,7 @@ export default function HeroSection() {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               Keep Any Window{' '}
-              <span className='text-primary'>Always on Top</span> — Instantly
+              <span className='text-primary'>Always on Top</span> for macOS
             </motion.h1>
 
             <motion.p
@@ -39,12 +39,13 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              Pin any app window above others with one click or{' '}
+              Professional mac window utility that fixes any window on top
+              instantly. Pin and make any app window topmost with one click or{' '}
               <span className='inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-md font-mono text-sm'>
                 <Command size={12} />
                 ⌥⌘P
               </span>{' '}
-              shortcut.
+              keyboard shortcut. Perfect for multitasking and productivity.
             </motion.p>
 
             <motion.div
@@ -75,7 +76,7 @@ export default function HeroSection() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.8 }}
             >
-              Free Download • Always Free • No subscription required
+              Free Download • macOS 13.0+ • Intel & Apple Silicon Compatible
             </motion.div>
           </motion.div>
 

@@ -1,11 +1,7 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/page-metadata';
 import { Calendar, Download, Star, Bug, Zap, Shield, Plus } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Release Notes - TopWindow',
-  description:
-    'TopWindow release notes and version history. Stay updated with the latest features, bug fixes, and improvements.',
-};
+export const metadata = generatePageMetadata('releases');
 
 const releases = [
   {
