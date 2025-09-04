@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { PaymentProviderFactory } from './providers';
 import { LicenseService } from '@/lib/license/service';
+import { googleAnalytics } from '@/lib/analytics/google-analytics';
 import type {
   CreateSessionParams,
   SessionResult,
@@ -58,6 +59,13 @@ export class PaymentService {
 
       // Get payment provider instance
       const provider = PaymentProviderFactory.getProvider(params.provider);
+
+      // Track begin_checkout event
+      googleAnalytics.trackBeginCheckout(
+        params.product_id,
+        product.name,
+        product.price
+      );
 
       // Create payment session
       const sessionResult = await provider.createSession(params, payment);
@@ -129,6 +137,28 @@ export class PaymentService {
         productId: payment.product_info.product_id,
       });
 
+      // Track successful purchase
+      googleAnalytics.trackPurchase({
+        transaction_id: payment.id,
+        value: payment.amount,
+        currency: payment.currency,
+        items: [
+          {
+            item_id: payment.product_info.product_id,
+            item_name: payment.product_info.name,
+            category: 'software_license',
+            price: payment.amount,
+            quantity: 1,
+          },
+        ],
+      });
+
+      // Track trial conversion if user was in trial
+      const userContext = googleAnalytics.getCurrentUserContext();
+      if (userContext.userType === 'trial') {
+        googleAnalytics.trackTrialConversion(payment.id, payment.amount);
+      }
+
       console.log(
         `Payment ${paymentId} completed successfully, license generated: ${license.license_key}`
       );
@@ -179,6 +209,16 @@ export class PaymentService {
           failure_reason: reason,
           failed_at: new Date().toISOString(),
         },
+      });
+
+      // Track failed payment
+      googleAnalytics.trackEvent('payment_failed', {
+        event_category: 'ecommerce',
+        transaction_id: paymentId,
+        failure_reason: reason,
+        value: payment.amount,
+        currency: payment.currency,
+        item_name: payment.product_info?.name,
       });
 
       console.log(`Payment ${paymentId} marked as failed: ${reason}`);

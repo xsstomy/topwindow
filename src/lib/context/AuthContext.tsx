@@ -4,6 +4,11 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
+import {
+  googleAnalytics,
+  UserType,
+  SubscriptionStatus,
+} from '@/lib/analytics/google-analytics';
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +25,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  // Helper function to determine user type and subscription status
+  const getUserAnalyticsData = async (
+    user: User | null
+  ): Promise<{
+    userType: UserType;
+    subscriptionStatus: SubscriptionStatus;
+  }> => {
+    if (!user) {
+      return { userType: 'anonymous', subscriptionStatus: 'none' };
+    }
+
+    try {
+      // Check if user has active licenses
+      const { data: licenses } = await supabase
+        .from('licenses')
+        .select('status, expires_at')
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
+      if (licenses && licenses.length > 0) {
+        return { userType: 'paid', subscriptionStatus: 'active' };
+      }
+
+      // Check if user has completed payments
+      const { data: payments } = await supabase
+        .from('payments')
+        .select('status')
+        .eq('user_id', user.id)
+        .eq('status', 'completed');
+
+      if (payments && payments.length > 0) {
+        return { userType: 'paid', subscriptionStatus: 'active' };
+      }
+
+      // User is registered but hasn't purchased
+      return { userType: 'registered', subscriptionStatus: 'none' };
+    } catch (error) {
+      console.error('Error getting user analytics data:', error);
+      return { userType: 'registered', subscriptionStatus: 'none' };
+    }
+  };
+
+  // Update Google Analytics user properties when user changes
+  const updateAnalyticsUserData = async (user: User | null) => {
+    const { userType, subscriptionStatus } = await getUserAnalyticsData(user);
+    googleAnalytics.setUserProperties(userType, subscriptionStatus);
+
+    // Initialize Google Analytics if not already done
+    if (typeof window !== 'undefined') {
+      googleAnalytics.initialize();
+    }
+  };
 
   useEffect(() => {
     // 获取初始用户状态
@@ -44,8 +102,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setUser(null);
         }
+
+        // Update analytics data for initial user state
+        await updateAnalyticsUserData(session?.user || null);
       } catch (error) {
         console.error('获取用户数据失败:', error);
+        // Set anonymous user for analytics
+        await updateAnalyticsUserData(null);
       } finally {
         setLoading(false);
       }
@@ -61,9 +124,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
 
+      // Update analytics user data on auth state change
+      await updateAnalyticsUserData(session?.user ?? null);
+
       // 用户登录成功时的处理
       if (event === 'SIGNED_IN' && session?.user) {
         console.log('用户登录成功，准备跳转到仪表板');
+
+        // Track login event
+        const loginMethod =
+          session.user.app_metadata?.provider === 'google' ? 'google' : 'email';
+        googleAnalytics.trackLogin(loginMethod);
+
         await ensureUserProfile(session.user);
         // 延迟跳转，确保状态更新完成
         setTimeout(() => {
@@ -74,6 +146,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 用户登出时跳转到首页
       if (event === 'SIGNED_OUT') {
         console.log('用户已登出');
+
+        // Track logout and reset to anonymous
+        googleAnalytics.trackEvent('logout', {
+          event_category: 'engagement',
+        });
+
         router.push('/');
       }
     });
@@ -162,6 +240,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           throw new Error(error.message || '注册失败，请重试');
         }
+      } else {
+        // Track successful registration
+        googleAnalytics.trackRegistration('email');
       }
     } catch (err: any) {
       throw err;

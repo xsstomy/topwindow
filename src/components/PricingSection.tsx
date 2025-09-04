@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Download,
@@ -19,6 +19,7 @@ import {
   TOPWINDOW_LICENSE_PRICE,
   FREE_TRIAL_DOWNLOAD_URL,
 } from '@/config/pricing';
+import { googleAnalytics } from '@/lib/analytics/google-analytics';
 
 // Dynamically import PaymentSelector component to optimize loading performance
 const PaymentSelector = dynamic(() => import('./payments/PaymentSelector'), {
@@ -58,6 +59,45 @@ export default function PricingSection() {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'license'>(
     'license'
   );
+
+  // Track pricing page view when component mounts
+  useEffect(() => {
+    googleAnalytics.trackViewPricing();
+  }, []);
+
+  // Track when user switches to purchase mode
+  const handleViewPurchase = () => {
+    googleAnalytics.trackViewItem({
+      currency: 'USD',
+      value: TOPWINDOW_LICENSE_PRICE,
+      items: [
+        {
+          item_id: 'topwindow-license',
+          item_name: 'TopWindow Professional License',
+          category: 'software_license',
+          price: TOPWINDOW_LICENSE_PRICE,
+        },
+      ],
+    });
+
+    googleAnalytics.trackEvent('view_purchase_page', {
+      event_category: 'ecommerce',
+      item_name: 'TopWindow Professional License',
+      value: TOPWINDOW_LICENSE_PRICE,
+      currency: 'USD',
+    });
+
+    setViewMode('purchase');
+  };
+
+  // Track free trial link clicks
+  const handleTrialClick = () => {
+    googleAnalytics.trackEvent('trial_start_click', {
+      event_category: 'engagement',
+      event_label: 'free_trial_link',
+      value: 1,
+    });
+  };
 
   return (
     <section
@@ -149,6 +189,7 @@ export default function PricingSection() {
                     href={FREE_TRIAL_DOWNLOAD_URL}
                     target='_blank'
                     rel='noopener noreferrer'
+                    onClick={handleTrialClick}
                     className='block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 text-center'
                   >
                     <Apple className='w-5 h-5 inline mr-2' />
@@ -199,7 +240,7 @@ export default function PricingSection() {
                   </div>
 
                   <button
-                    onClick={() => setViewMode('purchase')}
+                    onClick={handleViewPurchase}
                     className='w-full bg-gradient-to-r from-primary to-blue-500 hover:from-primary-dark hover:to-blue-600 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2'
                   >
                     <CreditCard className='w-5 h-5' />
