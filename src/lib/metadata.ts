@@ -1,9 +1,10 @@
-import { Metadata } from 'next'
+import { Metadata } from 'next';
 
 export const siteConfig = {
   name: 'TopWindow',
   title: 'TopWindow - Keep Any Window Always on Top for macOS',
-  description: 'Pin any app window above others with one click or ⌥⌘P shortcut. Free macOS window management tool for enhanced productivity.',  
+  description:
+    'Pin any app window above others with one click or ⌥⌘P shortcut. Free macOS window management tool for enhanced productivity.',
   url: 'https://topwindow.app',
   ogImage: '/images/og-image.jpg',
   creator: 'TopWindow',
@@ -19,14 +20,14 @@ export const siteConfig = {
     'desktop tool',
     'multitasking',
     'free',
-    'open source'
-  ]
-}
+    'open source',
+  ],
+};
 
 export const defaultMetadata: Metadata = {
   title: {
     default: siteConfig.title,
-    template: `%s | ${siteConfig.name}`
+    template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
   keywords: siteConfig.keywords,
@@ -57,10 +58,20 @@ export const defaultMetadata: Metadata = {
     creator: '@topwindow',
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
     apple: '/apple-touch-icon.png',
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/favicon.svg',
+      },
+    ],
   },
+  manifest: '/site.webmanifest',
   robots: {
     index: true,
     follow: true,
@@ -75,7 +86,7 @@ export const defaultMetadata: Metadata = {
   verification: {
     google: 'verification-token-here',
   },
-}
+};
 
 export const structuredData = {
   '@context': 'https://schema.org',
@@ -93,6 +104,6 @@ export const structuredData = {
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '4.8',
-    reviewCount: '150'
-  }
-}
+    reviewCount: '150',
+  },
+};
