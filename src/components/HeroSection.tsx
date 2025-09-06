@@ -1,10 +1,22 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Download, ArrowRight, Command } from 'lucide-react';
+import {
+  Download,
+  ArrowRight,
+  Command,
+  Play,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
+import { useState } from 'react';
 import DownloadButton from '@/components/DownloadButton';
 
 export default function HeroSection() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
   const scrollToFeatures = () => {
     document.getElementById('features')?.scrollIntoView({
       behavior: 'smooth',
@@ -80,92 +92,144 @@ export default function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Right demo area */}
+          {/* Right demo area - Video Demo */}
           <motion.div
             className='relative'
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            {/* Window demo container */}
-            <div className='relative max-w-lg mx-auto'>
-              {/* Background window (Xcode) */}
-              <motion.div
-                className='absolute inset-0 bg-gray-800 rounded-lg shadow-2xl transform rotate-2'
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-              >
-                <div className='h-8 bg-gray-700 rounded-t-lg flex items-center px-4'>
-                  <div className='flex gap-2'>
-                    <div className='w-3 h-3 bg-red-500 rounded-full'></div>
-                    <div className='w-3 h-3 bg-yellow-500 rounded-full'></div>
-                    <div className='w-3 h-3 bg-green-500 rounded-full'></div>
-                  </div>
-                  <div className='flex-1 text-center'>
-                    <span className='text-gray-300 text-sm'>Xcode</span>
-                  </div>
-                </div>
-                <div className='p-6 h-64 bg-gray-800 rounded-b-lg'>
-                  <div className='space-y-2'>
-                    <div className='h-3 bg-gray-600 rounded w-3/4'></div>
-                    <div className='h-3 bg-gray-600 rounded w-1/2'></div>
-                    <div className='h-3 bg-gray-600 rounded w-2/3'></div>
-                  </div>
-                </div>
-              </motion.div>
+            <div className='relative bg-white rounded-2xl shadow-2xl overflow-hidden max-w-lg mx-auto'>
+              {/* Video Player */}
+              <div className='aspect-video bg-black relative'>
+                <video
+                  className='w-full h-full object-cover'
+                  controls
+                  preload='none'
+                  poster='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQ1MCIgdmlld0JveD0iMCAwIDgwMCA0NTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNDUwIiBmaWxsPSIjMUYyOTM3Ii8+CjxjaXJjbGUgY3g9IjQwMCIgY3k9IjIyNSIgcj0iNDAiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuOSIvPgo8cGF0aCBkPSJNMzg1IDIwNUw0MjUgMjI1TDM4NSAyNDVWMjA1WiIgZmlsbD0iIzFGMjkzNyIvPgo8L3N2Zz4K'
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onEnded={() => setIsPlaying(false)}
+                  onLoadStart={() => {
+                    setIsLoading(true);
+                    setHasError(false);
+                  }}
+                  onCanPlay={() => {
+                    setIsLoading(false);
+                    setHasError(false);
+                  }}
+                  onError={e => {
+                    console.error('Video loading error:', e);
+                    setHasError(true);
+                    setIsLoading(false);
+                  }}
+                >
+                  <source src='/multipin.mp4' type='video/mp4' />
+                  Your browser does not support the video tag.
+                </video>
 
-              {/* Foreground window (Safari - Always on top) */}
-              <motion.div
-                className='relative z-10 bg-white rounded-lg shadow-2xl transform -rotate-1 border border-gray-200'
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-              >
-                <div className='h-12 bg-gray-100 rounded-t-lg flex items-center px-4 border-b border-gray-200'>
-                  <div className='flex gap-2'>
-                    <div className='w-3 h-3 bg-red-500 rounded-full'></div>
-                    <div className='w-3 h-3 bg-yellow-500 rounded-full'></div>
-                    <div className='w-3 h-3 bg-green-500 rounded-full'></div>
+                {/* Loading State */}
+                {isLoading && (
+                  <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+                    <div className='flex flex-col items-center gap-3'>
+                      <Loader2 className='w-8 h-8 text-white animate-spin' />
+                      <span className='text-white text-sm'>
+                        Loading video...
+                      </span>
+                    </div>
                   </div>
-                  <div className='flex-1 text-center'>
-                    <span className='text-gray-700 text-sm font-medium'>
-                      Safari
-                    </span>
+                )}
+
+                {/* Error State */}
+                {hasError && (
+                  <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+                    <div className='flex flex-col items-center gap-3'>
+                      <AlertCircle className='w-8 h-8 text-red-400' />
+                      <span className='text-white text-sm'>
+                        Video failed to load
+                      </span>
+                      <button
+                        className='px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors'
+                        onClick={() => {
+                          setHasError(false);
+                          setIsLoading(true);
+                          const video = document.querySelector(
+                            'video'
+                          ) as HTMLVideoElement;
+                          if (video) video.load();
+                        }}
+                      >
+                        Retry
+                      </button>
+                    </div>
                   </div>
-                  {/* Always on top icon */}
+                )}
+
+                {/* Custom Play Button Overlay */}
+                {!isPlaying && !isLoading && !hasError && (
                   <motion.div
-                    className='absolute -top-3 -right-3 bg-primary text-white p-2 rounded-full shadow-lg'
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ duration: 0.5, delay: 1.2 }}
+                    className='absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm cursor-pointer'
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      const video = document.querySelector(
+                        'video'
+                      ) as HTMLVideoElement;
+                      if (video) video.play();
+                    }}
                   >
-                    📌
+                    <div className='w-20 h-20 bg-primary rounded-full flex items-center justify-center shadow-2xl hover:bg-primary-dark transition-colors'>
+                      <Play
+                        className='w-8 h-8 text-white ml-1'
+                        fill='currentColor'
+                      />
+                    </div>
                   </motion.div>
-                </div>
-                <div className='p-6 h-40 bg-white rounded-b-lg'>
-                  <div className='space-y-3'>
-                    <div className='h-4 bg-blue-100 rounded w-full'></div>
-                    <div className='h-4 bg-gray-100 rounded w-4/5'></div>
-                    <div className='h-4 bg-gray-100 rounded w-3/4'></div>
-                    <div className='h-4 bg-gray-100 rounded w-2/3'></div>
-                  </div>
-                </div>
-              </motion.div>
+                )}
 
-              {/* Keyboard shortcut hint */}
-              <motion.div
-                className='absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg'
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1.5 }}
-              >
-                <span className='text-sm font-medium flex items-center gap-2'>
-                  <Command size={14} />
-                  ⌥⌘P to pin
-                </span>
-              </motion.div>
+                {/* Video Title */}
+                <motion.div
+                  className='absolute top-4 right-4 bg-black/60 text-white px-3 py-1 rounded-lg text-sm'
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Multi-Pin Demo
+                </motion.div>
+              </div>
+
+              {/* Video Information */}
+              <div className='p-4 bg-white border-t border-gray-100'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <h3 className='font-semibold text-gray-text'>
+                      TopWindow in Action
+                    </h3>
+                    <p className='text-sm text-gray-secondary'>
+                      Pin multiple windows simultaneously
+                    </p>
+                  </div>
+                  <div className='text-sm text-gray-secondary'>Live Demo</div>
+                </div>
+              </div>
             </div>
+
+            {/* Decorative Elements */}
+            <div className='absolute -top-6 -left-6 w-12 h-12 bg-primary/10 rounded-full'></div>
+            <div className='absolute -bottom-8 -right-8 w-20 h-20 bg-blue-100 rounded-full'></div>
+
+            {/* Keyboard shortcut hint */}
+            <motion.div
+              className='absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.5 }}
+            >
+              <span className='text-sm font-medium flex items-center gap-2'>
+                <Command size={14} />
+                ⌥⌘P to pin any window
+              </span>
+            </motion.div>
           </motion.div>
         </div>
       </div>
