@@ -89,7 +89,7 @@ export default function Header({
   // Navigation menu items
   const navItems = [
     { href: '/', label: 'Home' },
-    { href: '/#features', label: 'Features' },
+    { href: '/features', label: 'Features' },
     { href: '/download', label: 'Download' },
     { href: '/docs', label: 'Docs' },
     { href: '/faq', label: 'FAQ' },

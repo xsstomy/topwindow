@@ -1,4 +1,5 @@
 import { generatePageMetadata } from '@/lib/page-metadata';
+import Footer from '@/components/Footer';
 
 export const metadata = generatePageMetadata('terms');
 
@@ -48,6 +49,7 @@ export default function TermsPage() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

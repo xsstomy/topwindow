@@ -1,4 +1,5 @@
 import { generatePageMetadata } from '@/lib/page-metadata';
+import Footer from '@/components/Footer';
 
 export const metadata = generatePageMetadata('privacy');
 
@@ -48,6 +49,7 @@ export default function PrivacyPage() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

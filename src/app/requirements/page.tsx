@@ -7,6 +7,7 @@ import {
   AlertCircle,
   Info,
 } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export const metadata = generatePageMetadata('requirements');
 
@@ -435,6 +436,7 @@ export default function SystemRequirementsPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

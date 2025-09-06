@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import { defaultMetadata, structuredData } from '@/lib/metadata';
+import {
+  defaultMetadata,
+  structuredData,
+  videoStructuredData,
+} from '@/lib/metadata';
 import { AuthProvider } from '@/lib/context/AuthContext';
 import Header from '@/components/Header';
 import DevNavigation from '@/components/DevNavigation';
@@ -45,6 +49,14 @@ export default function RootLayout({
           type='application/ld+json'
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(structuredData),
+          }}
+        />
+
+        {/* Video Structured Data */}
+        <script
+          type='application/ld+json'
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(videoStructuredData),
           }}
         />
       </head>

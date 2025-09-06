@@ -2,15 +2,26 @@ import { Metadata } from 'next';
 
 export const siteConfig = {
   name: 'TopWindow',
-  title: 'TopWindow - Keep Any Window Always on Top for macOS',
+  title:
+    'TopWindow – Keep Windows Always on Top for macOS | Lightweight Productivity Tool',
   description:
-    'Mac window always on top utility. Fix any window on topmost position with one click. Free macOS window management tool for enhanced productivity.',
+    'TopWindow is a macOS utility that keeps any window always on top. Lightweight, fast, and customizable with hotkeys and ScreenCaptureKit support. Download now to boost productivity.',
   url: 'https://topwindow.app',
   ogImage: '/images/og-image.svg',
   creator: 'TopWindow',
   keywords: [
+    // Enhanced keyword strategy
     'mac window always on top',
     'macOS fix window on top',
+    'TopWindow',
+    'ScreenCaptureKit window pinning',
+    'macOS window utility hotkey',
+    'always on top keyboard shortcut',
+    'topmost window mac productivity',
+    'mac multitasking tool',
+    'macOS window manager lightweight',
+    'pin window on top mac',
+    // Original keywords
     'topmost window mac',
     'mac window utility',
     'macOS window management',
@@ -20,10 +31,7 @@ export const siteConfig = {
     'Mac app',
     'desktop tool',
     'productivity',
-    'TopWindow',
     'multitasking',
-    'free',
-    'open source',
   ],
 };
 
@@ -94,19 +102,54 @@ export const defaultMetadata: Metadata = {
 export const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: siteConfig.name,
-  description: siteConfig.description,
-  url: siteConfig.url,
-  applicationCategory: 'UtilitiesApplication',
+  name: 'TopWindow - Keep Any Window Always on Top for macOS',
   operatingSystem: 'macOS',
+  applicationCategory: 'UtilityApplication',
+  description:
+    'TopWindow helps you keep any window always on top on macOS. Lightweight, fast, and customizable with hotkey support and ScreenCaptureKit integration.',
+  url: siteConfig.url,
+  image: '/images/logo.png',
+  screenshot: ['/images/screenshot-hero.png', '/images/features-preview.png'],
+  video: '/multipin.mp4',
+  installUrl:
+    'https://downloads.topwindow.app/releases/latest/topwindow-setup.dmg',
+  fileSize: '4.3MB',
+  author: {
+    '@type': 'Organization',
+    name: 'TopWindow Team',
+  },
   offers: {
     '@type': 'Offer',
-    price: '0',
+    price: '4.99',
     priceCurrency: 'USD',
+    description: 'Pro version with full features and updates',
+    availability: 'https://schema.org/InStock',
+    url: `${siteConfig.url}/pricing`,
   },
+  downloadUrl: `${siteConfig.url}/download`,
+  softwareVersion: '1.2.0',
+  featureList: [
+    'Keep windows always on top',
+    'Hotkey support for quick toggle',
+    'ScreenCaptureKit-based window pinning',
+    'Lightweight and fast performance',
+    'Minimal and modern UI for macOS',
+  ],
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '4.8',
     reviewCount: '150',
   },
+};
+
+export const videoStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: 'TopWindow Multi-Pin Demo',
+  description:
+    'See how TopWindow pins multiple windows on top simultaneously for enhanced macOS productivity',
+  thumbnailUrl: '/images/video-thumbnail.jpg',
+  contentUrl: '/multipin.mp4',
+  duration: 'PT2M30S',
+  uploadDate: '2024-01-01',
 };

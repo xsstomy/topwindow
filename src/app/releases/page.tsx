@@ -1,41 +1,44 @@
 import { generatePageMetadata } from '@/lib/page-metadata';
 import { Calendar, Download, Star, Bug, Zap, Shield, Plus } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export const metadata = generatePageMetadata('releases');
 
 const releases = [
   {
-    version: '2.1.0',
-    date: '2025-01-15',
-    type: 'major',
-    downloadUrl: '#download-placeholder',
-    size: '15.2 MB',
+    version: '1.2.0',
+    date: '2025-01-06',
+    type: 'minor',
+    downloadUrl: '/download',
+    size: '12.5 MB',
     features: [
       'Universal Binary support for Apple Silicon and Intel Macs',
-      'Improved window detection performance by 40%',
-      'New visual indicator for pinned windows',
-      'Enhanced menu bar interface with quick actions',
+      'Enhanced window detection using ScreenCaptureKit API',
+      'Improved menu bar interface with quick actions',
+      'New visual indicators for pinned windows',
       'macOS Sequoia (15.0) full compatibility',
     ],
     improvements: [
-      'Reduced memory usage by 25%',
+      'Reduced memory usage by 30%',
       'Faster app startup time',
       'Better handling of system permissions',
       'Improved accessibility support',
+      'Enhanced stability and performance',
     ],
     bugFixes: [
       'Fixed issue with some windows not staying pinned',
       'Resolved crash when unpinning windows quickly',
       'Fixed menu bar icon disappearing on some systems',
       'Corrected keyboard shortcut conflicts with other apps',
+      'Improved compatibility with third-party applications',
     ],
   },
   {
-    version: '2.0.3',
+    version: '1.1.2',
     date: '2024-12-10',
     type: 'patch',
     downloadUrl: '#download-placeholder-old',
-    size: '14.8 MB',
+    size: '12.2 MB',
     features: [],
     improvements: [
       'Better compatibility with macOS Sonoma',
@@ -49,11 +52,11 @@ const releases = [
     ],
   },
   {
-    version: '2.0.2',
+    version: '1.1.1',
     date: '2024-11-25',
     type: 'patch',
     downloadUrl: '#download-placeholder-old',
-    size: '14.5 MB',
+    size: '12.0 MB',
     features: [],
     improvements: [
       'Improved detection of full-screen applications',
@@ -66,15 +69,20 @@ const releases = [
     ],
   },
   {
-    version: '2.0.1',
+    version: '1.1.0',
     date: '2024-11-05',
-    type: 'patch',
+    type: 'minor',
     downloadUrl: '#download-placeholder-old',
-    size: '14.3 MB',
-    features: [],
+    size: '11.8 MB',
+    features: [
+      'Customizable keyboard shortcuts',
+      'Enhanced preferences panel',
+      'Support for multiple pinned windows management',
+    ],
     improvements: [
       'Enhanced stability and performance',
       'Better integration with system accessibility features',
+      'Improved window detection accuracy',
     ],
     bugFixes: [
       'Fixed issue preventing TopWindow from launching on some Macs',
@@ -83,47 +91,26 @@ const releases = [
     ],
   },
   {
-    version: '2.0.0',
+    version: '1.0.0',
     date: '2024-10-15',
     type: 'major',
     downloadUrl: '#download-placeholder-old',
-    size: '14.0 MB',
+    size: '11.5 MB',
     features: [
-      'Complete rewrite for better performance and reliability',
-      'New modern interface design',
-      'Support for multiple pinned windows management',
-      'Customizable keyboard shortcuts',
-      'Enhanced preferences panel',
-      'Dark mode support',
+      'Initial public release of TopWindow',
+      'Always-on-top window management',
+      'Simple keyboard shortcuts (⌥⌘P)',
+      'Menu bar integration',
+      'Support for all macOS applications',
+      'Lightweight and fast performance',
     ],
     improvements: [
-      '50% faster window pinning/unpinning',
-      'Significantly reduced CPU usage',
-      'Better compatibility with macOS Ventura and Sonoma',
-      'Improved error handling and user experience',
+      'Native macOS integration',
+      'Minimal CPU and memory usage',
+      'Full compatibility with macOS Ventura and Sonoma',
+      'Intuitive user interface',
     ],
-    bugFixes: [
-      'Fixed numerous stability issues from v1.x',
-      'Resolved window detection problems',
-      'Fixed memory leaks and performance issues',
-    ],
-  },
-  {
-    version: '1.2.5',
-    date: '2024-08-20',
-    type: 'patch',
-    downloadUrl: '#download-placeholder-legacy',
-    size: '12.8 MB',
-    features: [],
-    improvements: [
-      'Final improvements to the legacy 1.x branch',
-      'Preparation for 2.0 migration',
-    ],
-    bugFixes: [
-      'Last round of critical bug fixes for 1.x users',
-      'Improved compatibility before 2.0 upgrade',
-    ],
-    note: 'This is the final version of the 1.x series. Please upgrade to 2.x for the latest features and support.',
+    bugFixes: [],
   },
 ];
 
@@ -330,20 +317,20 @@ export default function ReleasesPage() {
           {/* Upgrade Notice */}
           <div className='mt-16 bg-white border border-gray-200 rounded-xl p-8 text-center'>
             <h2 className='text-xl font-semibold text-gray-900 mb-4'>
-              Upgrading from Older Versions
+              Stay Updated
             </h2>
             <p className='text-gray-600 mb-6 max-w-2xl mx-auto'>
-              If you're using TopWindow v1.x, we strongly recommend upgrading to
-              the latest 2.x version for better performance, stability, and new
-              features. The upgrade process is seamless and your preferences
-              will be preserved.
+              Make sure you're running the latest version of TopWindow to get
+              the best performance, newest features, and important security
+              updates. The upgrade process is seamless and your preferences will
+              be preserved.
             </p>
             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-              <a href='#download' className='btn-primary'>
+              <a href='/download' className='btn-primary'>
                 Download Latest Version
               </a>
               <a href='/docs' className='btn-secondary'>
-                View Upgrade Guide
+                View User Guide
               </a>
             </div>
           </div>
@@ -369,6 +356,7 @@ export default function ReleasesPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

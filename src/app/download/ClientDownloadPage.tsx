@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import DownloadButton from '@/components/DownloadButton';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import Footer from '@/components/Footer';
 import { downloadService, type VersionInfo } from '@/lib/download-service';
 
 export default function ClientDownloadPage() {
@@ -358,6 +359,7 @@ export default function ClientDownloadPage() {
           </motion.div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

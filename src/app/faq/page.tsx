@@ -8,6 +8,7 @@ import {
   CreditCard,
   Monitor,
 } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export const metadata = generatePageMetadata('faq');
 
@@ -299,6 +300,7 @@ export default function FAQPage() {
             </div>
           </div>
         </div>
+        <Footer />
       </main>
     </>
   );

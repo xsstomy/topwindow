@@ -9,7 +9,7 @@ import { useBuildInfo } from '@/hooks/useBuildInfo';
 const footerLinks = {
   product: [
     { name: 'Download', href: '/download' },
-    { name: 'Features', href: '#features' },
+    { name: 'Features', href: '/features' },
     { name: 'Pricing', href: '#pricing' },
     { name: 'Release Notes', href: '/releases' },
   ],

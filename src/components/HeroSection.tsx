@@ -105,7 +105,7 @@ export default function HeroSection() {
                 <video
                   className='w-full h-full object-cover'
                   controls
-                  preload='none'
+                  preload='metadata'
                   poster='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQ1MCIgdmlld0JveD0iMCAwIDgwMCA0NTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNDUwIiBmaWxsPSIjMUYyOTM3Ii8+CjxjaXJjbGUgY3g9IjQwMCIgY3k9IjIyNSIgcj0iNDAiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuOSIvPgo8cGF0aCBkPSJNMzg1IDIwNUw0MjUgMjI1TDM4NSAyNDVWMjA1WiIgZmlsbD0iIzFGMjkzNyIvPgo8L3N2Zz4K'
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
@@ -115,6 +115,10 @@ export default function HeroSection() {
                     setHasError(false);
                   }}
                   onCanPlay={() => {
+                    setIsLoading(false);
+                    setHasError(false);
+                  }}
+                  onLoadedData={() => {
                     setIsLoading(false);
                     setHasError(false);
                   }}

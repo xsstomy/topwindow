@@ -8,6 +8,7 @@ import {
   Download,
   Keyboard,
 } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export const metadata = generatePageMetadata('docs');
 
@@ -329,6 +330,7 @@ export default function DocumentationPage() {
           </section>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

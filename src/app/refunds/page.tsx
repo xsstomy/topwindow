@@ -7,6 +7,7 @@ import {
   Mail,
   FileText,
 } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export const metadata = generatePageMetadata('refunds');
 
@@ -441,6 +442,7 @@ export default function RefundPolicyPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

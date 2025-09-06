@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Keyboard, Menu, Monitor, Zap } from 'lucide-react';
+import Link from 'next/link';
 
 const features = [
   {
@@ -90,6 +91,35 @@ export default function FeaturesSection() {
             </motion.div>
           ))}
         </div>
+
+        {/* Call-to-Action to view all features */}
+        <motion.div
+          className='text-center mt-12'
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <Link
+            href='/features'
+            className='inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors font-medium'
+          >
+            Explore All Features
+            <svg
+              className='w-4 h-4'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M9 5l7 7-7 7'
+              />
+            </svg>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
