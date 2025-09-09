@@ -1,6 +1,8 @@
 // List user payments API endpoint
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import type { ApiResponse } from '@/types/payment';
 
 const supabase = createClient(
@@ -10,34 +12,53 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    // Get authorization header
+    // Try Authorization header first; fallback to cookie-based auth
     const authorization = request.headers.get('authorization');
-    if (!authorization || !authorization.startsWith('Bearer ')) {
-      return NextResponse.json(
-        {
-          status: 'error',
-          message: 'Missing or invalid authorization header',
-          error: { code: 'UNAUTHORIZED' },
-        } satisfies ApiResponse,
-        { status: 401 }
-      );
+    let user: { id: string } | null = null;
+
+    const authWithHeader = async () => {
+      if (!authorization || !authorization.startsWith('Bearer ')) return null;
+      const token = authorization.replace('Bearer ', '');
+      const { data, error } = await supabase.auth.getUser(token);
+      if (error || !data.user) return null;
+      return data.user;
+    };
+
+    const authWithCookies = async () => {
+      const authClient = createRouteHandlerClient({ cookies });
+      const { data, error } = await authClient.auth.getUser();
+      if (error || !data.user) return null;
+      return data.user;
+    };
+
+    const withTimeout = async <T>(p: Promise<T>, ms = 5000): Promise<T> =>
+      (Promise.race([
+        p,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error('AUTH_TIMEOUT')), ms)),
+      ]) as unknown) as Promise<T>;
+
+    try {
+      user = await withTimeout(authWithHeader().then(u => u ?? authWithCookies()));
+    } catch (e) {
+      if (e instanceof Error && e.message === 'AUTH_TIMEOUT') {
+        return NextResponse.json(
+          {
+            status: 'error',
+            message: 'Authentication timeout. Please try again.',
+            error: { code: 'AUTH_TIMEOUT' },
+          } satisfies ApiResponse,
+          { status: 504 }
+        );
+      }
+      throw e;
     }
 
-    const token = authorization.replace('Bearer ', '');
-
-    // Verify the token and get user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      console.error('Auth error:', authError);
+    if (!user) {
       return NextResponse.json(
         {
           status: 'error',
-          message: 'Invalid authentication token',
-          error: { code: 'INVALID_TOKEN' },
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED' },
         } satisfies ApiResponse,
         { status: 401 }
       );

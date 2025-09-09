@@ -111,17 +111,34 @@ export class PaymentService {
         throw new Error(`Payment not found: ${paymentId}`);
       }
 
+      // If already completed, ensure license exists; if not, generate now (idempotent)
       if (payment.status === 'completed') {
-        console.log(`Payment ${paymentId} already completed`);
-        return {
-          success: true,
-          message: 'Payment already processed',
-        };
+        // Check existing license
+        const { data: existingLicense } = await supabase
+          .from('licenses')
+          .select('license_key')
+          .eq('payment_id', paymentId)
+          .single();
+
+        if (existingLicense?.license_key) {
+          console.log(`Payment ${paymentId} already completed with license ${existingLicense.license_key}`);
+          return { success: true, licenseKey: existingLicense.license_key, message: 'Payment already processed' };
+        }
+
+        // No license yet, generate one now
+        const generated = await LicenseService.generateLicense({
+          userId: payment.user_id,
+          paymentId: payment.id,
+          productId: payment.product_info.product_id,
+        });
+
+        console.log(`Payment ${paymentId} completed earlier, generated missing license: ${generated.license_key}`);
+        return { success: true, licenseKey: generated.license_key, message: 'License generated for completed payment' };
       }
 
-      // Update payment status
+      // Not completed yet: update payment as completed first
       await this.updatePaymentStatus(paymentId, 'completed', {
-        provider_payment_id: webhookData.payment_id || webhookData.id,
+        provider_payment_id: webhookData?.payment_id || webhookData?.id,
         completed_at: new Date().toISOString(),
         webhook_received_at: new Date().toISOString(),
         metadata: {
@@ -130,7 +147,7 @@ export class PaymentService {
         },
       });
 
-      // Generate license
+      // Generate license for freshly completed payment
       const license = await LicenseService.generateLicense({
         userId: payment.user_id,
         paymentId: payment.id,
@@ -171,15 +188,31 @@ export class PaymentService {
     } catch (error) {
       console.error(`Handle payment completed error for ${paymentId}:`, error);
 
-      // Mark payment as failed but keep webhook data for retry
-      await this.updatePaymentStatus(paymentId, 'failed', {
-        metadata: {
-          processing_error:
-            error instanceof Error ? error.message : 'Unknown error',
-          webhook_data: webhookData,
-          retry_scheduled: true,
-        },
-      });
+      try {
+        // Do not flip a completed payment back to failed. Only attach error metadata.
+        const current = await this.getPaymentById(paymentId);
+        if (current?.status === 'completed') {
+          await this.updatePaymentStatus(paymentId, 'completed', {
+            metadata: {
+              ...current.metadata,
+              processing_error: error instanceof Error ? error.message : 'Unknown error',
+              webhook_data: webhookData,
+              license_generation_failed: true,
+            },
+          });
+        } else {
+          // If not completed yet, mark as failed for retry
+          await this.updatePaymentStatus(paymentId, 'failed', {
+            metadata: {
+              processing_error: error instanceof Error ? error.message : 'Unknown error',
+              webhook_data: webhookData,
+              retry_scheduled: true,
+            },
+          });
+        }
+      } catch (metaErr) {
+        console.error('Failed to update payment metadata after error:', metaErr);
+      }
 
       throw this.createPaymentError(
         PaymentErrorType.LICENSE_GENERATION_ERROR,

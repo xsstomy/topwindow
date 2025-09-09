@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { usePayment, useProductInfo } from '@/hooks/usePayment';
+import { supabase } from '@/lib/supabase/client';
 import { PaymentSelectorProps } from '@/types/payment-ui';
 import PaymentUIService from '@/lib/payment/ui-service';
 import {
@@ -26,12 +27,7 @@ export default function PaymentSelector({
   className = '',
   showComparison = true,
 }: PaymentSelectorProps) {
-  const {
-    user,
-    loading: paymentLoading,
-    error: paymentError,
-    createPaymentSession,
-  } = usePayment();
+  const { user, loading: paymentLoading, error: paymentError, createPaymentSession } = usePayment();
   const {
     product,
     loading: productLoading,
@@ -45,6 +41,18 @@ export default function PaymentSelector({
 
   const handlePurchase = async () => {
     if (!user) {
+      // Double-check session directly with Supabase to avoid false negatives
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // Give AuthContext a moment to update, then retry
+          setTimeout(() => {
+            void handlePurchase();
+          }, 150);
+          return;
+        }
+      } catch (_) {}
+
       const nextPath = '/pricing?purchase=1';
       try {
         if (typeof window !== 'undefined') {

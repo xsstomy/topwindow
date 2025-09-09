@@ -1,6 +1,6 @@
 // 支付平台适配器实现
 import { creemConfig, paddleConfig, validateProviderConfig } from './config'
-import { verifyCreemSignature } from './creem-signature'
+import { verifyCreemSignature, verifyCreemSignatureFromRawBody } from './creem-signature'
 import type { 
   PaymentProviderInterface,
   CreateSessionParams,
@@ -147,18 +147,16 @@ export class CreemProvider extends PaymentProvider {
     }
   }
 
-  verifyWebhook(payload: string, signature: string): boolean {
+  verifyWebhook(payload: string, signatureHeader: string): boolean {
     if (!this.config.webhookSecret || (this.config.webhookSecret && this.config.webhookSecret.includes('mock'))) {
       console.warn(`[CREEM ${this.config.mode.toUpperCase()}] Webhook secret not configured, skipping verification`)
       return true // 在测试模式下跳过验证
     }
 
     try {
-      // Parse payload to get parameters for Creem signature verification
-      const webhookData = JSON.parse(payload);
-      
-      // Use Creem's signature verification method
-      const isValid = verifyCreemSignature(webhookData, signature);
+      // 标准做法：对“原始请求体 raw body”进行 HMAC-SHA256 验签
+      const normalizedSig = normalizeSignature(signatureHeader)
+      const isValid = verifyCreemSignatureFromRawBody(payload, normalizedSig, this.config.webhookSecret)
 
       console.log(`[CREEM ${this.config.mode.toUpperCase()}] Webhook signature verification:`, isValid ? 'VALID' : 'INVALID')
       return isValid
@@ -173,13 +171,20 @@ export class CreemProvider extends PaymentProvider {
     try {
       const creemEvent = event as CreemWebhookEvent
 
-      switch (creemEvent.type) {
+      // 兼容 creem 不同事件命名：checkout.* 映射到 payment.*
+      const type = (creemEvent.type || '').toLowerCase()
+      const normalizedType =
+        type === 'checkout.completed'
+          ? 'payment.completed'
+          : type === 'checkout.failed' || type === 'checkout.canceled' || type === 'checkout.cancelled'
+          ? 'payment.failed'
+          : type
+
+      switch (normalizedType) {
         case 'payment.completed':
           return await this.handlePaymentCompleted(creemEvent)
-        
         case 'payment.failed':
           return await this.handlePaymentFailed(creemEvent)
-        
         case 'payment.refunded':
           return await this.handlePaymentRefunded(creemEvent)
         
@@ -242,6 +247,22 @@ export class CreemProvider extends PaymentProvider {
       payment_id: payment.id
     }
   }
+}
+
+function normalizeSignature(headerValue: string): string {
+  if (!headerValue) return headerValue
+  const trimmed = headerValue.trim()
+  // 兼容 t=..., s=... 复合格式
+  if (trimmed.includes('=')) {
+    const parts = trimmed.split(',')
+    for (const p of parts) {
+      const [k, v] = p.split('=')
+      if (!v) continue
+      const key = k.trim().toLowerCase()
+      if (key === 's' || key === 'signature' || key === 'sig') return v.trim()
+    }
+  }
+  return trimmed
 }
 
 // Paddle 支付平台适配器

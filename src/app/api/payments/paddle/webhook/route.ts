@@ -273,34 +273,7 @@ async function handleTransactionCompleted(
       })
     }
 
-    // 发送许可证邮件 (如果许可证生成成功)
-    if (licenseKey) {
-      try {
-        await EmailService.sendLicenseEmail({
-          userEmail: payment.customer_info.email,
-          userName: payment.customer_info.name || payment.customer_info.email,
-          licenseKey,
-          productName: payment.product_info.name,
-          activationLimit: 1 // 从产品配置获取
-        })
-
-        console.log(`License email sent for Paddle payment ${paymentId}`)
-      } catch (emailError) {
-        console.error(`Failed to send license email for Paddle payment ${paymentId}:`, emailError)
-        
-        // 邮件发送失败不应阻止 Webhook 成功响应
-        await supabase
-          .from('payments')
-          .update({
-            metadata: {
-              ...payment.metadata,
-              email_send_failed: true,
-              email_error: emailError instanceof Error ? emailError.message : 'Unknown error'
-            }
-          })
-          .eq('id', paymentId)
-      }
-    }
+    // 邮件发送已由 LicenseService.generateLicense 负责，避免重复
 
     const processingTime = Date.now() - startTime
     console.log(`Paddle transaction completed processing finished in ${processingTime}ms`)

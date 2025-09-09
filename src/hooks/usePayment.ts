@@ -11,7 +11,7 @@ import {
 } from '@/types/payment-ui'
 
 export function usePayment() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<PaymentError | null>(null)
 
@@ -45,6 +45,7 @@ export function usePayment() {
 
   return {
     user,
+    authLoading,
     loading,
     error,
     createPaymentSession,

@@ -23,7 +23,11 @@ export async function POST(request: NextRequest) {
   try {
     // 获取请求体和签名
     const body = await request.text();
-    const signature = request.headers.get('creem-signature');
+    const signature =
+      request.headers.get('creem-signature') ||
+      request.headers.get('x-creem-signature') ||
+      request.headers.get('x-signature') ||
+      request.headers.get('signature');
 
     // 记录接收到的webhook
     console.log('Creem webhook received:', {
@@ -74,9 +78,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 解析 Webhook 事件
-    let event: CreemWebhookEvent;
+    let rawEvent: any;
     try {
-      event = JSON.parse(body);
+      rawEvent = JSON.parse(body);
     } catch (parseError) {
       console.error('Creem webhook: Invalid JSON payload:', parseError);
       return NextResponse.json(
@@ -90,17 +94,51 @@ export async function POST(request: NextRequest) {
     }
 
     // 记录 Webhook 事件详情
-    console.log(`Creem webhook event: ${event.type}`, {
-      session_id: event.data.session_id,
-      payment_id: event.data.payment_id,
-      metadata: event.data.metadata,
+    // 兼容不同事件命名，进行标准化
+    const rawType = ((rawEvent.type || rawEvent.eventType) || '').toLowerCase();
+    const normalizedType =
+      rawType === 'checkout.completed'
+        ? 'payment.completed'
+        : rawType === 'checkout.failed' || rawType === 'checkout.canceled' || rawType === 'checkout.cancelled'
+        ? 'payment.failed'
+        : rawType;
+
+    // 统一数据结构
+    let event: CreemWebhookEvent;
+    if (rawEvent.data) {
+      event = rawEvent as CreemWebhookEvent;
+    } else if (rawEvent.object) {
+      const obj = rawEvent.object;
+      event = {
+        type: normalizedType as any,
+        data: {
+          session_id: obj.id,
+          payment_id: obj?.order?.transaction || obj?.order?.id || obj?.transaction,
+          amount: obj?.order?.amount ?? obj?.amount,
+          currency: obj?.order?.currency ?? obj?.currency,
+          customer: {
+            email: obj?.customer?.email,
+            name: obj?.customer?.name,
+          } as any,
+          metadata: obj?.metadata ?? {},
+          status: obj?.status ?? 'completed',
+        } as any,
+      } as unknown as CreemWebhookEvent;
+    } else {
+      event = { type: normalizedType as any, data: {} as any } as CreemWebhookEvent;
+    }
+
+    console.log(`Creem webhook event: ${rawEvent.type || rawEvent.eventType} (normalized: ${normalizedType})`, {
+      session_id: (event as any).data?.session_id,
+      payment_id: (event as any).data?.payment_id,
+      metadata: (event as any).data?.metadata,
       timestamp: new Date().toISOString(),
       eventData:
-        process.env.NODE_ENV === 'development' ? event.data : undefined,
+        process.env.NODE_ENV === 'development' ? (event as any).data : undefined,
     });
 
     // 处理不同类型的事件
-    switch (event.type) {
+    switch (normalizedType) {
       case 'payment.completed':
         return await handlePaymentCompleted(event, startTime);
 
@@ -177,16 +215,71 @@ async function handlePaymentCompleted(
       );
     }
 
-    // 检查支付是否已经处理
+    // 检查支付是否已经处理：若已完成但缺少 license，则补发；否则直接返回
     if (payment.status === 'completed') {
-      console.log(`Payment ${payment.id} already completed, skipping`);
-      return NextResponse.json(
-        {
-          status: 'success',
-          message: 'Payment already processed',
-        } satisfies ApiResponse,
-        { status: 200 }
-      );
+      try {
+        const { data: existingLicense } = await supabase
+          .from('licenses')
+          .select('license_key')
+          .eq('payment_id', payment.id)
+          .single();
+
+        if (existingLicense?.license_key) {
+          console.log(
+            `Payment ${payment.id} already completed with license ${existingLicense.license_key}`
+          );
+          return NextResponse.json(
+            {
+              status: 'success',
+              message: 'Payment already processed',
+              data: { payment_id: payment.id, license_key: existingLicense.license_key },
+            } satisfies ApiResponse,
+            { status: 200 }
+          );
+        }
+
+        // 未找到许可证：触发补发逻辑（幂等）
+        const result = await PaymentService.handlePaymentCompleted(
+          payment.id,
+          event.data
+        );
+
+        console.log(
+          `License generated for payment ${payment.id}: ${result.licenseKey}`
+        );
+
+        return NextResponse.json(
+          {
+            status: 'success',
+            message: 'License generated for completed payment',
+            data: { payment_id: payment.id, license_key: result.licenseKey },
+          } satisfies ApiResponse,
+          { status: 200 }
+        );
+      } catch (補錯:any) {
+        console.error('补发许可证失败:', 補錯);
+        // 标记需要手动处理，但仍返回 200，避免重复重试风暴
+        await supabase
+          .from('payments')
+          .update({
+            metadata: {
+              ...payment.metadata,
+              license_generation_failed: true,
+              manual_attention_required: true,
+              webhook_data: event.data,
+            },
+          })
+          .eq('id', payment.id);
+
+        return NextResponse.json(
+          {
+            status: 'success',
+            message: 'Payment already completed; license generation flagged for manual processing',
+            data: { payment_id: payment.id },
+          } satisfies ApiResponse,
+          { status: 200 }
+        );
+      }
     }
 
     // 更新支付状态
@@ -254,40 +347,7 @@ async function handlePaymentCompleted(
       });
     }
 
-    // 发送许可证邮件 (如果许可证生成成功)
-    if (licenseKey) {
-      try {
-        await EmailService.sendLicenseEmail({
-          userEmail: payment.customer_info.email,
-          userName: payment.customer_info.name || payment.customer_info.email,
-          licenseKey,
-          productName: payment.product_info.name,
-          activationLimit: 1, // 从产品配置获取
-        });
-
-        console.log(`License email sent for payment ${payment.id}`);
-      } catch (emailError) {
-        console.error(
-          `Failed to send license email for payment ${payment.id}:`,
-          emailError
-        );
-
-        // 邮件发送失败不应阻止 Webhook 成功响应
-        await supabase
-          .from('payments')
-          .update({
-            metadata: {
-              ...payment.metadata,
-              email_send_failed: true,
-              email_error:
-                emailError instanceof Error
-                  ? emailError.message
-                  : 'Unknown error',
-            },
-          })
-          .eq('id', payment.id);
-      }
-    }
+    // 邮件发送已在 LicenseService.generateLicense 内异步处理，避免重复发送
 
     const processingTime = Date.now() - startTime;
     console.log(

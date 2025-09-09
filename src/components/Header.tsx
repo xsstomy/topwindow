@@ -126,12 +126,26 @@ export default function Header({
   ];
 
   const handleSignOut = async () => {
+    // Fire-and-forget client sign out to clear local storage/state
     try {
-      await signOut();
+      void (async () => {
+        try {
+          await Promise.race([
+            signOut(),
+            new Promise(resolve => setTimeout(resolve, 800)),
+          ]);
+        } catch (e) {
+          // ignore
+        }
+      })();
+    } finally {
       setIsUserMenuOpen(false);
-      router.push('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
+      // Redirect to server route to clear cookies reliably
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/logout';
+      } else {
+        router.push('/auth/logout');
+      }
     }
   };
 

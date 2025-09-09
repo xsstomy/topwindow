@@ -102,24 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send license email if enabled
-    if (process.env.ENABLE_EMAIL_SENDING === 'true' && result.licenseKey) {
-      try {
-        await EmailService.sendLicenseEmail({
-          userEmail: payment.customer_info.email,
-          userName: payment.customer_info.name || payment.customer_info.email,
-          licenseKey: result.licenseKey,
-          productName: payment.product_info.name,
-          activationLimit: 1,
-          downloadUrl:
-            'https://downloads.topwindow.app/releases/latest/topwindow-setup.dmg',
-        });
-
-        console.log(`License email sent to ${payment.customer_info.email}`);
-      } catch (emailError) {
-        console.error('Failed to send license email:', emailError);
-        // Don't fail the whole process if email fails
-      }
-    }
+    // 邮件发送已由 LicenseService.generateLicense 负责，避免重复发送
 
     return NextResponse.json({
       status: 'success',

@@ -99,17 +99,20 @@ export class LicenseService {
       if (userError || !user) {
         console.warn(`Could not fetch user info for license email: ${userId}`)
       } else {
-        // 异步发送许可证邮件，不阻塞许可证生成
-        this.sendLicenseEmailAsync({
-          userEmail: user.user.email!,
-          userName: user.user.user_metadata?.full_name || user.user.email!,
-          licenseKey,
-          productName: product.name,
-          activationLimit: product.activation_limit || 1
-        }).catch(emailError => {
+        // 发送许可证邮件（等待完成，确保在无后台任务环境中不会丢失）
+        try {
+          await this.sendLicenseEmailAsync({
+            userEmail: user.user.email!,
+            userName:
+              user.user.user_metadata?.full_name || user.user.email!,
+            licenseKey,
+            productName: product.name,
+            activationLimit: product.activation_limit || 1,
+          })
+        } catch (emailError) {
           console.error('Failed to send license email:', emailError)
           // 邮件发送失败不应影响许可证生成流程
-        })
+        }
       }
 
       return {

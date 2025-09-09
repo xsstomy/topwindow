@@ -25,7 +25,8 @@ interface PaymentStatusData {
       email: string;
       name?: string;
     };
-    completed_at: string;
+    created_at: string;
+    completed_at: string | null;
   };
   license?: {
     license_key: string;
@@ -269,16 +270,39 @@ export default function PaymentSuccessPage() {
                     <span className='font-medium capitalize'>{provider}</span>
                   </div>
                   <div className='flex justify-between'>
-                    <span className='text-gray-600'>Completion Time</span>
+                    <span className='text-gray-600'>
+                      {paymentData.payment.status === 'pending'
+                        ? 'Order Time/下单时间'
+                        : 'Completion Time'}
+                    </span>
                     <span className='font-medium'>
-                      {formatDate(paymentData.payment.completed_at)}
+                      {formatDate(
+                        paymentData.payment.status === 'completed'
+                          ? paymentData.payment.completed_at ||
+                              paymentData.payment.created_at
+                          : paymentData.payment.created_at
+                      )}
                     </span>
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-gray-600'>Status</span>
-                    <span className='font-medium text-green-600'>
-                      ✅ Completed
-                    </span>
+                    {paymentData.payment.status === 'completed' ? (
+                      <span className='font-medium text-green-600'>
+                        ✅ Completed
+                      </span>
+                    ) : paymentData.payment.status === 'pending' ? (
+                      <span className='font-medium text-yellow-600'>
+                        ⏳ Pending
+                      </span>
+                    ) : paymentData.payment.status === 'failed' ? (
+                      <span className='font-medium text-red-600'>
+                        ❌ Failed
+                      </span>
+                    ) : (
+                      <span className='font-medium text-gray-600'>
+                        {paymentData.payment.status}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

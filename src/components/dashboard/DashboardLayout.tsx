@@ -65,9 +65,15 @@ export default function DashboardLayout({
 
   const handleSignOut = async () => {
     try {
-      await signOut()
-    } catch (error) {
-      console.error('Sign out failed:', error)
+      // Clear client session quickly; timebox to avoid hangs
+      await Promise.race([
+        signOut(),
+        new Promise(resolve => setTimeout(resolve, 800)),
+      ])
+    } catch (e) {
+      // ignore
+    } finally {
+      window.location.href = '/auth/logout'
     }
   }
 
