@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { usePayment, useProductInfo } from '@/hooks/usePayment';
 import { PaymentSelectorProps } from '@/types/payment-ui';
@@ -38,12 +39,19 @@ export default function PaymentSelector({
   } = useProductInfo(productId);
   const [selectedProvider, setSelectedProvider] = useState<'creem'>('creem');
   const [isProcessing, setIsProcessing] = useState(false);
+  const router = useRouter();
 
   const paymentOptions = PaymentUIService.getPaymentOptions();
 
   const handlePurchase = async () => {
     if (!user) {
-      alert('Please login before purchase');
+      const nextPath = '/pricing?purchase=1';
+      try {
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('postLoginRedirect', nextPath);
+        }
+      } catch (e) {}
+      router.push(`/auth/login?next=${encodeURIComponent(nextPath)}`);
       return;
     }
 
@@ -213,7 +221,7 @@ export default function PaymentSelector({
             {/* 购买按钮 */}
             <motion.button
               onClick={handlePurchase}
-              disabled={paymentLoading || isProcessing || !user}
+              disabled={paymentLoading || isProcessing}
               className='w-full bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 text-lg'
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -233,7 +241,7 @@ export default function PaymentSelector({
 
             {!user && (
               <p className='text-center text-gray-600 text-sm mt-3'>
-                Please login before purchase
+                You’ll be redirected to login to complete purchase.
               </p>
             )}
 

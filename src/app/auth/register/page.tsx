@@ -1,15 +1,17 @@
-'use client'
+"use client"
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import AuthFormContainer from '@/components/auth/AuthFormContainer'
 import RegisterForm from '@/components/auth/RegisterForm'
 import NetworkStatus from '@/components/NetworkStatus'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextParam = searchParams.get('next')
 
   const handleRegisterSuccess = () => {
-    router.push('/dashboard')
+    router.push(nextParam || '/dashboard')
   }
 
   return (

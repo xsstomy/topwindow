@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, Suspense, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Download,
@@ -59,6 +60,7 @@ export default function PricingSection() {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'license'>(
     'license'
   );
+  const searchParams = useSearchParams();
 
   // Track pricing page view when component mounts
   useEffect(() => {
@@ -88,6 +90,13 @@ export default function PricingSection() {
     });
 
     setViewMode('purchase');
+
+    // Reflect view in URL for better navigation/redirects
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('purchase', '1');
+      window.history.replaceState(null, '', url.toString());
+    }
   };
 
   // Track free trial link clicks
@@ -98,6 +107,20 @@ export default function PricingSection() {
       value: 1,
     });
   };
+
+  // If URL contains purchase indicator, auto-switch to purchase view
+  useEffect(() => {
+    const purchaseFlag =
+      searchParams.get('purchase') || searchParams.get('view');
+    if (
+      purchaseFlag &&
+      (purchaseFlag === '1' || purchaseFlag.toLowerCase() === 'purchase') &&
+      viewMode !== 'purchase'
+    ) {
+      handleViewPurchase();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return (
     <section
@@ -259,7 +282,15 @@ export default function PricingSection() {
               {/* Back Button */}
               <div className='flex justify-center mb-8'>
                 <button
-                  onClick={() => setViewMode('overview')}
+                  onClick={() => {
+                    setViewMode('overview');
+                    if (typeof window !== 'undefined') {
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('purchase');
+                      url.searchParams.delete('view');
+                      window.history.replaceState(null, '', url.toString());
+                    }
+                  }}
                   className='text-gray-secondary hover:text-gray-text transition-colors flex items-center gap-2'
                 >
                   ← Back to Plans Comparison

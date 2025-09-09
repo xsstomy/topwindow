@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // 用户登录成功时的处理
       if (event === 'SIGNED_IN' && session?.user) {
-        console.log('用户登录成功，准备跳转到仪表板');
+        console.log('用户登录成功，处理重定向');
 
         // Track login event
         const loginMethod =
@@ -137,9 +137,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         googleAnalytics.trackLogin(loginMethod);
 
         await ensureUserProfile(session.user);
+
         // 延迟跳转，确保状态更新完成
         setTimeout(() => {
-          router.push('/dashboard');
+          let target = '/dashboard';
+          try {
+            if (typeof window !== 'undefined') {
+              // 优先使用会话存储中的重定向
+              const stored = sessionStorage.getItem('postLoginRedirect');
+              if (stored && stored.startsWith('/') && !stored.startsWith('//')) {
+                target = stored;
+                sessionStorage.removeItem('postLoginRedirect');
+              } else {
+                const url = new URL(window.location.href);
+                const next = url.searchParams.get('next');
+                if (next && next.startsWith('/') && !next.startsWith('//')) {
+                  target = next;
+                }
+              }
+              const current = window.location.pathname + window.location.search;
+              if (current !== target) {
+                router.push(target);
+              }
+            } else {
+              router.push(target);
+            }
+          } catch (e) {
+            router.push('/dashboard');
+          }
         }, 100);
       }
 
@@ -251,10 +276,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      let nextPath: string | null = null;
+      try {
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href);
+          const qpNext = url.searchParams.get('next');
+          const stored = sessionStorage.getItem('postLoginRedirect');
+          if (qpNext && qpNext.startsWith('/') && !qpNext.startsWith('//')) {
+            nextPath = qpNext;
+          } else if (stored && stored.startsWith('/') && !stored.startsWith('//')) {
+            nextPath = stored;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback${
+            nextPath ? `?next=${encodeURIComponent(nextPath)}` : ''
+          }`,
         },
       });
 

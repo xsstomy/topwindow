@@ -10,12 +10,14 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
   const error = requestUrl.searchParams.get('error')
   const errorDescription = requestUrl.searchParams.get('error_description')
+  const nextParam = requestUrl.searchParams.get('next')
 
   // 处理 OAuth 错误
   if (error) {
     console.error('OAuth 错误:', error, errorDescription)
     const errorMessage = encodeURIComponent(errorDescription || '认证失败')
-    return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=${errorMessage}`)
+    const nextSuffix = nextParam ? `&next=${encodeURIComponent(nextParam)}` : ''
+    return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=${errorMessage}${nextSuffix}`)
   }
 
   if (code) {
@@ -26,7 +28,8 @@ export async function GET(request: NextRequest) {
       
       if (error) {
         console.error('认证回调错误:', error)
-        return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=auth_callback_error`)
+        const nextSuffix = nextParam ? `&next=${encodeURIComponent(nextParam)}` : ''
+        return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=auth_callback_error${nextSuffix}`)
       }
 
       // 检查是否为新用户，如果是则创建用户资料
@@ -51,10 +54,15 @@ export async function GET(request: NextRequest) {
       
     } catch (error) {
       console.error('认证回调异常:', error)
-      return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=auth_callback_error`)
+      const nextSuffix = nextParam ? `&next=${encodeURIComponent(nextParam)}` : ''
+      return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=auth_callback_error${nextSuffix}`)
     }
   }
 
-  // 重定向到仪表板或首页
-  return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+  // 重定向到目标页或仪表板
+  const safeNext =
+    nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+      ? nextParam
+      : '/dashboard'
+  return NextResponse.redirect(`${requestUrl.origin}${safeNext}`)
 }

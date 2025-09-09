@@ -1,10 +1,11 @@
-'use client'
+"use client"
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/context/AuthContext'
 import { Mail, Lock, Eye, EyeOff, AlertCircle, User } from 'lucide-react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 interface RegisterFormProps {
   onSuccess?: () => void
@@ -12,6 +13,8 @@ interface RegisterFormProps {
 
 export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   const { signUp, signInWithGoogle } = useAuth()
+  const searchParams = useSearchParams()
+  const nextParam = searchParams.get('next')
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -238,7 +241,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         <p className="text-gray-600 text-sm">
           Already have an account?{' '}
           <Link
-            href="/auth/login"
+            href={`/auth/login${nextParam ? `?next=${encodeURIComponent(nextParam)}` : ''}`}
             className="text-primary hover:text-primary-dark font-medium transition-colors"
           >
             Sign In Now
