@@ -112,7 +112,9 @@ export async function POST(request: NextRequest) {
         message: 'Failed to send license email',
         error: {
           code: 'SEND_ERROR',
-          details: error instanceof Error ? error.message : 'Unknown error',
+          details: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+          },
         },
       } satisfies ApiResponse,
       { status: 500 }

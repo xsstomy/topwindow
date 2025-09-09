@@ -15,11 +15,9 @@ export default function DownloadSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="heading-md mb-4">
-            Download TopWindow
-          </h2>
+          <h2 className="heading-md mb-4">Download TopWindow for macOS</h2>
           <p className="text-body max-w-2xl mx-auto">
-            Get started with TopWindow today. Free download with no subscription required.
+            Get started with TopWindow today — a lightweight always‑on‑top utility for Mac. Free download with no subscription required.
           </p>
         </motion.div>
 

@@ -7,29 +7,29 @@ import Link from 'next/link';
 const features = [
   {
     icon: Keyboard,
-    title: 'Keyboard Shortcuts',
-    description: 'Instantly pin/unpin windows with ⌥⌘P.',
+    title: 'Always‑on‑Top Hotkeys',
+    description: 'Keep a window always on top on Mac with ⌥⌘P.',
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
   },
   {
     icon: Menu,
-    title: 'One-click Menu Bar Control',
-    description: 'Manage pinned windows with a simple menu.',
+    title: 'Menu Bar Always‑on‑Top',
+    description: 'Pin/unpin and manage pinned windows from the menu bar.',
     color: 'text-green-600',
     bgColor: 'bg-green-50',
   },
   {
     icon: Monitor,
-    title: 'Multi-Window Support',
-    description: 'Pin and manage multiple windows simultaneously.',
+    title: 'Multi‑Window Always‑on‑Top',
+    description: 'Pin and keep multiple windows on top simultaneously.',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
   },
   {
     icon: Zap,
     title: 'Lightweight & Fast',
-    description: 'Minimal CPU usage, works seamlessly in the background.',
+    description: 'Minimal CPU usage while keeping windows always on top.',
     color: 'text-orange-600',
     bgColor: 'bg-orange-50',
   },
@@ -47,10 +47,11 @@ export default function FeaturesSection() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className='heading-md mb-4'>Why Choose TopWindow?</h2>
+          <h2 className='heading-md mb-4'>Why Choose TopWindow for Always‑on‑Top</h2>
           <p className='text-body max-w-2xl mx-auto'>
-            Designed with simplicity and efficiency in mind, TopWindow provides
-            the perfect balance of power and ease of use.
+            Designed with simplicity and efficiency in mind, TopWindow keeps
+            windows always on top on Mac with the perfect balance of power and
+            ease of use.
           </p>
         </motion.div>
 

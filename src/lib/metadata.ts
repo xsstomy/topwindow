@@ -8,6 +8,8 @@ export const siteConfig = {
     'TopWindow is a macOS utility that keeps any window always on top. Lightweight, fast, and customizable with hotkeys and ScreenCaptureKit support. Download now to boost productivity.',
   url: 'https://topwindow.app',
   ogImage: '/images/og-image.svg',
+  // Prefer PNG/JPG for social previews; keep SVG as fallback
+  ogImagePng: '/images/og-image.png',
   creator: 'TopWindow',
   keywords: [
     // Enhanced keyword strategy
@@ -45,6 +47,9 @@ export const defaultMetadata: Metadata = {
   authors: [{ name: siteConfig.creator }],
   creator: siteConfig.creator,
   metadataBase: new URL(siteConfig.url),
+  alternates: {
+    canonical: siteConfig.url,
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -53,6 +58,13 @@ export const defaultMetadata: Metadata = {
     description: siteConfig.description,
     siteName: siteConfig.name,
     images: [
+      {
+        url: siteConfig.ogImagePng,
+        width: 1200,
+        height: 630,
+        alt: siteConfig.title,
+      },
+      // Fallback in case some clients accept the SVG
       {
         url: siteConfig.ogImage,
         width: 1200,
@@ -65,8 +77,7 @@ export const defaultMetadata: Metadata = {
     card: 'summary_large_image',
     title: siteConfig.title,
     description: siteConfig.description,
-    images: [siteConfig.ogImage],
-    creator: '@topwindow',
+    images: [siteConfig.ogImagePng, siteConfig.ogImage],
   },
   icons: {
     icon: [

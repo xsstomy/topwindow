@@ -4,7 +4,19 @@ import Footer from '@/components/Footer';
 
 export const metadata = generatePageMetadata('releases');
 
-const releases = [
+interface ReleaseItem {
+  version: string;
+  date: string;
+  type: 'major' | 'minor' | 'patch';
+  downloadUrl: string;
+  size: string;
+  features: string[];
+  improvements: string[];
+  bugFixes: string[];
+  note?: string;
+}
+
+const releases: ReleaseItem[] = [
   {
     version: '1.2.0',
     date: '2025-01-06',

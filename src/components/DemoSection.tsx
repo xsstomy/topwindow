@@ -49,10 +49,10 @@ export default function DemoSection() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className='heading-md mb-4'>See It in Action</h2>
+          <h2 className='heading-md mb-4'>See Always‑on‑Top in Action</h2>
           <p className='text-body max-w-2xl mx-auto'>
             TopWindow makes window management effortless. Watch how simple it is
-            to keep any window always on top.
+            to keep any window always on top on Mac.
           </p>
         </motion.div>
 

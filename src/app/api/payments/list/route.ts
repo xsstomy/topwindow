@@ -69,12 +69,12 @@ export async function GET(request: NextRequest) {
             code: 'DATABASE_ERROR',
             details:
               process.env.NODE_ENV === 'development'
-                ? paymentsError.message
+                ? { message: paymentsError.message }
                 : undefined,
           },
-        } satisfies ApiResponse,
-        { status: 500 }
-      );
+      } satisfies ApiResponse,
+      { status: 500 }
+    );
     }
 
     // Transform the data to match the expected format
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
                     error instanceof Error ? error.message : 'Unknown error',
                 }
               : undefined,
-        },
+      },
       } satisfies ApiResponse,
       { status: 500 }
     );

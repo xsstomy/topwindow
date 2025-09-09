@@ -2,6 +2,28 @@ import { Metadata } from 'next';
 import { siteConfig } from './metadata';
 
 export const pageMetadata = {
+  pricing: {
+    title:
+      'TopWindow Pricing – Always on Top for macOS | Lifetime License',
+    description:
+      'Simple pricing for TopWindow, the macOS always-on-top utility. One-time purchase for a lifetime license. Try free for 7 days, then unlock all professional features.',
+    keywords: [
+      ...siteConfig.keywords,
+      'TopWindow pricing',
+      'buy TopWindow',
+      'TopWindow license',
+      'macOS utility price',
+      'always on top mac price',
+      'keep window on top mac pricing',
+      'pin window on top mac cost',
+    ] as string[],
+    openGraph: {
+      title: 'TopWindow Pricing – Lifetime License for macOS',
+      description:
+        'Always on Top for macOS. One-time purchase, lifetime usage. Free 7-day trial, then upgrade to unlock professional features.',
+      url: `${siteConfig.url}/pricing`,
+    },
+  },
   download: {
     title: 'Download TopWindow - Free macOS Window Management Tool',
     description:
@@ -161,12 +183,21 @@ export function generatePageMetadata(
     title: pageData.title,
     description: pageData.description,
     keywords: pageData.keywords,
+    alternates: {
+      canonical: pageData.openGraph.url,
+    },
     openGraph: {
       ...pageData.openGraph,
       type: 'website',
       locale: 'en_US',
       siteName: siteConfig.name,
       images: [
+        {
+          url: siteConfig.ogImagePng,
+          width: 1200,
+          height: 630,
+          alt: pageData.openGraph.title,
+        },
         {
           url: siteConfig.ogImage,
           width: 1200,
@@ -179,8 +210,7 @@ export function generatePageMetadata(
       card: 'summary_large_image',
       title: pageData.openGraph.title,
       description: pageData.openGraph.description,
-      images: [siteConfig.ogImage],
-      creator: '@topwindow',
+      images: [siteConfig.ogImagePng, siteConfig.ogImage],
     },
   };
 }

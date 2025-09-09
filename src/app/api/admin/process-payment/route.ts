@@ -139,7 +139,9 @@ export async function POST(request: NextRequest) {
         message: 'Failed to process payment',
         error: {
           code: 'PROCESSING_ERROR',
-          details: error instanceof Error ? error.message : 'Unknown error',
+          details: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+          },
         },
       } satisfies ApiResponse,
       { status: 500 }

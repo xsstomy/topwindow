@@ -38,7 +38,7 @@ const features = [
     id: 'always-on-top',
     title: 'Always on Top',
     description:
-      'Keep any window visible above all other applications with one click. Perfect for multitasking and reference materials.',
+      'Keep any window always on top on Mac (macOS). Pin or float windows above others with one click. Perfect for multitasking and reference materials.',
     icon: Monitor,
     color: 'blue',
     href: '/features/always-on-top',
@@ -140,14 +140,14 @@ export default function FeaturesPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto text-center'>
             <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
-              Powerful Features for{' '}
-              <span className='text-primary'>macOS Window Management</span>
+              TopWindow Features for{' '}
+              <span className='text-primary'>Always on Top</span> on Mac
             </h1>
 
             <p className='text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed'>
               TopWindow combines native macOS integration with advanced window
-              management capabilities. Discover all the features that make
-              window management effortless and efficient.
+              controls to keep a window always on top on Mac. Discover features
+              that help you pin, keep, or float windows for effortless workflows.
             </p>
 
             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
@@ -170,7 +170,9 @@ export default function FeaturesPage() {
             <div className='grid lg:grid-cols-2 gap-8'>
               {features.map((feature, index) => {
                 const Icon = feature.icon;
-                const colors = colorClasses[feature.color];
+                const colors = colorClasses[
+                  feature.color as keyof typeof colorClasses
+                ];
 
                 return (
                   <div
@@ -226,7 +228,7 @@ export default function FeaturesPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Why Choose TopWindow?
+              Why Choose TopWindow for Always‑on‑Top
             </h2>
 
             <div className='grid md:grid-cols-3 gap-8'>
@@ -274,7 +276,7 @@ export default function FeaturesPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Works with Your Favorite Apps
+              Always‑on‑Top Works with Your Favorite Apps
             </h2>
 
             <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
@@ -323,7 +325,7 @@ export default function FeaturesPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-2xl mx-auto text-center'>
             <h2 className='text-3xl font-bold mb-4'>
-              Ready to Transform Your Workflow?
+              Ready for Always‑on‑Top on Mac?
             </h2>
             <p className='text-gray-600 mb-8'>
               Experience all TopWindow features with our free trial. No credit

@@ -75,7 +75,9 @@ export async function POST(request: NextRequest) {
         message: 'Failed to send test email',
         error: {
           code: 'SEND_ERROR',
-          details: error instanceof Error ? error.message : 'Unknown error',
+          details: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+          },
         },
       } satisfies ApiResponse,
       { status: 500 }
@@ -109,7 +111,9 @@ export async function GET() {
         message: 'Email service health check failed',
         error: {
           code: 'HEALTH_CHECK_ERROR',
-          details: error instanceof Error ? error.message : 'Unknown error',
+          details: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+          },
         },
       } satisfies ApiResponse,
       { status: 500 }

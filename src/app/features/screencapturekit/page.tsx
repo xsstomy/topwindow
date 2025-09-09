@@ -12,22 +12,20 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'ScreenCaptureKit Integration for Precise Window Control | TopWindow',
+  title: 'ScreenCaptureKit for Always-on-Top on Mac | TopWindow',
   description:
-    'Learn how TopWindow uses macOS ScreenCaptureKit framework for secure, efficient window management. Modern Apple API integration ensures compatibility and performance.',
+    'How TopWindow uses Apple ScreenCaptureKit for secure, efficient always-on-top window control on macOS. Modern APIs for reliable performance.',
   keywords: [
     'ScreenCaptureKit macOS',
-    'ScreenCaptureKit window management',
-    'macOS ScreenCaptureKit API',
-    'Apple ScreenCaptureKit integration',
-    'macOS system framework',
+    'always on top mac',
+    'keep window on top macOS',
     'secure window control mac',
-    'modern macOS APIs',
+    'Apple ScreenCaptureKit integration',
   ],
   openGraph: {
-    title: 'ScreenCaptureKit Integration - TopWindow',
+    title: 'ScreenCaptureKit for Always-on-Top on Mac – TopWindow',
     description:
-      'Modern macOS framework integration for secure and efficient window management.',
+      'Modern Apple framework powering secure, efficient always-on-top behavior on macOS.',
     type: 'article',
   },
 };
@@ -58,7 +56,7 @@ export default function ScreenCaptureKitPage() {
             </div>
 
             <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
-              <span className='text-primary'>ScreenCaptureKit</span> Integration
+              <span className='text-primary'>ScreenCaptureKit</span> for Always‑on‑Top on Mac
             </h1>
 
             <p className='text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed'>
@@ -91,7 +89,7 @@ export default function ScreenCaptureKitPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              What is ScreenCaptureKit?
+              What is Apple ScreenCaptureKit?
             </h2>
 
             <div className='grid lg:grid-cols-2 gap-12 items-center'>
@@ -190,7 +188,7 @@ export default function ScreenCaptureKitPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              How TopWindow Leverages ScreenCaptureKit
+              How TopWindow Uses ScreenCaptureKit for Always‑on‑Top
             </h2>
 
             <div className='grid md:grid-cols-2 gap-8'>

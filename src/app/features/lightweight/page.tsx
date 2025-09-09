@@ -12,22 +12,20 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Lightweight macOS Utility for Enhanced Performance | TopWindow',
+  title: 'Lightweight Always-on-Top Utility for macOS | TopWindow',
   description:
-    'TopWindow uses minimal system resources - under 20MB RAM, negligible CPU usage. Experience fast, efficient window management without slowing down your Mac.',
+    'Lightweight always-on-top utility for Mac. Under 20MB RAM and negligible CPU impact to keep windows on top without slowing down your macOS.',
   keywords: [
+    'lightweight always on top mac',
     'lightweight macOS utility',
     'low memory mac app',
     'efficient window manager',
     'minimal CPU usage mac',
-    'fast macOS app',
-    'lightweight productivity tool',
-    'system performance mac',
   ],
   openGraph: {
-    title: 'Lightweight & Fast Performance - TopWindow',
+    title: 'Lightweight Always-on-Top Utility for macOS – TopWindow',
     description:
-      'Minimal system impact with maximum functionality. TopWindow runs efficiently in the background.',
+      'Minimal system impact with maximum functionality. Keep windows always on top on Mac with native efficiency.',
     type: 'article',
   },
 };
@@ -58,7 +56,7 @@ export default function LightweightPage() {
             </div>
 
             <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
-              <span className='text-primary'>Lightweight</span> & Lightning Fast
+              <span className='text-primary'>Lightweight</span> Always‑on‑Top Utility for macOS
             </h1>
 
             <p className='text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed'>
@@ -114,7 +112,7 @@ export default function LightweightPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Why Performance Matters
+              Why Performance Matters for Always‑on‑Top
             </h2>
 
             <div className='grid lg:grid-cols-2 gap-12 items-center'>

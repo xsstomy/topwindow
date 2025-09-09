@@ -48,7 +48,9 @@ export async function GET(request: NextRequest) {
         message: 'Failed to fetch license',
         error: {
           code: 'FETCH_ERROR',
-          details: error instanceof Error ? error.message : 'Unknown error',
+          details: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+          },
         },
       } satisfies ApiResponse,
       { status: 500 }

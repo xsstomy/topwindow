@@ -11,22 +11,20 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Custom Hotkeys for Window Management | TopWindow',
+  title: 'Hotkeys for Always on Top on Mac | TopWindow',
   description:
-    "Master TopWindow's keyboard shortcuts. Use ⌥⌘P to instantly pin windows, customize hotkeys, and boost your macOS productivity with lightning-fast window management.",
+    "Customize hotkeys to keep a window always on top on macOS. Use ⌥⌘P to pin or unpin instantly and boost productivity.",
   keywords: [
-    'macOS window hotkeys',
-    'keyboard shortcuts mac window',
-    'TopWindow hotkeys',
-    'macOS window management shortcuts',
-    'pin window keyboard shortcut',
     'always on top hotkey mac',
-    'custom keyboard shortcuts macOS',
+    'macOS window hotkeys',
+    'pin window keyboard shortcut',
+    'keep window on top mac shortcut',
+    'TopWindow hotkeys',
   ],
   openGraph: {
-    title: 'Custom Hotkeys for Window Management - TopWindow',
+    title: 'Hotkeys for Always on Top on Mac – TopWindow',
     description:
-      'Lightning-fast window pinning with customizable keyboard shortcuts. Pin any window with ⌥⌘P.',
+      'Pin or unpin any window with ⌥⌘P. Customize shortcuts for faster always-on-top workflow on macOS.',
     type: 'article',
   },
 };
@@ -57,8 +55,8 @@ export default function HotkeysPage() {
             </div>
 
             <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
-              Lightning-Fast{' '}
-              <span className='text-primary'>Keyboard Shortcuts</span>
+              Hotkeys for{' '}
+              <span className='text-primary'>Always on Top</span> on Mac
             </h1>
 
             <p className='text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed'>
@@ -112,7 +110,7 @@ export default function HotkeysPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Available Keyboard Shortcuts
+              Always‑on‑Top Hotkeys
             </h2>
 
             <div className='grid md:grid-cols-2 gap-8'>
@@ -189,7 +187,7 @@ export default function HotkeysPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Customize Your Hotkeys
+              Customize Always‑on‑Top Hotkeys
             </h2>
 
             <div className='bg-white p-8 rounded-2xl shadow-lg'>
@@ -285,7 +283,7 @@ export default function HotkeysPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Productivity Tips
+              Always‑on‑Top Productivity Tips
             </h2>
 
             <div className='grid md:grid-cols-3 gap-8'>
@@ -448,7 +446,7 @@ export default function HotkeysPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-3xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Hotkey Questions
+              Always‑on‑Top Hotkey Questions
             </h2>
 
             <div className='space-y-6'>
@@ -506,7 +504,7 @@ export default function HotkeysPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-2xl mx-auto text-center'>
             <h2 className='text-3xl font-bold mb-4'>
-              Start Using Powerful Hotkeys Today
+              Start Using Always‑on‑Top Hotkeys Today
             </h2>
             <p className='text-gray-600 mb-8'>
               Experience lightning-fast window management with TopWindow's

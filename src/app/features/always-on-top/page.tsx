@@ -10,22 +10,21 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Keep Any macOS Window Always on Top | TopWindow Feature',
+  title: 'Keep Any Window Always on Top on Mac | TopWindow',
   description:
-    'Learn how TopWindow keeps any window always on top on macOS. Pin Safari, Chrome, Finder, or any app window to stay visible above all other applications with one click.',
+    'Use TopWindow to keep a window always on top on macOS. Pin or float Safari, Chrome, Finder, or any app window above others with one click or ⌥⌘P.',
   keywords: [
-    'macOS window always on top',
+    'always on top mac',
+    'keep window on top macOS',
     'pin window on top mac',
-    'keep Safari always on top',
     'macOS window pinning',
-    'top window mac app',
-    'always visible window macOS',
+    'always visible window mac',
     'window stays on top mac',
   ],
   openGraph: {
-    title: 'Keep Any macOS Window Always on Top - TopWindow',
+    title: 'Keep Any Window Always on Top on Mac – TopWindow',
     description:
-      'Pin any macOS window to stay always on top. Perfect for multitasking and keeping important windows visible.',
+      'Pin or float any macOS window to stay always on top. Ideal for multitasking and persistent reference.',
     type: 'article',
   },
 };
@@ -56,8 +55,8 @@ export default function AlwaysOnTopPage() {
             </div>
 
             <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
-              Keep Any macOS Window{' '}
-              <span className='text-primary'>Always on Top</span>
+              Keep Any Window{' '}
+              <span className='text-primary'>Always on Top</span> on Mac
             </h1>
 
             <p className='text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed'>
@@ -90,7 +89,7 @@ export default function AlwaysOnTopPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              How Window Pinning Works
+              How Always‑on‑Top Works on Mac
             </h2>
 
             <div className='grid md:grid-cols-3 gap-8'>
@@ -141,7 +140,7 @@ export default function AlwaysOnTopPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Perfect for These Scenarios
+              Popular Always‑on‑Top Use Cases
             </h2>
 
             <div className='grid md:grid-cols-2 gap-8'>
@@ -260,7 +259,7 @@ export default function AlwaysOnTopPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-4xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              How TopWindow Makes It Possible
+              How TopWindow Enables Always‑on‑Top
             </h2>
 
             <div className='prose prose-lg max-w-none'>
@@ -327,7 +326,7 @@ export default function AlwaysOnTopPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-3xl mx-auto'>
             <h2 className='text-3xl font-bold text-center mb-12'>
-              Frequently Asked Questions
+              Always‑on‑Top FAQ
             </h2>
 
             <div className='space-y-6'>
