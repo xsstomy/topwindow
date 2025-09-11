@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/dashboard/',
           '/admin/',
-          '/auth/',
+          // 允许抓取 auth 页面，但在页面层设置 noindex
           '/api/',
           '/_next/',
           '/test-*',

@@ -27,6 +27,9 @@ export const metadata: Metadata = {
       'Pin or float any macOS window to stay always on top. Ideal for multitasking and persistent reference.',
     type: 'article',
   },
+  alternates: {
+    canonical: '/features/always-on-top/',
+  },
 };
 
 export default function AlwaysOnTopPage() {

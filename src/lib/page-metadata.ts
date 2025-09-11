@@ -21,7 +21,7 @@ export const pageMetadata = {
       title: 'TopWindow Pricing – Lifetime License for macOS',
       description:
         'Always on Top for macOS. One-time purchase, lifetime usage. Free 7-day trial, then upgrade to unlock professional features.',
-      url: `${siteConfig.url}/pricing`,
+      url: `${siteConfig.url}/pricing/`,
     },
   },
   download: {
@@ -40,7 +40,7 @@ export const pageMetadata = {
       title: 'Download TopWindow - Free macOS Window Management',
       description:
         'Get TopWindow for macOS now. Professional window management with one-click pinning and keyboard shortcuts.',
-      url: `${siteConfig.url}/download`,
+      url: `${siteConfig.url}/download/`,
     },
   },
 
@@ -59,7 +59,7 @@ export const pageMetadata = {
       title: 'TopWindow FAQ - Get Help with Window Management',
       description:
         'Common questions and answers about TopWindow window management for macOS.',
-      url: `${siteConfig.url}/faq`,
+      url: `${siteConfig.url}/faq/`,
     },
   },
 
@@ -78,7 +78,7 @@ export const pageMetadata = {
       title: 'TopWindow Documentation - Complete User Guide',
       description:
         'Learn everything about TopWindow window management for macOS with our complete documentation.',
-      url: `${siteConfig.url}/docs`,
+      url: `${siteConfig.url}/docs/`,
     },
   },
 
@@ -97,7 +97,7 @@ export const pageMetadata = {
       title: 'TopWindow Release Notes - Latest Updates',
       description:
         'Stay updated with the latest TopWindow features and improvements for macOS.',
-      url: `${siteConfig.url}/releases`,
+      url: `${siteConfig.url}/releases/`,
     },
   },
 
@@ -116,7 +116,7 @@ export const pageMetadata = {
       title: 'TopWindow System Requirements',
       description:
         'System requirements and compatibility information for TopWindow on macOS.',
-      url: `${siteConfig.url}/requirements`,
+      url: `${siteConfig.url}/requirements/`,
     },
   },
 
@@ -135,7 +135,7 @@ export const pageMetadata = {
       title: 'TopWindow Privacy Policy',
       description:
         'Learn about our privacy-first approach. No data collection or tracking.',
-      url: `${siteConfig.url}/privacy`,
+      url: `${siteConfig.url}/privacy/`,
     },
   },
 
@@ -152,7 +152,7 @@ export const pageMetadata = {
     openGraph: {
       title: 'TopWindow Terms of Service',
       description: 'Terms of service and usage guidelines for TopWindow.',
-      url: `${siteConfig.url}/terms`,
+      url: `${siteConfig.url}/terms/`,
     },
   },
 
@@ -169,7 +169,7 @@ export const pageMetadata = {
     openGraph: {
       title: 'TopWindow Refund Policy',
       description: 'Refund policy and billing support for TopWindow users.',
-      url: `${siteConfig.url}/refunds`,
+      url: `${siteConfig.url}/refunds/`,
     },
   },
 } as const;

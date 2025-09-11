@@ -27,6 +27,9 @@ export const metadata: Metadata = {
       'Pin or unpin any window with ⌥⌘P. Customize shortcuts for faster always-on-top workflow on macOS.',
     type: 'article',
   },
+  alternates: {
+    canonical: '/features/hotkeys/',
+  },
 };
 
 export default function HotkeysPage() {

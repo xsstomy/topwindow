@@ -28,6 +28,9 @@ export const metadata: Metadata = {
       'Modern Apple framework powering secure, efficient always-on-top behavior on macOS.',
     type: 'article',
   },
+  alternates: {
+    canonical: '/features/screencapturekit/',
+  },
 };
 
 export default function ScreenCaptureKitPage() {

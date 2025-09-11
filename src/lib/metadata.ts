@@ -47,9 +47,8 @@ export const defaultMetadata: Metadata = {
   authors: [{ name: siteConfig.creator }],
   creator: siteConfig.creator,
   metadataBase: new URL(siteConfig.url),
-  alternates: {
-    canonical: siteConfig.url,
-  },
+  // 注意：不在全局设置 canonical，避免所有页面错误继承为首页。
+  // 各页面应单独设置自己的 canonical。
   openGraph: {
     type: 'website',
     locale: 'en_US',

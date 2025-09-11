@@ -31,6 +31,9 @@ export const metadata: Metadata = {
       "Explore TopWindow's powerful features designed to enhance your macOS productivity and workflow.",
     type: 'article',
   },
+  alternates: {
+    canonical: '/features/',
+  },
 };
 
 const features = [
@@ -41,7 +44,7 @@ const features = [
       'Keep any window always on top on Mac (macOS). Pin or float windows above others with one click. Perfect for multitasking and reference materials.',
     icon: Monitor,
     color: 'blue',
-    href: '/features/always-on-top',
+    href: '/features/always-on-top/',
     highlights: [
       'Works with any macOS app',
       'Instant pin/unpin toggle',
@@ -55,7 +58,7 @@ const features = [
       'Lightning-fast keyboard shortcuts for window management. Fully customizable with conflict detection.',
     icon: Keyboard,
     color: 'purple',
-    href: '/features/hotkeys',
+    href: '/features/hotkeys/',
     highlights: [
       'Default ⌥⌘P shortcut',
       'Fully customizable',
@@ -69,7 +72,7 @@ const features = [
       'Minimal resource usage with maximum functionality. Native macOS integration without bloat.',
     icon: Zap,
     color: 'green',
-    href: '/features/lightweight',
+    href: '/features/lightweight/',
     highlights: [
       'Native performance',
       'Low memory footprint',
@@ -83,7 +86,7 @@ const features = [
       "Advanced window detection using Apple's latest ScreenCaptureKit API for reliable window management.",
     icon: Camera,
     color: 'orange',
-    href: '/features/screencapturekit',
+    href: '/features/screencapturekit/',
     highlights: [
       'Apple latest technology',
       'Precise window detection',
@@ -175,7 +178,8 @@ export default function FeaturesPage() {
                 ];
 
                 return (
-                  <div
+                  <Link
+                    href={feature.href}
                     key={feature.id}
                     className={`bg-gradient-to-br ${colors.gradient} p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
                   >
@@ -206,16 +210,15 @@ export default function FeaturesPage() {
                           ))}
                         </div>
 
-                        <Link
-                          href={feature.href}
+                        <div
                           className={`inline-flex items-center gap-2 ${colors.button} px-6 py-3 rounded-lg font-medium transition-colors`}
                         >
                           Learn More
                           <ArrowRight size={16} />
-                        </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

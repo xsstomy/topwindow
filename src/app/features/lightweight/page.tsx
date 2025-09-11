@@ -28,6 +28,9 @@ export const metadata: Metadata = {
       'Minimal system impact with maximum functionality. Keep windows always on top on Mac with native efficiency.',
     type: 'article',
   },
+  alternates: {
+    canonical: '/features/lightweight/',
+  },
 };
 
 export default function LightweightPage() {

@@ -3,7 +3,11 @@ import { FileText, Shield, User, Globe, CheckCircle, XCircle } from 'lucide-reac
 
 export const metadata: Metadata = {
   title: 'License Agreement - TopWindow',
-  description: 'TopWindow software license agreement, usage terms, and conditions. Learn about your rights and restrictions when using TopWindow.',
+  description:
+    'TopWindow software license agreement, usage terms, and conditions. Learn about your rights and restrictions when using TopWindow.',
+  alternates: {
+    canonical: '/license/',
+  },
 }
 
 export default function LicensePage() {

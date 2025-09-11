@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import HeroSection from "@/components/HeroSection";
 import DownloadSection from "@/components/DownloadSection";
 import FeaturesSection from "@/components/FeaturesSection";
@@ -5,6 +6,12 @@ import DemoSection from "@/components/DemoSection";
 import SupportSection from "@/components/SupportSection";
 import PricingSection from "@/components/PricingSection";
 import Footer from "@/components/Footer";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function HomePage() {
     return (

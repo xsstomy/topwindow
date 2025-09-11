@@ -11,6 +11,7 @@ const features = [
     description: 'Keep a window always on top on Mac with ⌥⌘P.',
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
+    href: '/features/hotkeys/',
   },
   {
     icon: Menu,
@@ -18,6 +19,7 @@ const features = [
     description: 'Pin/unpin and manage pinned windows from the menu bar.',
     color: 'text-green-600',
     bgColor: 'bg-green-50',
+    href: '/features/always-on-top/',
   },
   {
     icon: Monitor,
@@ -25,6 +27,7 @@ const features = [
     description: 'Pin and keep multiple windows on top simultaneously.',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
+    href: '/features/always-on-top/',
   },
   {
     icon: Zap,
@@ -32,6 +35,7 @@ const features = [
     description: 'Minimal CPU usage while keeping windows always on top.',
     color: 'text-orange-600',
     bgColor: 'bg-orange-50',
+    href: '/features/lightweight/',
   },
 ];
 
@@ -67,6 +71,7 @@ export default function FeaturesSection() {
               viewport={{ once: true }}
               whileHover={{ y: -8 }}
             >
+              <Link href={feature.href} className='block'>
               <div className='bg-white rounded-2xl p-8 shadow-lg border border-gray-100 h-full transition-all duration-300 group-hover:shadow-2xl group-hover:border-primary/20'>
                 {/* Icon */}
                 <motion.div
@@ -89,6 +94,7 @@ export default function FeaturesSection() {
                 {/* Hover decoration */}
                 <div className='absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
               </div>
+              </Link>
             </motion.div>
           ))}
         </div>
