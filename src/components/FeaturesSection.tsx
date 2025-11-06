@@ -51,7 +51,9 @@ export default function FeaturesSection() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className='heading-md mb-4'>Why Choose TopWindow for Always‑on‑Top</h2>
+          <h2 className='heading-md mb-4'>
+            Why Choose TopWindow for Always‑on‑Top
+          </h2>
           <p className='text-body max-w-2xl mx-auto'>
             Designed with simplicity and efficiency in mind, TopWindow keeps
             windows always on top on Mac with the perfect balance of power and
@@ -72,28 +74,28 @@ export default function FeaturesSection() {
               whileHover={{ y: -8 }}
             >
               <Link href={feature.href} className='block'>
-              <div className='bg-white rounded-2xl p-8 shadow-lg border border-gray-100 h-full transition-all duration-300 group-hover:shadow-2xl group-hover:border-primary/20'>
-                {/* Icon */}
-                <motion.div
-                  className={`w-16 h-16 rounded-2xl ${feature.bgColor} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
-                  whileHover={{ rotate: 5 }}
-                >
-                  <feature.icon className={`w-8 h-8 ${feature.color}`} />
-                </motion.div>
+                <div className='bg-white rounded-2xl p-8 shadow-lg border border-gray-100 h-full transition-all duration-300 group-hover:shadow-2xl group-hover:border-primary/20'>
+                  {/* Icon */}
+                  <motion.div
+                    className={`w-16 h-16 rounded-2xl ${feature.bgColor} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                    whileHover={{ rotate: 5 }}
+                  >
+                    <feature.icon className={`w-8 h-8 ${feature.color}`} />
+                  </motion.div>
 
-                {/* Title */}
-                <h3 className='text-xl font-semibold text-gray-text mb-4'>
-                  {feature.title}
-                </h3>
+                  {/* Title */}
+                  <h3 className='text-xl font-semibold text-gray-text mb-4'>
+                    {feature.title}
+                  </h3>
 
-                {/* Description */}
-                <p className='text-gray-secondary leading-relaxed'>
-                  {feature.description}
-                </p>
+                  {/* Description */}
+                  <p className='text-gray-secondary leading-relaxed'>
+                    {feature.description}
+                  </p>
 
-                {/* Hover decoration */}
-                <div className='absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
-              </div>
+                  {/* Hover decoration */}
+                  <div className='absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
+                </div>
               </Link>
             </motion.div>
           ))}
@@ -107,25 +109,38 @@ export default function FeaturesSection() {
           transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
         >
-          <Link
-            href='/features'
-            className='inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors font-medium'
-          >
-            Explore All Features
-            <svg
-              className='w-4 h-4'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
+          <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
+            <Link
+              href='/features'
+              className='inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors font-medium'
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M9 5l7 7-7 7'
-              />
-            </svg>
-          </Link>
+              Explore All Features
+              <svg
+                className='w-4 h-4'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M9 5l7 7-7 7'
+                />
+              </svg>
+            </Link>
+
+            <div className='bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600'>
+              Looking for{' '}
+              <Link
+                href='/top-windows/'
+                className='text-primary font-medium underline hover:text-primary-dark'
+              >
+                window management comparisons
+              </Link>
+              ?
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>

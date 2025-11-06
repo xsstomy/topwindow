@@ -1,19 +1,12 @@
 import type { Metadata } from 'next';
-import {
-  ArrowLeft,
-  Keyboard,
-  Command,
-  Settings,
-  Zap,
-  PlayCircle,
-} from 'lucide-react';
+import { Keyboard, Command, Settings, Zap, PlayCircle } from 'lucide-react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Hotkeys for Always on Top on Mac | TopWindow',
   description:
-    "Customize hotkeys to keep a window always on top on macOS. Use ⌥⌘P to pin or unpin instantly and boost productivity.",
+    'Customize hotkeys to keep a window always on top on macOS. Use ⌥⌘P to pin or unpin instantly and boost productivity.',
   keywords: [
     'always on top hotkey mac',
     'macOS window hotkeys',
@@ -35,19 +28,6 @@ export const metadata: Metadata = {
 export default function HotkeysPage() {
   return (
     <main className='min-h-screen bg-white'>
-      {/* Navigation */}
-      <div className='bg-gray-50 border-b border-gray-200'>
-        <div className='container mx-auto px-4 py-4'>
-          <Link
-            href='/'
-            className='inline-flex items-center gap-2 text-gray-600 hover:text-primary transition-colors'
-          >
-            <ArrowLeft size={20} />
-            Back to TopWindow
-          </Link>
-        </div>
-      </div>
-
       {/* Hero Section */}
       <section className='py-20 bg-gradient-to-br from-purple-50 to-white'>
         <div className='container mx-auto px-4'>
@@ -58,8 +38,8 @@ export default function HotkeysPage() {
             </div>
 
             <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
-              Hotkeys for{' '}
-              <span className='text-primary'>Always on Top</span> on Mac
+              Hotkeys for <span className='text-primary'>Always on Top</span> on
+              Mac
             </h1>
 
             <p className='text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed'>

@@ -1,13 +1,5 @@
 import type { Metadata } from 'next';
-import {
-  ArrowLeft,
-  Shield,
-  Cpu,
-  Lock,
-  Zap,
-  PlayCircle,
-  CheckCircle,
-} from 'lucide-react';
+import { Shield, Cpu, Lock, Zap, PlayCircle, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 
@@ -36,19 +28,6 @@ export const metadata: Metadata = {
 export default function ScreenCaptureKitPage() {
   return (
     <main className='min-h-screen bg-white'>
-      {/* Navigation */}
-      <div className='bg-gray-50 border-b border-gray-200'>
-        <div className='container mx-auto px-4 py-4'>
-          <Link
-            href='/'
-            className='inline-flex items-center gap-2 text-gray-600 hover:text-primary transition-colors'
-          >
-            <ArrowLeft size={20} />
-            Back to TopWindow
-          </Link>
-        </div>
-      </div>
-
       {/* Hero Section */}
       <section className='py-20 bg-gradient-to-br from-indigo-50 to-white'>
         <div className='container mx-auto px-4'>
@@ -59,7 +38,8 @@ export default function ScreenCaptureKitPage() {
             </div>
 
             <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
-              <span className='text-primary'>ScreenCaptureKit</span> for Always‑on‑Top on Mac
+              <span className='text-primary'>ScreenCaptureKit</span> for
+              Always‑on‑Top on Mac
             </h1>
 
             <p className='text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed'>

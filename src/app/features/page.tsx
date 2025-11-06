@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import {
-  ArrowLeft,
   ArrowRight,
   Monitor,
   Keyboard,
@@ -125,19 +124,6 @@ const colorClasses = {
 export default function FeaturesPage() {
   return (
     <main className='min-h-screen bg-white'>
-      {/* Navigation */}
-      <div className='bg-gray-50 border-b border-gray-200'>
-        <div className='container mx-auto px-4 py-4'>
-          <Link
-            href='/'
-            className='inline-flex items-center gap-2 text-gray-600 hover:text-primary transition-colors'
-          >
-            <ArrowLeft size={20} />
-            Back to TopWindow
-          </Link>
-        </div>
-      </div>
-
       {/* Hero Section */}
       <section className='py-20 bg-gradient-to-br from-gray-50 to-white'>
         <div className='container mx-auto px-4'>
@@ -150,8 +136,23 @@ export default function FeaturesPage() {
             <p className='text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed'>
               TopWindow combines native macOS integration with advanced window
               controls to keep a window always on top on Mac. Discover features
-              that help you pin, keep, or float windows for effortless workflows.
+              that help you pin, keep, or float windows for effortless
+              workflows.
             </p>
+
+            <div className='bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8'>
+              <p className='text-blue-800'>
+                <strong>Looking for window management comparisons?</strong>{' '}
+                Check out our comprehensive guide to{' '}
+                <Link
+                  href='/top-windows/'
+                  className='text-primary underline hover:text-primary-dark font-medium'
+                >
+                  top window management apps
+                </Link>{' '}
+                for Mac and Windows.
+              </p>
+            </div>
 
             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
               <Link
@@ -173,9 +174,8 @@ export default function FeaturesPage() {
             <div className='grid lg:grid-cols-2 gap-8'>
               {features.map((feature, index) => {
                 const Icon = feature.icon;
-                const colors = colorClasses[
-                  feature.color as keyof typeof colorClasses
-                ];
+                const colors =
+                  colorClasses[feature.color as keyof typeof colorClasses];
 
                 return (
                   <Link

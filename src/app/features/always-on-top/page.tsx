@@ -1,11 +1,5 @@
 import type { Metadata } from 'next';
-import {
-  ArrowLeft,
-  Monitor,
-  Command,
-  CheckCircle,
-  PlayCircle,
-} from 'lucide-react';
+import { Monitor, Command, CheckCircle, PlayCircle } from 'lucide-react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 
@@ -35,19 +29,6 @@ export const metadata: Metadata = {
 export default function AlwaysOnTopPage() {
   return (
     <main className='min-h-screen bg-white'>
-      {/* Navigation */}
-      <div className='bg-gray-50 border-b border-gray-200'>
-        <div className='container mx-auto px-4 py-4'>
-          <Link
-            href='/'
-            className='inline-flex items-center gap-2 text-gray-600 hover:text-primary transition-colors'
-          >
-            <ArrowLeft size={20} />
-            Back to TopWindow
-          </Link>
-        </div>
-      </div>
-
       {/* Hero Section */}
       <section className='py-20 bg-gradient-to-br from-blue-50 to-white'>
         <div className='container mx-auto px-4'>

@@ -1,10 +1,10 @@
 {
-  "version": "v1.2.0-build.20250911.091328",
-  "timestamp": "2025-09-11T01:13:28.160Z",
+  "version": "v1.2.0-build.20251106.143413",
+  "timestamp": "2025-11-06T06:34:13.564Z",
   "baseVersion": "1.2.0",
-  "gitCommit": "01a9cdd",
-  "gitBranch": "fix-login-bug",
-  "buildDate": "20250911",
-  "buildTime": "091328",
+  "gitCommit": "4707c22",
+  "gitBranch": "seo-top-window",
+  "buildDate": "20251106",
+  "buildTime": "143413",
   "environment": "production"
 }
