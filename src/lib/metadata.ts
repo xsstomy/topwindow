@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 export const siteConfig = {
   name: 'TopWindow',
   title:
-    'TopWindow – Keep Windows Always on Top for macOS | Lightweight Productivity Tool',
+    'TopWindow – Keep Any Window Always on Top on macOS | Lightweight Top Windows App',
   description:
     'TopWindow is a macOS utility that keeps any window always on top. Lightweight, fast, and customizable with hotkeys and ScreenCaptureKit support. Download now to boost productivity.',
   url: 'https://topwindow.app',
@@ -16,6 +16,9 @@ export const siteConfig = {
     'mac window always on top',
     'macOS fix window on top',
     'TopWindow',
+    'top windows app',
+    'top windows mac',
+    'macOS top windows tool',
     'ScreenCaptureKit window pinning',
     'macOS window utility hotkey',
     'always on top keyboard shortcut',
@@ -112,7 +115,7 @@ export const defaultMetadata: Metadata = {
 export const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'TopWindow - Keep Any Window Always on Top for macOS',
+  name: 'TopWindow – Top Windows Utility for macOS (Always on Top App)',
   operatingSystem: 'macOS',
   applicationCategory: 'UtilityApplication',
   description:
@@ -159,7 +162,26 @@ export const videoStructuredData = {
   description:
     'See how TopWindow pins multiple windows on top simultaneously for enhanced macOS productivity',
   thumbnailUrl: '/images/video-thumbnail.jpg',
-  contentUrl: '/multipin.mp4',
+  contentUrl: 'https://topwindow.app/multipin.mp4',
+
   duration: 'PT2M30S',
   uploadDate: '2024-01-01',
+  embedUrl: 'https://topwindow.app/#demo-video',
+  publisher: { '@type': 'Organization', 'name': 'TopWindow' },
+
 };
+
+export const brandStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "Brand",
+  "name": "TopWindow",
+  "alternateName": "Top Windows App",
+  "url": "https://topwindow.app",
+  "logo": "https://topwindow.app/images/logo.png",
+  "sameAs": [
+    "https://www.producthunt.com/products/topwindow",
+    "https://twitter.com/topwindowapp",
+    "https://github.com/topwindowapp"
+  ]
+}
+
